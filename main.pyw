@@ -5,9 +5,11 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import tkinter.messagebox
 import json
+import sys
 
-objectValues = ["stats", "characters"]
-ignoredValues = ["ctxt", "out", "message", "memory"]
+objectValues = ("stats", "characters")
+ignoredValues = ("ctxt", "out", "message", "memory")
+levelValues = ("level", "experience", "skillpoints", "expToNextLvl")
 
 
 class Value(ttk.Frame):
@@ -21,6 +23,32 @@ class Value(ttk.Frame):
         self.val.grid(column=1, row=0)
 
 
+class Stat(ttk.Frame):
+    def __init__(self, master: tkinter.Misc | None = ..., text: str = "", *, values: dict = ..., **kwargs) -> None:
+        super().__init__(master, **kwargs)
+        self.text = ttk.Label(self, text=text)
+        self.text.grid(column=0, row=0)
+        self.vars = tuple(tk.IntVar(value=v) for v in values.values())
+        self.container = ttk.Frame(self)
+        self.container.grid(column=1, row=0)
+        self.level = ttk.Entry(self.container, textvariable=self.vars[0])
+        self.level.grid(column=1, row=0)
+        if Main.LTO:
+            ttk.Label(self.container, text="level: ").grid(column=0, row=0)
+            ttk.Label(self.container, text="exp: ").grid(column=0, row=1)
+            ttk.Label(self.container, text="exp to next lvl: ").grid(
+                column=0, row=2)
+            self.exp = ttk.Entry(self.container, textvariable=self.vars[1])
+            self.exp.grid(column=1, row=1)
+            self.expToNextLvl = ttk.Entry(
+                self.container, textvariable=self.vars[2])
+            self.expToNextLvl.grid(column=1, row=2)
+
+    @property
+    def val(self):
+        return tk.Variable(value={"level": self.level.get(), "experience": 0, "expToNextLvl": self.level.get}) if not Main.LTO else tk.Variable(value={"level": self.level.get(), "experience": self.exp.get(), "expToNextLvl": self.expToNextLvl.get()})
+
+
 class CharacterWindow(tk.Toplevel):
     windows: list[str] = []
 
@@ -30,19 +58,48 @@ class CharacterWindow(tk.Toplevel):
             self.destroy()
             return
         CharacterWindow.windows.append(charName)
-        print(CharacterWindow.windows)
         self.title(charName)
-        self.stats: defaultdict[str, tk.StringVar] = defaultdict(
-            tk.StringVar, {k: tk.StringVar(value=v) for k, v in Main.state["characters"][charName].items()}.items())
+        self.stats: defaultdict[str, tk.StringVar | dict] = defaultdict(
+            tk.StringVar, {k: tk.StringVar(value=v) if not isinstance(v, dict) else v for k, v in Main.state["characters"][charName].items()}.items())
 
-        self.geometry("300x300")
+        self.geometry("700x300")
+
+        # Enabling scrolling
+        _on_mousewheel = {"win32": lambda event: contentField.yview_scroll(
+            int(-1*(event.delta/120)), "units"), "darwin": lambda event: contentField.yview_scroll(int(event.delta), "units")}
+        contentField = tk.Canvas(self)
+        if sys.platform != "linux2":
+            contentField.bind_all("<MouseWheel>", _on_mousewheel[sys.platform])
+        else:
+            contentField.bind_all(
+                "<Button-4>", lambda event: contentField.yview_scroll(int((event.delta/120)), "units"))
+            contentField.bind_all(
+                "<Button-5>", lambda event: contentField.yview_scroll(int(-1*(event.delta/120)), "units"))
+
+        contentVSB = ttk.Scrollbar(
+            self, orient=tk.VERTICAL, command=contentField.yview)
+        contentHSB = ttk.Scrollbar(
+            self, orient=tk.HORIZONTAL, command=contentField.xview)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        contentField.configure(
+            xscrollcommand=contentHSB.set, yscrollcommand=contentVSB.set)
+        contentField.grid(column=0, row=0, sticky=tk.NSEW)
+        contentVSB.grid(column=1, row=0, sticky=tk.NS)
+        contentHSB.grid(column=0, row=1, sticky=tk.EW)
+        contentField.bind("<Configure>", lambda event: contentField.configure(
+            scrollregion=contentField.bbox("all")))
+
         self.statsValues: dict[str, Value] = {}
-        # hp = Value(self, "HP: ", textvar=CharacterWindow.stats["hp"])
-        # hp.grid(column=0, row=0)
+        mod = 1.5 if Main.LTO else 1
         for i, (stat, val) in enumerate(self.stats.items()):
+            if stat in levelValues and Main.LTO:
+                continue
             self.statsValues[stat] = Value(
-                self, f"{stat.upper()}: ", textvar=val)
-            self.statsValues[stat].grid(column=0, row=i)
+                self, f"{stat.upper()}: ", textvar=val) if isinstance(val, tk.StringVar)\
+                else Stat(self, f"{stat.upper()}: ", values=val)
+            contentField.create_window(
+                0, 45*mod*i, anchor=tk.NW, window=self.statsValues[stat])
 
         def close(self: CharacterWindow):
             CharacterWindow.windows.remove(charName)
@@ -155,6 +212,8 @@ class Main(tk.Tk):
             "options": options, "characters": characters}
         # Values at the bottom
         bot = ttk.Frame(self)
+        ttk.Button(bot, text="print state", command=lambda: print(
+            Main.state)).grid(column=0, row=0)
         bot.grid(column=0, row=2)
 
 
