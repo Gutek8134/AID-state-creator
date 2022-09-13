@@ -1,4 +1,5 @@
 from collections import defaultdict
+from email.headerregistry import Group
 from functools import partial
 from typing import Any
 import tkinter as tk
@@ -6,6 +7,7 @@ import tkinter.ttk as ttk
 import tkinter.messagebox
 import json
 import sys
+import re
 
 objectValues = ("stats", "characters")
 ignoredValues = ("ctxt", "out", "message", "memory")
@@ -24,9 +26,11 @@ class Value(ttk.Frame):
 
 
 class Stat(ttk.Frame):
-    def __init__(self, master: tkinter.Misc | None = ..., text: str = "", *, values: dict = ..., **kwargs) -> None:
+    def __init__(self, master: tkinter.Misc | None = ..., stat: str = "", *, values: dict = ..., **kwargs) -> None:
+        if stat not in Main.state["stats"]:
+            Main.state["stats"].append(stat)
         super().__init__(master, **kwargs)
-        self.text = ttk.Label(self, text=text)
+        self.text = ttk.Label(self, text=f"{stat.upper()}: ")
         self.text.grid(column=0, row=0)
         self.vars = tuple(tk.IntVar(value=v) for v in values.values())
         self.container = ttk.Frame(self)
@@ -46,7 +50,11 @@ class Stat(ttk.Frame):
 
     @property
     def val(self):
-        return tk.Variable(value={"level": self.level.get(), "experience": 0, "expToNextLvl": self.level.get}) if not Main.LTO else tk.Variable(value={"level": self.level.get(), "experience": self.exp.get(), "expToNextLvl": self.expToNextLvl.get()})
+        for el in (self.level, self.exp if Main.LTO else tk.StringVar(value="1"), self.expToNextLvl if Main.LTO else tk.StringVar(value="1")):
+            if not el.get().isnumeric():
+                tkinter.messagebox.showerror("Error", f"{el} must be a number")
+                return
+        return {"level": int(self.level.get()), "experience": 0, "expToNextLvl": int(self.level.get())*2} if not Main.LTO else {"level": int(self.level.get()), "experience": int(self.exp.get()), "expToNextLvl": int(self.expToNextLvl.get())}
 
 
 class CharacterWindow(tk.Toplevel):
@@ -54,10 +62,12 @@ class CharacterWindow(tk.Toplevel):
 
     def __init__(self, master: tk.Misc | None = ..., cnf: dict[str, Any] | None = ..., *, charName: str = ..., **kwargs) -> None:
         super().__init__(master, **kwargs)
+        # Makes sure a copy window doesn't exist atm
         if charName in CharacterWindow.windows:
             self.destroy()
             return
         CharacterWindow.windows.append(charName)
+
         self.title(charName)
         self.stats: defaultdict[str, tk.StringVar | dict] = defaultdict(
             tk.StringVar, {k: tk.StringVar(value=v) if not isinstance(v, dict) else v for k, v in Main.state["characters"][charName].items()}.items())
@@ -65,30 +75,31 @@ class CharacterWindow(tk.Toplevel):
         self.geometry("700x300")
 
         # Enabling scrolling
-        _on_mousewheel = {"win32": lambda event: contentField.yview_scroll(
-            int(-1*(event.delta/120)), "units"), "darwin": lambda event: contentField.yview_scroll(int(event.delta), "units")}
-        contentField = tk.Canvas(self)
+        _on_mousewheel = {"win32": lambda event: self.contentField.yview_scroll(
+            int(-1*(event.delta/120)), "units"), "darwin": lambda event: self.contentField.yview_scroll(int(event.delta), "units")}
+        self.contentField = tk.Canvas(self)
         if sys.platform != "linux2":
-            contentField.bind_all("<MouseWheel>", _on_mousewheel[sys.platform])
+            self.contentField.bind_all(
+                "<MouseWheel>", _on_mousewheel[sys.platform])
         else:
-            contentField.bind_all(
-                "<Button-4>", lambda event: contentField.yview_scroll(int((event.delta/120)), "units"))
-            contentField.bind_all(
-                "<Button-5>", lambda event: contentField.yview_scroll(int(-1*(event.delta/120)), "units"))
+            self.contentField.bind_all(
+                "<Button-4>", lambda event: self.contentField.yview_scroll(int((event.delta/120)), "units"))
+            self.contentField.bind_all(
+                "<Button-5>", lambda event: self.contentField.yview_scroll(int(-1*(event.delta/120)), "units"))
 
         contentVSB = ttk.Scrollbar(
-            self, orient=tk.VERTICAL, command=contentField.yview)
+            self, orient=tk.VERTICAL, command=self.contentField.yview)
         contentHSB = ttk.Scrollbar(
-            self, orient=tk.HORIZONTAL, command=contentField.xview)
+            self, orient=tk.HORIZONTAL, command=self.contentField.xview)
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
-        contentField.configure(
+        self.contentField.configure(
             xscrollcommand=contentHSB.set, yscrollcommand=contentVSB.set)
-        contentField.grid(column=0, row=0, sticky=tk.NSEW)
+        self.contentField.grid(column=0, row=0, sticky=tk.NSEW)
         contentVSB.grid(column=1, row=0, sticky=tk.NS)
         contentHSB.grid(column=0, row=1, sticky=tk.EW)
-        contentField.bind("<Configure>", lambda event: contentField.configure(
-            scrollregion=contentField.bbox("all")))
+        self.contentField.bind("<Configure>", lambda event: self.contentField.configure(
+            scrollregion=self.contentField.bbox("all")))
 
         self.statsValues: dict[str, Value] = {}
         mod = 1.5 if Main.LTO else 1
@@ -96,15 +107,46 @@ class CharacterWindow(tk.Toplevel):
             if stat in levelValues and Main.LTO:
                 continue
             self.statsValues[stat] = Value(
-                self, f"{stat.upper()}: ", textvar=val) if isinstance(val, tk.StringVar)\
-                else Stat(self, f"{stat.upper()}: ", values=val)
-            contentField.create_window(
+                self, stat, textvar=val) if isinstance(val, tk.StringVar)\
+                else Stat(self, stat, values=val)
+            self.contentField.create_window(
                 0, 45*mod*i, anchor=tk.NW, window=self.statsValues[stat])
 
+        def createStat(self: CharacterWindow):
+            pattern = r"^\w[\w ']+$"
+            match = re.match(pattern, self.statName.get().strip())
+            if match is None:
+                tkinter.messagebox.showerror(
+                    "Error", "Invalid name. Valid names must contain at least one non-whitespace character. Allowed characters are numbers, latin letters and apostrophe.")
+                return
+            stat = match.group()
+            if stat in levelValues and Main.LTO:
+                tkinter.messagebox.showerror(
+                    "Error", "You cannot override default parameters of a character. Maybe you're using the wrong mode?")
+                return
+            if stat in self.statsValues:
+                tkinter.messagebox.showerror(
+                    "Error", "Stat already exists in this character.")
+                return
+            self.statsValues[stat] = Stat(
+                self, stat, values={"level": 1, "experience": 0, "expToNextLevel": 2})
+            self.contentField.create_window(
+                0, 45*mod*(len(self.statsValues)-2), anchor=tk.NW, window=self.statsValues[stat])
+            self.statName.delete(0, "end")
+
+        self.statName = ttk.Entry(self, textvariable=tk.StringVar())
+        self.statCreateButton = ttk.Button(
+            self, command=lambda: createStat(self), text="Add stat")
+        self.statName.grid(column=0, row=2)
+        self.statCreateButton.grid(column=1, row=2)
+
         def close(self: CharacterWindow):
-            CharacterWindow.windows.remove(charName)
             for statVal in self.statsValues:
-                self.stats[statVal] = self.statsValues[statVal].val.get()
+                if self.statsValues[statVal].val is None:
+                    return
+                self.stats[statVal] = int(self.statsValues[statVal].val.get()) if isinstance(
+                    self.statsValues[statVal].val, ttk.Entry) else self.statsValues[statVal].val
+            CharacterWindow.windows.remove(charName)
             Main.state["characters"][charName] = self.stats
             self.destroy()
 
@@ -122,6 +164,7 @@ class Main(tk.Tk):
         super().__init__()
         self.title("State manager")
         self.current = "options"
+        self.buttons = {}
 
         self.createWidgets()
 
@@ -141,9 +184,10 @@ class Main(tk.Tk):
                     Main.state[key].set(value)
 
         for i, name in enumerate(Main.state["characters"]):
-            self.mids["characters"].winfo_children()[0].create_window(0, 45*i, anchor=tk.NW,
-                                                                      window=ttk.Button(self.mids["characters"], text=name, command=partial(CharacterWindow,
-                                                                                                                                            self, charName=name)))
+            self.buttons[name] = (ttk.Button(self.mids["characters"], text=name, command=partial(
+                CharacterWindow, self, charName=name)))
+            self.mids["characters"].winfo_children()[0].create_window(
+                0, 45*i, anchor=tk.NW, window=self.buttons[name])
 
     def switch(self, next):
         if self.current == next:
@@ -193,20 +237,49 @@ class Main(tk.Tk):
             el.grid(column=0, row=i, sticky=tk.NSEW)
 
         characters = tk.Frame(mid)
-        charactersField = tk.Canvas(characters)
+        self.charactersField = tk.Canvas(characters)
         charactersVSB = ttk.Scrollbar(
-            characters, orient=tk.VERTICAL, command=charactersField.yview)
+            characters, orient=tk.VERTICAL, command=self.charactersField.yview)
         charactersHSB = ttk.Scrollbar(
-            characters, orient=tk.HORIZONTAL, command=charactersField.xview)
+            characters, orient=tk.HORIZONTAL, command=self.charactersField.xview)
         characters.grid_rowconfigure(0, weight=1)
         characters.grid_columnconfigure(0, weight=1)
-        charactersField.configure(
+        self.charactersField.configure(
             xscrollcommand=charactersHSB.set, yscrollcommand=charactersVSB.set)
-        charactersField.grid(column=0, row=0, sticky=tk.NSEW)
+        self.charactersField.grid(column=0, row=0, sticky=tk.NSEW)
         charactersVSB.grid(column=1, row=0, sticky=tk.NS)
         charactersHSB.grid(column=0, row=1, sticky=tk.EW)
-        charactersField.bind("<Configure>", lambda event: charactersField.configure(
-            scrollregion=charactersField.bbox("all")))
+        self.charactersField.bind("<Configure>", lambda event: self.charactersField.configure(
+            scrollregion=self.charactersField.bbox("all")))
+
+        mod = 1.5 if Main.LTO else 1
+
+        def createCharacter(self: Main):
+            pattern = r"^\w[\w ']+$"
+            match = re.match(pattern, self.characterName.get().strip())
+            if match is None:
+                tkinter.messagebox.showerror(
+                    "Error", "Invalid name. Valid names must contain at least one non-whitespace character. Allowed characters are numbers, latin letters and apostrophe.")
+                return
+            character = match.group()
+            if character in Main.state["characters"]:
+                tkinter.messagebox.showerror(
+                    "Error", "This character already exists")
+                return
+
+            Main.state["characters"][character] = {
+                "hp": 100, "level": 1, "experience": 0, "expToNextLevel": 2, "skillpoints": 0}
+            self.buttons[character] = ttk.Button(
+                self, text=character, command=partial(CharacterWindow, self, charName=character))
+            self.charactersField.create_window(
+                0, 45*mod*(len(self.buttons)-1), anchor=tk.NW, window=self.buttons[character])
+            self.characterName.delete(0, "end")
+
+        self.characterName = ttk.Entry(characters, textvariable=tk.StringVar())
+        self.characterCreateButton = ttk.Button(
+            characters, command=lambda: createCharacter(self), text="Add character")
+        self.characterName.grid(column=0, row=2)
+        self.characterCreateButton.grid(column=1, row=2)
 
         self.mids: dict[str, ttk.Frame | tk.Canvas] = {
             "options": options, "characters": characters}
