@@ -153,6 +153,9 @@ class CharacterWindow(tk.Toplevel):
         self.contentField.create_window(
             0, 45*mod*pos, anchor=tk.NW, window=self.statsValues[stat])
 
+        self.contentField.configure(
+            scrollregion=self.contentField.bbox("all"))
+
         # Clearing the entry
         self.statName.delete(0, "end")
 
@@ -371,6 +374,9 @@ class Main(tk.Tk):
                 self.charactersField, name=name, position=pos)
             self.mids["characters"].winfo_children()[0].create_window(
                 0, 45*pos, anchor=tk.NW, window=self.charButts[name])
+
+            self.mids["characters"].winfo_children()[0].configure(
+                scrollregion=self.mids["characters"].winfo_children()[0].bbox("all"))
 
     def switch(self, next):
         if self.current == next:
