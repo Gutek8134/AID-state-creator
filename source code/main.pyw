@@ -149,7 +149,7 @@ class CharacterWindow(tk.Toplevel):
         # Creating stats as in __init__
         pos = self.getPosition()
         self.statsValues[stat] = Stat(
-            self, stat, values={"level": 1, "experience": 0, "expToNextLevel": 2}, position=pos)
+            self, stat, values={"level": 1, "experience": 0, "expToNextLvl": 2}, position=pos)
         self.contentField.create_window(
             0, 45*mod*pos, anchor=tk.NW, window=self.statsValues[stat])
 
@@ -166,7 +166,15 @@ class CharacterWindow(tk.Toplevel):
             if self.statsValues[statVal].val is None:
                 return
             self.stats[statVal] = int(self.statsValues[statVal].val.get()) if isinstance(
-                self.statsValues[statVal].val, ttk.Entry) else self.statsValues[statVal].val
+                self.statsValues[statVal].val, ttk.Entry)else self.statsValues[statVal].val
+
+        for k, v in self.stats.items():
+            if isinstance(v, tk.StringVar):
+                try:
+                    self.stats[k] = int(v.get())
+                except ValueError:
+                    tkinter.messagebox.showerror(f"{k} must be a number")
+                    return
 
         # If nothing went wrong, lets the window be opened again
         CharacterWindow.windows.remove(self.charName)
@@ -317,6 +325,7 @@ class Main(tk.Tk):
                        list | dict] = defaultdict(tk.IntVar)
     # Not setting it will cause problems when creating characters without importing
     state["characters"] = {}
+    state["stats"] = []
     # Holds used places
     used = []
 
@@ -504,7 +513,7 @@ class Main(tk.Tk):
             return
         # Creates an empty character
         Main.state["characters"][character] = {
-            "hp": 100, "level": 1, "experience": 0, "expToNextLevel": 2, "skillpoints": 0}
+            "hp": 100, "level": 1, "experience": 0, "expToNextLvl": 2, "skillpoints": 0}
 
         # Creates a button for the character
         pos = self.getPosition()
@@ -535,7 +544,7 @@ class Main(tk.Tk):
         self.out.delete("1.0", tk.END)
         temp = json.dumps(stateCopy)
         self.out.insert(tk.END, temp[:len(
-            temp)-2]+'"out":"State was set correctly. State created with AID state manager."}')
+            temp)-1]+', "out": "\\nState was set correctly. State created with AID state manager.", "ctxt": " \\n"}')
         self.out.config(state=tk.DISABLED)
 
 
