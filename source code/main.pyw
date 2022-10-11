@@ -1,18 +1,17 @@
 from collections import defaultdict
-from email.headerregistry import Group
 from functools import partial
-from turtle import position
-from typing import Any
 import tkinter as tk
 import tkinter.ttk as ttk
 import tkinter.messagebox
 import json
 import sys
 import re
+from xmlrpc.client import Boolean
 
 # Some static things so the program will know to pass object as string, dictionary, something else or ignore/skip it
 objectValues = ("stats", "characters")
-ignoredValues = ("ctxt", "out", "message", "memory")
+ignoredValues = ("ctxt", "out", "message", "memory", "side1", "side2",
+                 "active", "inBattle", "attCharInd", "currentSide", "activeCharacterName")
 levelValues = ("level", "experience", "skillpoints", "expToNextLvl")
 
 # Makes the characters objects appear in new windows
@@ -27,17 +26,16 @@ class CharacterWindow(tk.Toplevel):
         if charName in CharacterWindow.windows:
             self.destroy()
             return
-        # Lost for making new stats appear when others were deleted
+        # List for making new stats appear when others were deleted
         self.used = []
         self.charName = charName
         # Adds character name to static list
         CharacterWindow.windows.append(charName)
-
         # Changes the title to be character's name
         self.title(charName)
         # Copies and converts stats from the Main window
-        self.stats: defaultdict[str, tk.StringVar | dict] = defaultdict(
-            tk.StringVar, {k: tk.StringVar(value=v) if not isinstance(v, dict) else v for k, v in Main.state["characters"][charName].items()}.items())
+        self.stats: defaultdict[str, tk.StringVar | tk.BooleanVar | dict] = defaultdict(
+            tk.StringVar, {k: v if isinstance(v, dict) else tk.BooleanVar(value=v) if isinstance(v, bool) else tk.StringVar(value=v) for k, v in Main.state["characters"][charName].items()}.items())
 
         self.geometry("700x300")
 
@@ -97,7 +95,7 @@ class CharacterWindow(tk.Toplevel):
 
             # Changes stringvars to values and dictionaries to stats
             self.statsValues[stat] = Value(
-                self, stat, textvar=val, position=pos) if isinstance(val, tk.StringVar)\
+                self, stat, variable=val, position=pos) if isinstance(val, tk.StringVar) or isinstance(val, tk.BooleanVar)\
                 else Stat(self, stat, values=val, position=pos)
 
             # Puts everything onto the canvas
@@ -199,7 +197,7 @@ class CharacterWindow(tk.Toplevel):
 
 
 class Value(ttk.Frame):
-    def __init__(self, master=..., text="", key: str = None, textvar: tk.StringVar = ..., position=...) -> None:
+    def __init__(self, master=..., text="", key: str = None, variable: tk.StringVar | tk.BooleanVar = ..., position=...) -> None:
         super().__init__(master)
 
         # This can be either CharacterWindow and Main
@@ -209,14 +207,26 @@ class Value(ttk.Frame):
         self.position = position
 
         # If textvar wasn't given, gets value from Main.state
-        textvar = Main.state[key] if textvar == ... else textvar
+        variable = Main.state[key] if variable == ... else variable
 
         # Makes it look like [Name: ] [Input field]
         self.text = ttk.Label(self, text=text)
-        self.val = ttk.Entry(
-            self, textvariable=textvar)
-        self.text.grid(column=0, row=0)
-        self.val.grid(column=1, row=0)
+        if not isinstance(variable, tk.BooleanVar):
+            self.val = ttk.Entry(
+                self, textvariable=variable)
+            self.text.grid(column=0, row=0)
+            self.val.grid(column=1, row=0)
+        else:
+            self.val = variable.get()
+            self.text.grid(column=1, row=0)
+            self.checkboxValue: tk.IntVar = tk.IntVar()
+            self.checkbox = ttk.Checkbutton(
+                self, variable=self.checkboxValue, command=self.changeValue)
+            self.checkbox.grid(column=0, row=0)
+
+    def changeValue(self):
+        self.val = bool(self.checkboxValue.get())
+
 
 # Class for creating removable stats
 
@@ -513,7 +523,7 @@ class Main(tk.Tk):
             return
         # Creates an empty character
         Main.state["characters"][character] = {
-            "hp": 100, "level": 1, "experience": 0, "expToNextLvl": 2, "skillpoints": 0}
+            "hp": 100, "isNpc": False, "level": 1, "experience": 0, "expToNextLvl": 2, "skillpoints": 0}
 
         # Creates a button for the character
         pos = self.getPosition()
@@ -543,8 +553,8 @@ class Main(tk.Tk):
         self.out.config(state=tk.NORMAL)
         self.out.delete("1.0", tk.END)
         temp = json.dumps(stateCopy)
-        self.out.insert(tk.END, temp[:len(
-            temp)-1]+', "out": "\\nState was set correctly. State created with AID state manager.", "ctxt": " \\n"}')
+        self.out.insert(
+            tk.END, temp[:-1]+', "out": "\\nState was set correctly. State created with AID state manager.", "ctxt": " \\n"}')
         self.out.config(state=tk.DISABLED)
 
 
