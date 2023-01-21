@@ -2,6 +2,8 @@
 Manager for state used in [AID-dice-rolling](https://github.com/Gutek8134/AID-dice-rolling).<br>
 Doesn't work on Windows 7 or older.
 
+WARNING: Current version isn't compatible with AID dice rolling items update.
+
 # Values
 
 ## Dice
