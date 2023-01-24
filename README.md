@@ -27,6 +27,10 @@ They are:
 ## hp
 Current hp of the character.
 
+## isNpc
+
+Says whether this character is an NPC. [Here](https://github.com/Gutek8134/AID-dice-rolling#addnpc) are the differences.
+
 ## level
 Current level of the character.
 
