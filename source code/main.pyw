@@ -323,7 +323,7 @@ class CharButt(tk.Frame):
     def remChar(self):
         # Asks you if you are sure about removing your character, then, if you are, removes every occurrence of them and destroys itself+
         if tkinter.messagebox.askokcancel("Remove character", f"Are you sure to remove character {self.name}? You cannot undo this action."):
-            Main.used.remove(self.position)
+            Main.usedCH.remove(self.position)
             Main.state["characters"].pop(self.name, None)
             self.destroy()
 
@@ -335,9 +335,12 @@ class Main(tk.Tk):
                        list | dict] = defaultdict(tk.IntVar)
     # Not setting it will cause problems when creating characters without importing
     state["characters"] = {}
+    state["items"] = {}
     state["stats"] = []
+    state["inventory"] = []
     # Holds used places
-    used = []
+    usedCH = []
+    usedIT = []
 
     def __init__(self) -> None:
         # Sets whether user is leveling to oblivion, then creates main window
@@ -362,13 +365,22 @@ class Main(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", quit)
 
     # Just like in character window, gets the first free position
-    def getPosition(self):
+    def getCharacterPosition(self):
         position = 0
-        while position < len(Main.used):
-            if position not in Main.used:
+        while position < len(Main.usedCH):
+            if position not in Main.usedCH:
                 break
             position += 1
-        Main.used.append(position)
+        Main.usedCH.append(position)
+        return position
+
+    def getItemPosition(self):
+        position = 0
+        while position < len(Main.usedIT):
+            if position not in Main.usedIT:
+                break
+            position += 1
+        Main.usedIT.append(position)
         return position
 
     def readJson(self):
@@ -388,7 +400,7 @@ class Main(tk.Tk):
         for name in Main.state["characters"]:
             if name in self.charButts:
                 continue
-            pos = self.getPosition()
+            pos = self.getCharacterPosition()
             self.charButts[name] = CharButt(
                 self.charactersField, name=name, position=pos)
             self.mids["characters"].winfo_children()[0].create_window(
@@ -397,7 +409,7 @@ class Main(tk.Tk):
             self.mids["characters"].winfo_children()[0].configure(
                 scrollregion=self.mids["characters"].winfo_children()[0].bbox("all"))
 
-    def switch(self, next):
+    def switch(self, next: str):
         if self.current == next:
             return
 
@@ -418,9 +430,13 @@ class Main(tk.Tk):
         charactersButton = ttk.Button(categories, text="Characters",
                                       command=lambda: self.switch("characters"))
 
+        itemsButton = ttk.Button(categories, text="Items",
+                                 command=lambda: self.switch("items"))
+
         # Setting them up
         optionsButton.grid(column=0, row=0)
         charactersButton.grid(column=1, row=0)
+        itemsButton.grid(column=2, row=0)
         categories.grid(column=0, row=0)
 
         # Setting a state getter
@@ -481,9 +497,43 @@ class Main(tk.Tk):
         self.characterName.grid(column=0, row=2)
         self.characterCreateButton.grid(column=1, row=2)
 
+        # Items frame
+        items = tk.Frame(mid)
+        # Canvas for the buttons
+        self.itemsField = tk.Canvas(items)
+
+        # Enables scrolling
+        itemsVSB = ttk.Scrollbar(
+            items, orient=tk.VERTICAL, command=self.itemsField.yview)
+        itemsHSB = ttk.Scrollbar(
+            items, orient=tk.HORIZONTAL, command=self.itemsField.xview)
+
+        items.grid_rowconfigure(0, weight=1)
+        items.grid_columnconfigure(0, weight=1)
+
+        self.itemsField.configure(
+            xscrollcommand=itemsHSB.set, yscrollcommand=itemsVSB.set)
+
+        self.itemsField.grid(column=0, row=0, sticky=tk.NSEW)
+
+        itemsVSB.grid(column=1, row=0, sticky=tk.NS)
+        itemsHSB.grid(column=0, row=1, sticky=tk.EW)
+
+        self.itemsField.bind("<Configure>", lambda event: self.itemsField.configure(
+            scrollregion=self.itemsField.bbox("all")))
+        # End
+
+        # Allows for item creation
+        self.itemName = ttk.Entry(items, textvariable=tk.StringVar())
+        self.itemCreateButton = ttk.Button(
+            items, command=lambda x: x, text="Add item")
+
+        self.itemName.grid(column=0, row=2)
+        self.itemCreateButton.grid(column=1, row=2)
+
         # Saves containers for switch
         self.mids: dict[str, ttk.Frame | tk.Canvas] = {
-            "options": options, "characters": characters}
+            "options": options, "characters": characters, "items": items}
 
         # Outputting
         bot = ttk.Frame(self)
@@ -526,7 +576,7 @@ class Main(tk.Tk):
             "hp": 100, "isNpc": False, "level": 1, "experience": 0, "expToNextLvl": 2, "skillpoints": 0}
 
         # Creates a button for the character
-        pos = self.getPosition()
+        pos = self.getCharacterPosition()
         self.charButts[character] = CharButt(
             self.charactersField, name=character, position=pos)
         self.charactersField.create_window(
