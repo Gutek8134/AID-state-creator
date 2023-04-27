@@ -6,39 +6,47 @@ import tkinter.messagebox
 import json
 import sys
 import re
-from xmlrpc.client import Boolean
 
 # Some static things so the program will know to pass object as string, dictionary, something else or ignore/skip it
-objectValues = ("stats", "characters")
+objectValues = ("stats", "characters", "items")
 ignoredValues = ("ctxt", "out", "message", "memory", "side1", "side2",
                  "active", "inBattle", "attCharInd", "currentSide", "activeCharacterName")
 levelValues = ("level", "experience", "skillpoints", "expToNextLvl")
 
+
 # Makes the characters objects appear in new windows
-
-
-class CharacterWindow(tk.Toplevel):
+class ItemWindow(tk.Toplevel):
     windows: list[str] = []
 
-    def __init__(self, master: tk.Misc | None = ..., *, charName: str = ..., **kwargs) -> None:
+    def __init__(self, master: tk.Misc | None = ..., *, itemName: str = ..., **kwargs) -> None:
         super().__init__(master, **kwargs)
+
         # Makes sure a window copy doesn't exist
-        if charName in CharacterWindow.windows:
+        if itemName in ItemWindow.windows:
             self.destroy()
             return
+
         # List for making new stats appear when others were deleted
-        self.used = []
-        self.charName = charName
+        self.used: list[int] = []
+        self.itName: str = itemName
+
         # Adds character name to static list
-        CharacterWindow.windows.append(charName)
-        # Changes the title to be character's name
-        self.title(charName)
-        # Copies and converts stats from the Main window
-        self.stats: defaultdict[str, tk.StringVar | tk.BooleanVar | dict] = defaultdict(
-            tk.StringVar, {k: v if isinstance(v, dict) else tk.BooleanVar(value=v) if isinstance(v, bool) else tk.StringVar(value=v) for k, v in Main.state["characters"][charName].items()}.items())
+        ItemWindow.windows.append(itemName)
+
+        # Changes the title to be item's name
+        self.title(itemName)
+
+        # Stores dict to overwrite the one in Main upon closure
+        self.item: dict[str, str | tk.StringVar | defaultdict[str, tk.StringVar | tk.BooleanVar | dict] | list[str]] = {"name": itemName, "slot": tk.StringVar(value=Main.state["items"][itemName]["slot"]), "modifiers": defaultdict(),
+                                                                                                                        "effects": Main.state["items"][itemName]["effects"].copy(), "type": "item"}
+
+        # Copies and converts modifiers from the Main window
+        self.item["modifiers"]: defaultdict[str, tk.StringVar | tk.BooleanVar | dict] = defaultdict(
+            tk.StringVar, {k: tk.StringVar(value=v) for k, v in Main.state["items"][itemName]["modifiers"].items()}.items())
 
         self.geometry("700x300")
 
+        # region scrolling
         # Enabling scrolling
 
         # Makes scroll wheel work
@@ -78,6 +86,201 @@ class CharacterWindow(tk.Toplevel):
             scrollregion=self.contentField.bbox("all")))
 
         # End of enabling scrolling
+        # endregion
+
+        # Holds values and stats object in a dict for easy access
+        self.modValues: dict[str, Value] = {}
+
+        # Gets position once, or the value would be different for putting on and Stat freeing it
+        pos: int = self.getPosition()
+
+        # Changes stringvars to values and dictionaries to stats
+        self.modValues["slot"] = Value(
+            self, "slot", variable=self.item["slot"], position=pos)
+
+        # Puts everything onto the canvas
+        self.contentField.create_window(
+            0, 45*pos, anchor=tk.NW, window=self.modValues["slot"])
+
+        for name, val in self.item["modifiers"]:
+            # Gets position once, or the value would be different for putting on and Stat freeing it
+            pos: int = self.getPosition()
+
+            # Changes stringvars to values and dictionaries to stats
+            self.modValues[name] = Value(
+                self, name, variable=val, position=pos)
+
+            # Puts everything onto the canvas
+            self.contentField.create_window(
+                0, 45*pos, anchor=tk.NW, window=self.modValues[name])
+
+        # Adjusts scrolling
+        self.contentField.configure(
+            scrollregion=self.contentField.bbox("all"))
+
+        # Objects for creating new modifiers
+        self.modName = ttk.Entry(self, textvariable=tk.StringVar())
+        self.statCreateButton = ttk.Button(
+            self, command=self.createMod, text="Add modifier")
+        self.modName.grid(column=0, row=2)
+        self.statCreateButton.grid(column=1, row=2)
+
+        # Custom save and close
+        self.protocol("WM_DELETE_WINDOW", self.close)
+
+    def createMod(self):
+        # Tries character's names against pattern from dice rolling
+        pattern = r"^\w[\w ']+$"
+        match = re.match(pattern, self.modName.get().strip())
+
+        # If they don't pass the test, user sees an error message
+        if match is None:
+            tkinter.messagebox.showerror(
+                "Error", "Invalid name. Valid names must contain at least one non-whitespace character. Allowed characters are numbers, latin letters and apostrophe.")
+            return
+
+        # Shortening the variable name
+        stat = match.group().lower()
+        if stat not in Main.state["stats"]:
+            Main.state["stats"].append(stat)
+
+        # Like error says, you can't make a scalable item
+        if stat in levelValues:
+            tkinter.messagebox.showerror(
+                "Error", "Item cannot level up.")
+            return
+
+        # Duplicate stats are also deleted
+        if stat in self.modValues:
+            tkinter.messagebox.showerror(
+                "Error", "Modifier already exists in this item.")
+            return
+
+        # Creating stats as in __init__
+        pos = self.getPosition()
+        self.modValues[stat] = Value(
+            self, stat, variable=tk.StringVar(), position=pos)
+        self.contentField.create_window(
+            0, 45*pos, anchor=tk.NW, window=self.modValues[stat])
+
+        self.contentField.configure(
+            scrollregion=self.contentField.bbox("all"))
+
+        # Clearing the entry
+        self.modName.delete(0, "end")
+
+    # Saves and closes the window
+    def close(self):
+        self.item["slot"] = self.item["slot"].lower()
+        # Gets values and stats, sets them to the local variable, and converts
+        for statVal in self.modValues:
+            if self.modValues[statVal].val is None:
+                return
+
+            elif statVal == "slot":
+                self.item["slot"] = self.modValues[statVal].val.get()
+                continue
+
+            self.item["modifiers"][statVal] = int(self.modValues[statVal].val.get()) if isinstance(
+                self.modValues[statVal].val, ttk.Entry)else self.modValues[statVal].val
+
+        for k, v in self.item["modifiers"].items():
+            if isinstance(v, tk.StringVar):
+                try:
+                    self.item["modifiers"][k] = int(v.get())
+                except ValueError:
+                    tkinter.messagebox.showerror(f"{k} must be a number")
+                    return
+
+        # If nothing went wrong, lets the window be opened again
+        ItemWindow.windows.remove(self.itName)
+
+        # Saves the changes to Main.state dict
+        Main.state["items"][self.itName] = self.item
+
+        for window in CharacterWindow.OpenedCharacterWindows:
+            if self.item["slot"] in window.itemSlots.values():
+                window.itemSlots["slot"].itemsList.option_add(
+                    self.item["name"], self.item["name"])
+
+        # And finally closes the window
+        self.destroy()
+
+    # Gets the first free number and looks for holes to fill
+    def getPosition(self) -> int:
+        position = 0
+        while position < len(self.used):
+            if position not in self.used:
+                break
+            position += 1
+        self.used.append(position)
+        return position
+
+
+class CharacterWindow(tk.Toplevel):
+    windows: list[str] = []
+    OpenedCharacterWindows: list["CharacterWindow"] = []
+
+    def __init__(self, master: tk.Misc | None = ..., *, charName: str = ..., **kwargs) -> None:
+        super().__init__(master, **kwargs)
+        # Makes sure a window copy doesn't exist
+        if charName in CharacterWindow.windows:
+            self.destroy()
+            return
+        # List for making new stats appear when others were deleted
+        self.used = []
+        self.charName = charName
+        # Adds character name to static list
+        CharacterWindow.windows.append(charName)
+        CharacterWindow.OpenedCharacterWindows.append(self)
+        # Changes the title to be character's name
+        self.title(charName)
+        # Copies and converts stats from the Main window
+        self.stats: defaultdict[str, tk.StringVar | tk.BooleanVar | dict] = defaultdict(
+            tk.StringVar, {k: v if isinstance(v, dict) else tk.BooleanVar(value=v) if isinstance(v, bool) else tk.StringVar(value=v) for k, v in Main.state["characters"][charName].items() if k != "items" and k != "type"}.items())
+        self.items: dict[str,
+                         dict] = Main.state["characters"][self.charName]["items"].copy()
+        self.geometry("700x300")
+
+        # region Enabling scrolling
+
+        # Makes scroll wheel work
+        _on_mousewheel = {"win32": lambda event: self.contentField.yview_scroll(
+            int(-1*(event.delta/120)), "units"), "darwin": lambda event: self.contentField.yview_scroll(int(event.delta), "units")}
+        self.contentField = tk.Canvas(self)
+        if sys.platform != "linux2":
+            self.contentField.bind_all(
+                "<MouseWheel>", _on_mousewheel[sys.platform])
+        else:
+            self.contentField.bind_all(
+                "<Button-4>", lambda event: self.contentField.yview_scroll(int((event.delta/120)), "units"))
+            self.contentField.bind_all(
+                "<Button-5>", lambda event: self.contentField.yview_scroll(int(-1*(event.delta/120)), "units"))
+
+        # Creating scrollbars
+        contentVSB = ttk.Scrollbar(
+            self, orient=tk.VERTICAL, command=self.contentField.yview)
+        contentHSB = ttk.Scrollbar(
+            self, orient=tk.HORIZONTAL, command=self.contentField.xview)
+
+        # IDK what it does, but StackOverflow says it needs to be done
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        # Binds scrolling to scrollbars
+        self.contentField.configure(
+            xscrollcommand=contentHSB.set, yscrollcommand=contentVSB.set)
+
+        # Puts field and scrollbars on the grid
+        self.contentField.grid(column=0, row=0, sticky=tk.NSEW)
+        contentVSB.grid(column=1, row=0, sticky=tk.NS)
+        contentHSB.grid(column=0, row=1, sticky=tk.EW)
+
+        # Again, IDK what it does
+        self.contentField.bind("<Configure>", lambda event: self.contentField.configure(
+            scrollregion=self.contentField.bbox("all")))
+
+        # endregion Enabling scrolling
 
         # Stats are bigger when levelling to oblivion, so they need more place
         mod = 1.5 if Main.LTO else 1
@@ -101,6 +304,22 @@ class CharacterWindow(tk.Toplevel):
             # Puts everything onto the canvas
             self.contentField.create_window(
                 0, 45*mod*pos, anchor=tk.NW, window=self.statsValues[stat])
+
+            self.contentField.configure(
+                scrollregion=self.contentField.bbox("all"))
+
+        self.itemSlots: dict[str, ItemSlot] = {}
+        for item in self.items.values():
+            # Gets position once, or the value would be different for putting on and Stat freeing it
+            pos = self.getPosition()
+
+            # Creates a selection list
+            self.itemSlots[item["name"]] = ItemSlot(
+                self, item["slot"], item["name"])
+
+            # Puts everything onto the canvas
+            self.contentField.create_window(
+                0, 45*mod*pos, anchor=tk.NW, window=self.itemSlots[item["name"]])
 
             self.contentField.configure(
                 scrollregion=self.contentField.bbox("all"))
@@ -174,11 +393,27 @@ class CharacterWindow(tk.Toplevel):
                     tkinter.messagebox.showerror(f"{k} must be a number")
                     return
 
+        for name, itemSlot in self.itemSlots.items():
+            try:
+                iTemp = itemSlot.getItem
+            except KeyError:
+                continue
+            if iTemp is None:
+                self.items.pop(name)
+                continue
+
+            for itName, item in self.items.copy().items():
+                if item["slot"] == iTemp["slot"]:
+                    self.items.pop(itName)
+                    self.items[iTemp["name"]] = iTemp
+
         # If nothing went wrong, lets the window be opened again
         CharacterWindow.windows.remove(self.charName)
 
+        self.stats["type"] = "character"
         # Saves the changes to Main.state dict
-        Main.state["characters"][self.charName] = self.stats
+        Main.state["characters"][self.charName] = self.stats.copy()
+        Main.state["characters"][self.charName]["items"] = self.items.copy()
 
         # And finally closes the window
         self.destroy()
@@ -193,9 +428,8 @@ class CharacterWindow(tk.Toplevel):
         self.used.append(position)
         return position
 
+
 # Class for things that can't be removed and are just numbers
-
-
 class Value(ttk.Frame):
     def __init__(self, master=..., text="", key: str = None, variable: tk.StringVar | tk.BooleanVar = ..., position=...) -> None:
         super().__init__(master)
@@ -229,10 +463,8 @@ class Value(ttk.Frame):
 
 
 # Class for creating removable stats
-
-
 class Stat(ttk.Frame):
-    def __init__(self, master: CharacterWindow = ..., stat: str = "", *, values: dict = ..., position=..., **kwargs) -> None:
+    def __init__(self, master: CharacterWindow | ItemWindow = ..., stat: str = "", *, values: dict = ..., position=..., **kwargs) -> None:
         # Makes sure every stat is in stats array (requirement for dice rolling)
         if stat not in Main.state["stats"]:
             Main.state["stats"].append(stat)
@@ -301,6 +533,37 @@ class Stat(ttk.Frame):
         return {"level": int(self.level.get()), "experience": 0, "expToNextLvl": int(self.level.get())*2} if not Main.LTO else {"level": int(self.level.get()), "experience": int(self.exp.get()), "expToNextLvl": int(self.expToNextLvl.get())}
 
 
+class ItemSlot(ttk.Frame):
+    def __init__(self, master: tkinter.Misc | None = None, slot: str = "", selectedItemName: str = "None", **kwargs) -> None:
+        super().__init__(master, **kwargs)
+        # Copies some parameters onto itself for usage in other functions
+        self.master: CharacterWindow = master
+        self.slot = slot
+
+        # Creates format [SLOT NAME: ][item option]
+
+        # Slot
+        text = ttk.Label(self, text=f"{slot.upper()}: ")
+        text.grid(column=0, row=0)
+
+        # Gets all items of one slot (I know it can be optimized by caching)
+        # to be passed into combobox constructor
+        itemsListValues: list[str] = ["None"]
+        for item in Main.state["items"].values():
+            if item["slot"] == self.slot and item not in itemsListValues:
+                itemsListValues.append(item["name"])
+
+        # List to choose item from
+        self.itemsList = ttk.Combobox(
+            self, textvariable=tk.StringVar(), values=itemsListValues, state="readonly")
+        self.itemsList.set(selectedItemName)
+        self.itemsList.grid(column=1, row=0)
+
+    @property
+    def getItem(self) -> dict[str, str | list[str] | dict[str, int]] | None:
+        return Main.state["items"][self.itemsList.get()] if self.itemsList.get() != "None" else None
+
+
 # Short for character button
 class CharButt(tk.Frame):
     def __init__(self, master: tk.Misc | None = ..., *, name=..., position=..., **kwargs) -> None:
@@ -323,8 +586,35 @@ class CharButt(tk.Frame):
     def remChar(self):
         # Asks you if you are sure about removing your character, then, if you are, removes every occurrence of them and destroys itself+
         if tkinter.messagebox.askokcancel("Remove character", f"Are you sure to remove character {self.name}? You cannot undo this action."):
-            Main.usedCH.remove(self.position)
+            Main.usedCharacterPlaces.remove(self.position)
             Main.state["characters"].pop(self.name, None)
+            self.destroy()
+
+
+# Short for item button
+class ItemButt(tk.Frame):
+    def __init__(self, master: tk.Misc | None = ..., *, name=..., position=..., **kwargs) -> None:
+        super().__init__(master, **kwargs)
+        # Again, lets other parts access the init params
+        self.name = name
+        self.position = position
+        # Creates button for item window creation
+        self.button = ttk.Button(self, text=name, command=partial(
+            ItemWindow, self, itemName=name))
+
+        # And makes removing item possible
+        self.rem = ttk.Button(self, text="Remove item",
+                              command=self.remItem)
+
+        # Putting these on the visual
+        self.button.grid(column=0, row=0)
+        self.rem.grid(column=1, row=0)
+
+    def remItem(self):
+        # Asks you if you are sure about removing your item, then, if you are, removes every occurrence of them and destroys itself+
+        if tkinter.messagebox.askokcancel("Remove item", f"Are you sure to remove item {self.name}? You cannot undo this action."):
+            Main.usedItemPlaces.remove(self.position)
+            Main.state["items"].pop(self.name, None)
             self.destroy()
 
 
@@ -338,9 +628,12 @@ class Main(tk.Tk):
     state["items"] = {}
     state["stats"] = []
     state["inventory"] = []
+    # Holds all possible slots created until now + default ones
+    equipmentParts: list[str] = [
+        "helmet", "armor", "leggins", "weapon", "artifact"]
     # Holds used places
-    usedCH = []
-    usedIT = []
+    usedCharacterPlaces = []
+    usedItemPlaces = []
 
     def __init__(self) -> None:
         # Sets whether user is leveling to oblivion, then creates main window
@@ -353,8 +646,9 @@ class Main(tk.Tk):
         # Holds current page user is on for switch()
         self.current = "options"
 
-        # Holds CharButt objects
-        self.charButts = {}
+        # Holds CharButt and ItemButt objects
+        self.charButts: dict[str, CharButt] = {}
+        self.itemButts: dict[str, ItemButt] = {}
 
         self.createWidgets()
 
@@ -367,20 +661,20 @@ class Main(tk.Tk):
     # Just like in character window, gets the first free position
     def getCharacterPosition(self):
         position = 0
-        while position < len(Main.usedCH):
-            if position not in Main.usedCH:
+        while position < len(Main.usedCharacterPlaces):
+            if position not in Main.usedCharacterPlaces:
                 break
             position += 1
-        Main.usedCH.append(position)
+        Main.usedCharacterPlaces.append(position)
         return position
 
     def getItemPosition(self):
         position = 0
-        while position < len(Main.usedIT):
-            if position not in Main.usedIT:
+        while position < len(Main.usedItemPlaces):
+            if position not in Main.usedItemPlaces:
                 break
             position += 1
-        Main.usedIT.append(position)
+        Main.usedItemPlaces.append(position)
         return position
 
     def readJson(self):
@@ -408,6 +702,22 @@ class Main(tk.Tk):
 
             self.mids["characters"].winfo_children()[0].configure(
                 scrollregion=self.mids["characters"].winfo_children()[0].bbox("all"))
+
+        # Creates buttons for items
+        for name, item in Main.state["items"].items():
+            if name in self.itemButts:
+                continue
+            pos = self.getItemPosition()
+            self.itemButts[name] = ItemButt(
+                self.itemsField, name=name, position=pos)
+            self.mids["items"].winfo_children()[0].create_window(
+                0, 45*pos, anchor=tk.NW, window=self.itemButts[name])
+
+            self.mids["items"].winfo_children()[0].configure(
+                scrollregion=self.mids["items"].winfo_children()[0].bbox("all"))
+
+            if item["slot"] not in Main.equipmentParts:
+                Main.equipmentParts.append(item["slot"])
 
     def switch(self, next: str):
         if self.current == next:
@@ -526,7 +836,7 @@ class Main(tk.Tk):
         # Allows for item creation
         self.itemName = ttk.Entry(items, textvariable=tk.StringVar())
         self.itemCreateButton = ttk.Button(
-            items, command=lambda x: x, text="Add item")
+            items, command=self.createItem, text="Add item")
 
         self.itemName.grid(column=0, row=2)
         self.itemCreateButton.grid(column=1, row=2)
@@ -573,7 +883,7 @@ class Main(tk.Tk):
             return
         # Creates an empty character
         Main.state["characters"][character] = {
-            "hp": 100, "isNpc": False, "level": 1, "experience": 0, "expToNextLvl": 2, "skillpoints": 0}
+            "hp": 100, "isNpc": False, "level": 1, "experience": 0, "expToNextLvl": 2, "skillpoints": 0, "items": {}, "type": "character"}
 
         # Creates a button for the character
         pos = self.getCharacterPosition()
@@ -584,6 +894,45 @@ class Main(tk.Tk):
         self.charactersField.configure(
             scrollregion=self.charactersField.bbox("all"))
         self.characterName.delete(0, "end")
+
+    def createItem(self):
+        # Tests the item name against pattern from dice rolling
+        pattern = r"^\w[\w\s']+$"
+        match = re.match(pattern, self.itemName.get().strip())
+
+        # If it fails, lets the user know
+        if match is None:
+            tkinter.messagebox.showerror(
+                "Error", "Invalid name. Valid names must contain at least one non-whitespace character. Allowed characters are numbers, latin letters and apostrophe.")
+            return
+
+        # Items are not converted to lower case
+        item = match.group()
+
+        # Checks whether item already exists
+        if item in Main.state["items"]:
+            tkinter.messagebox.showerror(
+                "Error", "This item already exists")
+            return
+
+        # Creates an empty item
+        Main.state["items"][item] = {
+            "name": item, "slot": "artifact", "effects": [], "modifiers": {}, "type": "item"}
+
+        for window in CharacterWindow.OpenedCharacterWindows:
+            for itemSlot in window.itemSlots.values():
+                if itemSlot.slot == "artifact":
+                    itemSlot.itemsList.option_add(item, item)
+
+        # Creates a button for the item
+        pos = self.getItemPosition()
+        self.itemButts[item] = ItemButt(
+            self.itemsField, name=item, position=pos)
+        self.itemsField.create_window(
+            0, 45*pos, anchor=tk.NW, window=self.itemButts[item])
+        self.itemsField.configure(
+            scrollregion=self.itemsField.bbox("all"))
+        self.itemName.delete(0, "end")
 
     def dataOut(self):
         # This part heavily changes the dict, so it works on a copy
