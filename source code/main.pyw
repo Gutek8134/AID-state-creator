@@ -315,7 +315,7 @@ class CharacterWindow(tk.Toplevel):
 
             # Creates a selection list
             self.itemSlots[item["name"]] = ItemSlot(
-                self, item["slot"], item["name"])
+                master=self, slot=item["slot"], selectedItemName=item["name"], position=pos)
 
             # Puts everything onto the canvas
             self.contentField.create_window(
@@ -330,6 +330,13 @@ class CharacterWindow(tk.Toplevel):
             self, command=self.createStat, text="Add stat")
         self.statName.grid(column=0, row=2)
         self.statCreateButton.grid(column=1, row=2)
+
+        # Objects for creating new slots
+        self.slotName = ttk.Entry(self, textvariable=tk.StringVar())
+        self.slotCreateButton = ttk.Button(
+            self, command=self.createSlot, text="Add slot")
+        self.slotName.grid(column=0, row=3)
+        self.slotCreateButton.grid(column=1, row=3)
 
         # Custom save and close
         self.protocol("WM_DELETE_WINDOW", self.close)
@@ -376,6 +383,38 @@ class CharacterWindow(tk.Toplevel):
         # Clearing the entry
         self.statName.delete(0, "end")
 
+    def createSlot(self):
+        # Tries slot name against pattern from dice rolling
+        pattern = r"^\w[\w ']+$"
+        match = re.match(pattern, self.slotName.get().strip())
+
+        # If they don't pass the test, user sees an error message
+        if match is None:
+            tkinter.messagebox.showerror(
+                "Error", "Invalid name. Valid names must contain at least one non-whitespace character. Allowed characters are numbers, latin letters and apostrophe.")
+            return
+
+        # Shortening the variable name
+        slot = match.group().lower()
+
+        # Duplicate stats are also deleted
+        if slot in self.itemSlots:
+            tkinter.messagebox.showerror(
+                "Error", "Slot already exists in this character.")
+            return
+
+        # Creating stats as in __init__
+        pos = self.getPosition()
+        self.itemSlots[slot] = ItemSlot(master=self, slot=slot, position=pos)
+        self.contentField.create_window(
+            0, 45*pos, anchor=tk.NW, window=self.itemSlots[slot])
+
+        self.contentField.configure(
+            scrollregion=self.contentField.bbox("all"))
+
+        # Clearing the entry
+        self.slotName.delete(0, "end")
+
     # Saves and closes the window
     def close(self):
         # Gets values and stats, then sets them to the local variable
@@ -399,7 +438,7 @@ class CharacterWindow(tk.Toplevel):
             except KeyError:
                 continue
             if iTemp is None:
-                self.items.pop(name)
+                self.items.pop(name, None)
                 continue
 
             for itName, item in self.items.copy().items():
@@ -534,11 +573,13 @@ class Stat(ttk.Frame):
 
 
 class ItemSlot(ttk.Frame):
-    def __init__(self, master: tkinter.Misc | None = None, slot: str = "", selectedItemName: str = "None", **kwargs) -> None:
+    def __init__(self, master: CharacterWindow | None = None, slot: str = "", position: int = ..., selectedItemName: str = "None", **kwargs) -> None:
         super().__init__(master, **kwargs)
         # Copies some parameters onto itself for usage in other functions
         self.master: CharacterWindow = master
         self.slot = slot
+        self.firstSelectedItem = selectedItemName
+        self.position = position
 
         # Creates format [SLOT NAME: ][item option]
 
@@ -558,6 +599,16 @@ class ItemSlot(ttk.Frame):
             self, textvariable=tk.StringVar(), values=itemsListValues, state="readonly")
         self.itemsList.set(selectedItemName)
         self.itemsList.grid(column=1, row=0)
+
+        self.rem = ttk.Button(self, text="Remove slot",
+                              command=self.remSlot)
+        self.rem.grid(column=3, row=0)
+
+    def remSlot(self):
+        self.master.used.remove(self.position)
+        self.master.items.pop(self.firstSelectedItem, None)
+        self.master.itemSlots.pop(self.firstSelectedItem, None)
+        self.destroy()
 
     @property
     def getItem(self) -> dict[str, str | list[str] | dict[str, int]] | None:
@@ -807,7 +858,7 @@ class Main(tk.Tk):
         self.characterName.grid(column=0, row=2)
         self.characterCreateButton.grid(column=1, row=2)
 
-        # Items frame
+        # Item buttons
         items = tk.Frame(mid)
         # Canvas for the buttons
         self.itemsField = tk.Canvas(items)
