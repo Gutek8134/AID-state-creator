@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="style.css" />
+        <script src="script.js" defer></script>
+        <title>AID State Creator</title>
+    </head>
+    <body>
+        <div class="single_value">
+            Dice: <input type="number" name="dice" id="dice">
+        </div>
+        <div class="single_value">
+            Starting level: <input type="number" name="startingLevel"
+                id="startingLevel">
+        </div>
+        <div class="single_value">
+            Starting HP: <input type="number" name="startingHP"
+                id="startingHP">
+        </div>
+        <div class="single_value">
+            Skillpoints on level up: <input type="number"
+                name="skillpointsOnLevelUp" id="skillpointsOnLevelUp">
+        </div>
+        <div class="single_value">
+            Punishment for being "dead": <input type="number" name="punishment"
+                id="punishment">
+        </div>
+        <div class="single_value">
+            In battle: <input type="checkbox" name="inBattle" id="inBattle">
+        </div>
+        <div class="single_value">
+            Last input: <br>
+            <textarea name="in" id="in" cols="30"
+                rows="10"></textarea>
+        </div>
+        <div class="single_value">
+            Last input context override: <br>
+            <textarea name="ctxt" id="ctxt" cols="30"
+                rows="10"></textarea>
+        </div>
+        <div class="single_value">
+            Output override: <br>
+            <textarea name="out" id="out" cols="30"
+                rows="10"></textarea>
+        </div>
+        <br>
+
+        <div class="list">Stats: <div id="stats">
+            </div><br>
+            <input type="text" name="new_stat"
+                id="new_stat"><button id="add_stat">+</button></div>
+        <br>
+
+        <div class="list">Inventory: <div id="inventory">[]</div><br>
+            <button id="add_item_inventory">+</button></div>
+        <br>
+
+        <div class="list">Battle side 1: <div id="side1">[]</div><br>
+            <button id="add_character_side1">+</button></div>
+        <br>
+
+        <div class="list">Battle side 2: <div id="side2">[]</div><br>
+            <button id="add_character_side2">+</button></div>
+        <br>
+
+        <div class="list">Active characters: <div id="active">[]</div><br>
+            <button id="add_character_active">+</button></div>
+        <br>
+
+        <div class="object">Characters: <div id="characters">{}</div><br>
+            <input type="text" name="new_character"
+                id="new_character"><button id="add_character">+</button></div>
+        <br>
+
+        <div class="object">Items: <div id="items">{}</div><br>
+            <input type="text" name="new_item"
+                id="new_item"><button id="add_item">+</button></div>
+        <br>
+
+        <div class="object">Effects: <div id="effects">{}</div><br>
+            <input type="text" name="new_effect"
+                id="new_effect"><button id="add_effect">+</button></div>
+        <br>
+
+        <div class="single_value" id="state">
+            <textarea name="state" id="state_text" cols="30" rows="10"
+                placeholder="Paste your state here"></textarea>
+            <br>
+            <button id="state_default">Insert default state</button>
+            <button id="serialize">Serialize</button>
+            <button id="deserialize">Deserialize</button>
+        </div>
+        <div class="single_value">
+            <p id="errors"></p>
+        </div>
+    </body>
+</html>
