@@ -193,13 +193,26 @@ var main = function () {
     document.getElementById("add_item_inventory").onclick = function () {
         var inventoryDiv = document.getElementById("inventory");
         var index = inventoryDiv.childElementCount;
-        inventoryDiv.innerHTML += "\n<div class=\"single_value\">\n        <select id=\"inventory_item_".concat(index, "\"><option value=\"A\">A</option><option value=\"B\">B</option>");
-        for (var itemName in state.items)
-            inventoryDiv.innerHTML += "<option value=\"".concat(itemName, "\">").concat(itemName, "</option>");
-        inventoryDiv.innerHTML += "</select></div>";
-        state.inventory[index] = document.getElementById("inventory_item_".concat(index)).firstChild.value;
-        document.getElementById("inventory_item_".concat(index)).onchange = function () {
-            state.inventory[index] = document.getElementById("inventory_item_".concat(index)).value;
+        var div = document.createElement("div");
+        div.className = "single_value";
+        var selectElement = document.createElement("select");
+        selectElement.id = "inventory_item_".concat(index);
+        var optionA = document.createElement("option");
+        optionA.value = optionA.innerText = "A";
+        var optionB = document.createElement("option");
+        optionB.value = optionB.innerText = "B";
+        selectElement.appendChild(optionA);
+        selectElement.appendChild(optionB);
+        for (var itemName in state.items) {
+            var option = document.createElement("option");
+            option.value = option.innerText = itemName;
+            selectElement.appendChild(option);
+        }
+        state.inventory[index] = selectElement.firstChild.value;
+        div.appendChild(selectElement);
+        inventoryDiv.appendChild(div);
+        selectElement.onchange = function () {
+            state.inventory[index] = selectElement.value;
         };
     };
     document.getElementById("add_character_side1").onclick = function () {

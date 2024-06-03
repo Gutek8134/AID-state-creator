@@ -303,36 +303,141 @@ const main = () => {
     (document.getElementById("add_item_inventory") as HTMLButtonElement).onclick = () => {
         const inventoryDiv = document.getElementById("inventory") as HTMLDivElement;
         const index = inventoryDiv.childElementCount;
-        inventoryDiv.innerHTML += `\n<div class="single_value">
-        <select id="inventory_item_${index}"><option value="A">A</option><option value="B">B</option>`;
-        for (const itemName in state.items)
-            inventoryDiv.innerHTML += `<option value="${itemName}">${itemName}</option>`;
-        inventoryDiv.innerHTML += "</select></div>";
-        state.inventory[index] = ((document.getElementById(`inventory_item_${index}`) as HTMLSelectElement).firstChild as HTMLOptionElement).value;
 
-        (document.getElementById(`inventory_item_${index}`) as HTMLSelectElement).onchange = () => {
-            state.inventory[index] = (document.getElementById(`inventory_item_${index}`) as HTMLSelectElement).value;
+        const newDiv = document.createElement("div")
+        newDiv.className = "single_value";
+
+        const newSelect = document.createElement("select");
+        newSelect.id = `inventory_item_${index}`;
+
+        // const optionA = document.createElement("option");
+        // optionA.value = optionA.innerText = "A";
+        // const optionB = document.createElement("option");
+        // optionB.value = optionB.innerText = "B";
+        // newSelect.appendChild(optionA);
+        // newSelect.appendChild(optionB);
+
+        for (const itemName in state.items) {
+            const option = document.createElement("option");
+            option.value = option.innerText = itemName;
+            newSelect.appendChild(option);
+        }
+
+        state.inventory[index] = (newSelect.firstChild as HTMLOptionElement).value;
+
+        newDiv.appendChild(newSelect);
+        inventoryDiv.appendChild(newDiv);
+
+        newSelect.onchange = () => {
+            state.inventory[index] = newSelect.value;
         };
 
-    }
+    };
+
     (document.getElementById("add_character_side1") as HTMLButtonElement).onclick = () => {
-        const side1Div = document.getElementById("side1") as HTMLDivElement;
-        side1Div.innerHTML += `\n<div class="single_value"></div>`;
         state.side1 ??= [];
         state.inBattle = true;
-    }
+        const side1Div = document.getElementById("side1") as HTMLDivElement;
+        const index = side1Div.childElementCount;
+
+        const newDiv = document.createElement("div")
+        newDiv.className = "single_value";
+
+        const newSelect = document.createElement("select");
+        newSelect.id = `side1_character${index}`;
+
+        // const optionA = document.createElement("option");
+        // optionA.value = optionA.innerText = "A";
+        // const optionB = document.createElement("option");
+        // optionB.value = optionB.innerText = "B";
+        // newSelect.appendChild(optionA);
+        // newSelect.appendChild(optionB);
+
+        for (const itemName in state.characters) {
+            const option = document.createElement("option");
+            option.value = option.innerText = itemName;
+            newSelect.appendChild(option);
+        }
+
+        state.side1[index] = (newSelect.firstChild as HTMLOptionElement).value;
+
+        newDiv.appendChild(newSelect);
+        side1Div.appendChild(newDiv);
+
+        newSelect.onchange = () => {
+            state.inventory[index] = newSelect.value;
+        };
+    };
+
     (document.getElementById("add_character_side2") as HTMLButtonElement).onclick = () => {
-        const side2Div = document.getElementById("side2") as HTMLDivElement;
-        side2Div.innerHTML += `\n<div class="single_value"></div>`;
         state.side2 ??= [];
         state.inBattle = true;
-    }
+        const side2Div = document.getElementById("side2") as HTMLDivElement;
+        const index = side2Div.childElementCount;
+
+        const newDiv = document.createElement("div")
+        newDiv.className = "single_value";
+
+        const newSelect = document.createElement("select");
+        newSelect.id = `side1_character${index}`;
+
+        // const optionA = document.createElement("option");
+        // optionA.value = optionA.innerText = "A";
+        // const optionB = document.createElement("option");
+        // optionB.value = optionB.innerText = "B";
+        // newSelect.appendChild(optionA);
+        // newSelect.appendChild(optionB);
+
+        for (const itemName in state.characters) {
+            const option = document.createElement("option");
+            option.value = option.innerText = itemName;
+            newSelect.appendChild(option);
+        }
+
+        state.side2[index] = (newSelect.firstChild as HTMLOptionElement).value;
+
+        newDiv.appendChild(newSelect);
+        side2Div.appendChild(newDiv);
+
+        newSelect.onchange = () => {
+            state.inventory[index] = newSelect.value;
+        };
+    };
+
     (document.getElementById("add_character_active") as HTMLButtonElement).onclick = () => {
-        const activeDiv = document.getElementById("active") as HTMLDivElement;
-        activeDiv.innerHTML += `\n<div class="single_value"></div>`;
-        state.active = [];
+        state.active ??= [];
         state.inBattle = true;
-    }
+        const activeDiv = document.getElementById("active") as HTMLDivElement;
+        const index = activeDiv.childElementCount;
+
+        const newDiv = document.createElement("div")
+        newDiv.className = "single_value";
+
+        const newSelect = document.createElement("select");
+        newSelect.id = `side1_character${index}`;
+
+        // const optionA = document.createElement("option");
+        // optionA.value = optionA.innerText = "A";
+        // const optionB = document.createElement("option");
+        // optionB.value = optionB.innerText = "B";
+        // newSelect.appendChild(optionA);
+        // newSelect.appendChild(optionB);
+
+        for (const itemName in state.characters) {
+            const option = document.createElement("option");
+            option.value = option.innerText = itemName;
+            newSelect.appendChild(option);
+        }
+
+        state.active[index] = (newSelect.firstChild as HTMLOptionElement).value;
+
+        newDiv.appendChild(newSelect);
+        activeDiv.appendChild(newDiv);
+
+        newSelect.onchange = () => {
+            state.inventory[index] = newSelect.value;
+        };
+    };
 
     (document.getElementById("state_default") as HTMLButtonElement).onclick = () => {
         state = copy(defaultState);
@@ -340,8 +445,8 @@ const main = () => {
         UpdateFields();
     };
 
-    (document.getElementById("serialize") as HTMLButtonElement).onclick = () => ParseState(state_text.value);
-    (document.getElementById("deserialize") as HTMLButtonElement).onclick = () => state_text.value = JSON.stringify(state);
+    (document.getElementById("serialize") as HTMLButtonElement).onclick = () => state_text.value = JSON.stringify(state);
+    (document.getElementById("deserialize") as HTMLButtonElement).onclick = () => ParseState(state_text.value);
     UpdateFields();
 };
 
