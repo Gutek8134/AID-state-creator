@@ -2,17 +2,20 @@ function copy(aObject: any): any {
     // Prevent undefined objects
     // if (!aObject) return aObject;
 
-    let bObject: Array<any> | { [key: string | number]: any } = Array.isArray(aObject) ? [] : {};
+    let bObject: Array<any> | { [key: string | number]: any } = Array.isArray(
+        aObject
+    )
+        ? []
+        : {};
 
     let value: any, key: any;
     for (key in aObject) {
-
         // Prevent self-references to parent object
         // if (Object.is(aObject[key], aObject)) continue;
 
         value = aObject[key];
 
-        bObject[key] = (typeof value === "object") ? copy(value) : value;
+        bObject[key] = typeof value === "object" ? copy(value) : value;
     }
 
     return bObject;
@@ -112,8 +115,9 @@ class Stat {
     toString() {
         return levellingToOblivion || !(this.expToNextLvl && this.experience)
             ? String(this.level)
-            : `level = ${this.level} exp = ${this.experience} exp to lvl up=${this.expToNextLvl
-            }(${this.expToNextLvl - this.experience})`;
+            : `level = ${this.level} exp = ${this.experience} exp to lvl up=${
+                  this.expToNextLvl
+              }(${this.expToNextLvl - this.experience})`;
     }
 }
 
@@ -131,16 +135,15 @@ class Character {
     // Marked as possibly undefined for backwards compatibility
     activeEffects?: Effect[] = [];
     [key: string]:
-    | number
-    | boolean
-    | "character"
-    | "item"
-    | "stat"
-    | Effect[]
-    | (() => string)
-    | { [key: string]: Item }
-    | { [key: string]: Stat };
-
+        | number
+        | boolean
+        | "character"
+        | "item"
+        | "stat"
+        | Effect[]
+        | (() => string)
+        | { [key: string]: Item }
+        | { [key: string]: Stat };
 }
 
 const isInStats = (name: string): boolean => {
@@ -205,42 +208,45 @@ const defaultState = copy(state);
 let levellingToOblivion = true;
 const stateKeys = Object.keys(state);
 
-const RecursiveTypeCheck = (originalObject: { [key: string]: any } | any, comparedObject: { [key: string]: any } | any, comparedObjectName: string): boolean | string[] => {
+const RecursiveTypeCheck = (
+    originalObject: { [key: string]: any } | any,
+    comparedObject: { [key: string]: any } | any,
+    comparedObjectName: string
+): boolean | string[] => {
     if (typeof comparedObject !== typeof originalObject)
-        return [`${comparedObjectName} is of incorrect type (${typeof comparedObject} instead of ${typeof originalObject})`];
+        return [
+            `${comparedObjectName} is of incorrect type (${typeof comparedObject} instead of ${typeof originalObject})`,
+        ];
 
-    if (typeof comparedObject !== "object")
-        return true;
+    if (typeof comparedObject !== "object") return true;
 
     let errors: string[] = [];
     for (const key in comparedObject) {
-        const temp = RecursiveTypeCheck(originalObject[key], comparedObject[key], `${comparedObjectName}: ${key}`);
-        if (typeof temp !== "boolean")
-            errors.concat(temp);
-
+        const temp = RecursiveTypeCheck(
+            originalObject[key],
+            comparedObject[key],
+            `${comparedObjectName}: ${key}`
+        );
+        if (typeof temp !== "boolean") errors.concat(temp);
     }
 
     return errors.length > 0 ? errors : true;
-}
+};
 
 const ParseState = (state_text: string): void | string[] => {
-
     let tempState: { [key: string]: any } = {};
 
     let errors: Array<string> = [];
 
     try {
-        tempState = JSON.parse(state_text.replace("\n", ""))
-
+        tempState = JSON.parse(state_text.replace("\n", ""));
     } catch (SyntaxError) {
         errors.push("JSON state invalid");
-
     }
 
     const checkOutput = RecursiveTypeCheck(state, tempState, "state");
 
-    if (typeof checkOutput !== "boolean")
-        errors.concat(checkOutput);
+    if (typeof checkOutput !== "boolean") errors.concat(checkOutput);
 
     if (errors.length === 0) {
         for (const key in tempState) {
@@ -249,20 +255,35 @@ const ParseState = (state_text: string): void | string[] => {
             }
         }
         UpdateFields();
-    }
-    else return errors;
-}
+    } else return errors;
+};
 
 const UpdateFields = (): void => {
-    (document.getElementById("dice") as HTMLInputElement).value = String(state.dice);
-    (document.getElementById("startingLevel") as HTMLInputElement).value = String(state.startingLevel);
-    (document.getElementById("startingHP") as HTMLInputElement).value = String(state.startingHP);
-    (document.getElementById("skillpointsOnLevelUp") as HTMLInputElement).value = String(state.skillpointsOnLevelUp);
-    (document.getElementById("punishment") as HTMLInputElement).value = String(state.punishment);
-    (document.getElementById("inBattle") as HTMLInputElement).checked = state.inBattle;
-    (document.getElementById("in") as HTMLTextAreaElement).value = String(state.in);
-    (document.getElementById("ctxt") as HTMLTextAreaElement).value = String(state.ctxt);
-    (document.getElementById("out") as HTMLTextAreaElement).value = String(state.out);
+    (document.getElementById("dice") as HTMLInputElement).value = String(
+        state.dice
+    );
+    (document.getElementById("startingLevel") as HTMLInputElement).value =
+        String(state.startingLevel);
+    (document.getElementById("startingHP") as HTMLInputElement).value = String(
+        state.startingHP
+    );
+    (
+        document.getElementById("skillpointsOnLevelUp") as HTMLInputElement
+    ).value = String(state.skillpointsOnLevelUp);
+    (document.getElementById("punishment") as HTMLInputElement).value = String(
+        state.punishment
+    );
+    (document.getElementById("inBattle") as HTMLInputElement).checked =
+        state.inBattle;
+    (document.getElementById("in") as HTMLTextAreaElement).value = String(
+        state.in
+    );
+    (document.getElementById("ctxt") as HTMLTextAreaElement).value = String(
+        state.ctxt
+    );
+    (document.getElementById("out") as HTMLTextAreaElement).value = String(
+        state.out
+    );
 
     if (state.stats.length == 0)
         (document.getElementById("stats") as HTMLDivElement).innerHTML = "";
@@ -278,33 +299,79 @@ const UpdateFields = (): void => {
 
     if (!state.active || state.active.length == 0)
         (document.getElementById("active") as HTMLDivElement).innerHTML = "";
-
-}
+};
 
 const main = () => {
-    const error_place = document.getElementById("errors") as HTMLParagraphElement;
+    const error_place = document.getElementById(
+        "errors"
+    ) as HTMLParagraphElement;
 
-    const state_text = document.getElementById("state_text") as HTMLTextAreaElement;
+    const state_text = document.getElementById(
+        "state_text"
+    ) as HTMLTextAreaElement;
     if (!state_text)
         error_place.innerHTML = "State text could not be retrieved.";
     state_text.onkeydown = (key: KeyboardEvent): any => {
-        if (key.code === "Enter" && key.ctrlKey) (document.getElementById("serialize") as HTMLButtonElement).click();
-    }
+        if (key.code === "Enter" && key.ctrlKey)
+            (document.getElementById("serialize") as HTMLButtonElement).click();
+    };
+
+    (document.getElementById("new_stat") as HTMLInputElement).onkeydown = (
+        event
+    ) => {
+        if (event.key === "Enter")
+            (document.getElementById("add_stat") as HTMLButtonElement).click();
+    };
 
     (document.getElementById("add_stat") as HTMLButtonElement).onclick = () => {
         const statsDiv = document.getElementById("stats") as HTMLDivElement;
-        const new_stat = (document.getElementById("new_stat") as HTMLInputElement).value.trim();
-        state.stats.push(new_stat);
-        statsDiv.innerHTML += `\n<div class="single_value" id="stat_${state.stats.length}">
-        <p>${state.stats[state.stats.length - 1]}</p>
-</div>`;
-    }
+        const index = state.stats.length;
+        const new_stat = (
+            document.getElementById("new_stat") as HTMLInputElement
+        ).value.trim();
+        (document.getElementById("new_stat") as HTMLInputElement).value = "";
 
-    (document.getElementById("add_item_inventory") as HTMLButtonElement).onclick = () => {
-        const inventoryDiv = document.getElementById("inventory") as HTMLDivElement;
+        state.stats.push(new_stat);
+
+        const newDiv = document.createElement("div");
+        newDiv.className = "single_value";
+        newDiv.id = `stat_${index}`;
+
+        const inputElement = document.createElement("input");
+        inputElement.value = state.stats[index];
+        inputElement.onchange = () => {
+            state.stats[index] = inputElement.value;
+        };
+        newDiv.appendChild(inputElement);
+
+        const deleteStat = document.createElement("button");
+        deleteStat.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+      </svg>`;
+        deleteStat.onclick = () => {
+            document.getElementById(`stat_${index}`)?.remove();
+            state.stats.splice(index, 1);
+        };
+        newDiv.appendChild(deleteStat);
+
+        statsDiv.appendChild(newDiv);
+    };
+
+    (
+        document.getElementById("add_item_inventory") as HTMLButtonElement
+    ).onclick = () => {
+        if (Object.keys(state.items).length === 0) {
+            alert("Error: There are no items");
+            return;
+        }
+
+        const inventoryDiv = document.getElementById(
+            "inventory"
+        ) as HTMLDivElement;
         const index = inventoryDiv.childElementCount;
 
-        const newDiv = document.createElement("div")
+        const newDiv = document.createElement("div");
         newDiv.className = "single_value";
 
         const newSelect = document.createElement("select");
@@ -323,28 +390,48 @@ const main = () => {
             newSelect.appendChild(option);
         }
 
-        state.inventory[index] = (newSelect.firstChild as HTMLOptionElement).value;
+        state.inventory[index] = (
+            newSelect.firstChild as HTMLOptionElement
+        ).value;
 
         newDiv.appendChild(newSelect);
+
+        const deleteItem = document.createElement("button");
+        deleteItem.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+      </svg>`;
+        deleteItem.onclick = () => {
+            document.getElementById(`inventory_item_${index}`)?.remove();
+            state.inventory.splice(index, 1);
+        };
+        newDiv.appendChild(deleteItem);
+
         inventoryDiv.appendChild(newDiv);
 
         newSelect.onchange = () => {
             state.inventory[index] = newSelect.value;
         };
-
     };
 
-    (document.getElementById("add_character_side1") as HTMLButtonElement).onclick = () => {
+    (
+        document.getElementById("add_character_side1") as HTMLButtonElement
+    ).onclick = () => {
+        if (Object.keys(state.characters).length === 0) {
+            alert("Error: There are no characters");
+            return;
+        }
+
         state.side1 ??= [];
         state.inBattle = true;
         const side1Div = document.getElementById("side1") as HTMLDivElement;
         const index = side1Div.childElementCount;
 
-        const newDiv = document.createElement("div")
+        const newDiv = document.createElement("div");
         newDiv.className = "single_value";
 
         const newSelect = document.createElement("select");
-        newSelect.id = `side1_character${index}`;
+        newSelect.id = `side1_character_${index}`;
 
         // const optionA = document.createElement("option");
         // optionA.value = optionA.innerText = "A";
@@ -353,33 +440,53 @@ const main = () => {
         // newSelect.appendChild(optionA);
         // newSelect.appendChild(optionB);
 
-        for (const itemName in state.characters) {
+        for (const characterName in state.characters) {
             const option = document.createElement("option");
-            option.value = option.innerText = itemName;
+            option.value = option.innerText = characterName;
             newSelect.appendChild(option);
         }
 
         state.side1[index] = (newSelect.firstChild as HTMLOptionElement).value;
 
         newDiv.appendChild(newSelect);
+
+        const deleteCharacter = document.createElement("button");
+        deleteCharacter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+      </svg>`;
+        deleteCharacter.onclick = () => {
+            document.getElementById(`side1_character_${index}`)?.remove();
+            state.side1?.splice(index, 1);
+        };
+        newDiv.appendChild(deleteCharacter);
+
         side1Div.appendChild(newDiv);
 
         newSelect.onchange = () => {
-            state.inventory[index] = newSelect.value;
+            state.side1 ??= [];
+            state.side1[index] = newSelect.value;
         };
     };
 
-    (document.getElementById("add_character_side2") as HTMLButtonElement).onclick = () => {
+    (
+        document.getElementById("add_character_side2") as HTMLButtonElement
+    ).onclick = () => {
+        if (Object.keys(state.characters).length === 0) {
+            alert("Error: There are no characters");
+            return;
+        }
+
         state.side2 ??= [];
         state.inBattle = true;
         const side2Div = document.getElementById("side2") as HTMLDivElement;
         const index = side2Div.childElementCount;
 
-        const newDiv = document.createElement("div")
+        const newDiv = document.createElement("div");
         newDiv.className = "single_value";
 
         const newSelect = document.createElement("select");
-        newSelect.id = `side1_character${index}`;
+        newSelect.id = `side2_character_${index}`;
 
         // const optionA = document.createElement("option");
         // optionA.value = optionA.innerText = "A";
@@ -388,33 +495,53 @@ const main = () => {
         // newSelect.appendChild(optionA);
         // newSelect.appendChild(optionB);
 
-        for (const itemName in state.characters) {
+        for (const characterName in state.characters) {
             const option = document.createElement("option");
-            option.value = option.innerText = itemName;
+            option.value = option.innerText = characterName;
             newSelect.appendChild(option);
         }
 
         state.side2[index] = (newSelect.firstChild as HTMLOptionElement).value;
 
         newDiv.appendChild(newSelect);
+
+        const deleteCharacter = document.createElement("button");
+        deleteCharacter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+      </svg>`;
+        deleteCharacter.onclick = () => {
+            document.getElementById(`side2_character_${index}`)?.remove();
+            state.side2?.splice(index, 1);
+        };
+        newDiv.appendChild(deleteCharacter);
+
         side2Div.appendChild(newDiv);
 
         newSelect.onchange = () => {
-            state.inventory[index] = newSelect.value;
+            state.side2 ??= [];
+            state.side2[index] = newSelect.value;
         };
     };
 
-    (document.getElementById("add_character_active") as HTMLButtonElement).onclick = () => {
+    (
+        document.getElementById("add_character_active") as HTMLButtonElement
+    ).onclick = () => {
+        if (Object.keys(state.characters).length === 0) {
+            alert("Error: There are no characters");
+            return;
+        }
+
         state.active ??= [];
         state.inBattle = true;
         const activeDiv = document.getElementById("active") as HTMLDivElement;
         const index = activeDiv.childElementCount;
 
-        const newDiv = document.createElement("div")
+        const newDiv = document.createElement("div");
         newDiv.className = "single_value";
 
         const newSelect = document.createElement("select");
-        newSelect.id = `side1_character${index}`;
+        newSelect.id = `active_character_${index}`;
 
         // const optionA = document.createElement("option");
         // optionA.value = optionA.innerText = "A";
@@ -423,36 +550,54 @@ const main = () => {
         // newSelect.appendChild(optionA);
         // newSelect.appendChild(optionB);
 
-        for (const itemName in state.characters) {
+        for (const characterName in state.characters) {
             const option = document.createElement("option");
-            option.value = option.innerText = itemName;
+            option.value = option.innerText = characterName;
             newSelect.appendChild(option);
         }
 
         state.active[index] = (newSelect.firstChild as HTMLOptionElement).value;
 
         newDiv.appendChild(newSelect);
+
+        const deleteCharacter = document.createElement("button");
+        deleteCharacter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+      </svg>`;
+        deleteCharacter.onclick = () => {
+            document.getElementById(`active_character_${index}`)?.remove();
+            state.side1?.splice(index, 1);
+        };
+        newDiv.appendChild(deleteCharacter);
+
         activeDiv.appendChild(newDiv);
 
         newSelect.onchange = () => {
-            state.inventory[index] = newSelect.value;
+            state.active ??= [];
+            state.active[index] = newSelect.value;
         };
     };
 
-    (document.getElementById("state_default") as HTMLButtonElement).onclick = () => {
-        state = copy(defaultState);
-        state_text.value = JSON.stringify(state);
-        UpdateFields();
-    };
+    (document.getElementById("state_default") as HTMLButtonElement).onclick =
+        () => {
+            state = copy(defaultState);
+            state_text.value = JSON.stringify(state);
+            UpdateFields();
+        };
 
-    (document.getElementById("serialize") as HTMLButtonElement).onclick = () => state_text.value = JSON.stringify(state);
-    (document.getElementById("deserialize") as HTMLButtonElement).onclick = () => ParseState(state_text.value);
+    (document.getElementById("serialize") as HTMLButtonElement).onclick = () =>
+        (state_text.value = JSON.stringify(state));
+    (document.getElementById("deserialize") as HTMLButtonElement).onclick =
+        () => ParseState(state_text.value);
     UpdateFields();
 };
 
 try {
     main();
 } catch (error) {
-    let message = error instanceof Error ? error.message : JSON.stringify(error);
-    (document.getElementById("errors") as HTMLParagraphElement).innerHTML = message;
+    let message =
+        error instanceof Error ? error.message : JSON.stringify(error);
+    (document.getElementById("errors") as HTMLParagraphElement).innerHTML =
+        message;
 }
