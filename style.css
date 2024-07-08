@@ -1,3 +1,11 @@
-#errors{
+#errors {
     color: red;
+}
+
+.character-sheet {
+    list-style-type: none;
+}
+
+.effect-sheet {
+    list-style-type: none;
 }
