@@ -710,6 +710,237 @@ const main = () => {
             charactersDiv.appendChild(newCharacter);
         };
 
+    (document.getElementById("new_item") as HTMLInputElement).onkeydown = (
+        event
+    ) => {
+        if (event.key === "Enter")
+            (document.getElementById("add_item") as HTMLButtonElement).click();
+    };
+
+    (document.getElementById("add_item") as HTMLInputElement).onclick = () => {
+        const itemsDiv = document.getElementById("items") as HTMLDivElement;
+        const newItemName = (
+            document.getElementById("new_item") as HTMLInputElement
+        ).value;
+        (document.getElementById("new_item") as HTMLInputElement).value = "";
+
+        state.items[newItemName] = new Item(newItemName, []);
+
+        const newItem = document.createElement("div");
+        newItem.className = "item";
+
+        const itemSheet = document.createElement("ul");
+        itemSheet.className = "item-sheet";
+
+        const nameElement = document.createElement("li");
+        const nameParagraph = document.createElement("p");
+        nameParagraph.innerText = newItemName;
+        nameElement.appendChild(nameParagraph);
+        itemSheet.appendChild(nameElement);
+
+        const slotElement = document.createElement("li");
+        const slotInput = document.createElement("input");
+        slotInput.value = state.items[newItemName].slot;
+        slotInput.onchange = () => {
+            state.items[newItemName].slot = slotInput.value;
+        };
+        slotElement.appendChild(slotInput);
+        itemSheet.appendChild(slotElement);
+
+        const effectsElement = document.createElement("li");
+        const effects = document.createElement("div");
+        effects.className = "list";
+        effectsElement.appendChild(effects);
+
+        const effectAddInput = document.createElement("select");
+        for (const effectName in state.effects) {
+            const option = document.createElement("option");
+            option.value = option.innerText = effectName;
+            effectAddInput.appendChild(option);
+        }
+
+        const effectAddButton = document.createElement("button");
+        effectAddButton.innerText = "+";
+
+        effectAddButton.onclick = () => {
+            const selectedOption = effectAddInput.selectedOptions[0];
+            const effectIndex = state.items[newItemName].effects.length;
+            state.items[newItemName].effects.push(selectedOption.value);
+
+            const newElement = document.createElement("div");
+
+            const newEffect = document.createElement("p");
+            newEffect.innerText = selectedOption.value;
+            newElement.appendChild(newEffect);
+
+            const deleteElement = document.createElement("button");
+            deleteElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+
+            deleteElement.onclick = () => {
+                state.items[newItemName].effects.splice(effectIndex, 1);
+                effectAddInput.appendChild(selectedOption);
+                newElement.remove();
+            };
+
+            newElement.appendChild(deleteElement);
+            effects.appendChild(newElement);
+
+            effectAddInput.removeChild(selectedOption);
+        };
+
+        effectsElement.appendChild(effectAddInput);
+        effectsElement.appendChild(effectAddButton);
+        itemSheet.appendChild(effectsElement);
+
+        const modifiersParagraph = document.createElement("p");
+        modifiersParagraph.innerText = "Modifiers:";
+        itemSheet.appendChild(modifiersParagraph);
+
+        const modifierRefCount: { [key: string]: number } = {};
+        const modifiersElement = document.createElement("ul");
+        modifiersElement.style.listStyleType = "none";
+        const modifierAddElement = document.createElement("li");
+        const modifierAdd = document.createElement("button");
+        modifierAdd.innerText = "Add modifier";
+        modifierAdd.onclick = () => {
+            const newModifier = document.createElement("li");
+            newModifier.className = "single_value";
+            const modifiedStat = document.createElement("select");
+            let selected = false;
+            let i = 0;
+            for (const stat of state.stats) {
+                const statOption = document.createElement("option");
+                statOption.innerText = statOption.value = stat;
+                modifiedStat.appendChild(statOption);
+                if (
+                    !Object.keys(state.items[newItemName].modifiers).includes(
+                        stat
+                    ) &&
+                    !selected
+                ) {
+                    selected = true;
+                    modifiedStat.selectedIndex = i;
+                    if (isNaN(state.items[newItemName].modifiers[stat]))
+                        state.items[newItemName].modifiers[stat] = 0;
+                    modifierRefCount[stat] = isNaN(modifierRefCount[stat])
+                        ? 1
+                        : modifierRefCount[stat] + 1;
+                }
+                ++i;
+            }
+            if (!selected) {
+                alert(
+                    "All of the created stats have been used for this item, create a new stat or modify already existing modifier"
+                );
+                modifiedStat.remove();
+                newModifier.remove();
+                return;
+            }
+
+            let previousStatName: string;
+
+            modifiedStat.onfocus = () => {
+                previousStatName = modifiedStat.value;
+            };
+
+            modifiedStat.onchange = () => {
+                if (
+                    !isNaN(
+                        state.items[newItemName].modifiers[modifiedStat.value]
+                    )
+                ) {
+                    state.items[newItemName].modifiers[modifiedStat.value] +=
+                        modifiedValue.valueAsNumber;
+                } else {
+                    state.items[newItemName].modifiers[modifiedStat.value] =
+                        modifiedValue.valueAsNumber;
+                }
+
+                modifierRefCount[modifiedStat.value] = isNaN(
+                    modifierRefCount[modifiedStat.value]
+                )
+                    ? 1
+                    : modifierRefCount[modifiedStat.value] + 1;
+
+                if (
+                    !isNaN(state.items[newItemName].modifiers[previousStatName])
+                ) {
+                    state.items[newItemName].modifiers[previousStatName] -=
+                        modifiedValue.valueAsNumber;
+                } else {
+                    state.items[newItemName].modifiers[previousStatName] = 0;
+                }
+                --modifierRefCount[previousStatName];
+                if (
+                    modifierRefCount[previousStatName] === 0 ||
+                    isNaN(modifierRefCount[previousStatName])
+                ) {
+                    delete state.items[newItemName].modifiers[previousStatName];
+                }
+                previousStatName = modifiedStat.value;
+            };
+
+            newModifier.appendChild(modifiedStat);
+            const modifiedValue = document.createElement("input");
+            modifiedValue.type = "number";
+            modifiedValue.value = "0";
+            let previousValue: number;
+            modifiedValue.onfocus = () => {
+                previousValue = modifiedValue.valueAsNumber;
+            };
+            modifiedValue.onchange = () => {
+                if (isNaN(modifiedValue.valueAsNumber)) return;
+
+                if (
+                    isNaN(
+                        state.items[newItemName].modifiers[modifiedStat.value]
+                    )
+                ) {
+                    state.items[newItemName].modifiers[modifiedStat.value] =
+                        modifiedValue.valueAsNumber;
+                } else {
+                    state.items[newItemName].modifiers[modifiedStat.value] +=
+                        modifiedValue.valueAsNumber - previousValue;
+                }
+                previousValue = modifiedValue.valueAsNumber;
+            };
+            newModifier.appendChild(modifiedValue);
+
+            const deleteModifier = document.createElement("button");
+            deleteModifier.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                </svg>`;
+            deleteModifier.onclick = () => {
+                state.items[newItemName].modifiers[modifiedStat.value] -=
+                    modifiedValue.valueAsNumber;
+                newModifier.remove();
+            };
+            newModifier.appendChild(deleteModifier);
+            modifiersElement.appendChild(newModifier);
+        };
+        modifierAddElement.appendChild(modifierAdd);
+        modifiersElement.appendChild(modifierAddElement);
+        itemSheet.appendChild(modifiersElement);
+        newItem.appendChild(itemSheet);
+
+        const deleteItem = document.createElement("button");
+        deleteItem.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                </svg>`;
+        deleteItem.onclick = () => {
+            delete state.items[newItemName];
+            newItem.remove();
+        };
+        newItem.appendChild(deleteItem);
+
+        itemsDiv.appendChild(newItem);
+    };
+
     (document.getElementById("new_effect") as HTMLInputElement).onkeydown = (
         event
     ) => {
