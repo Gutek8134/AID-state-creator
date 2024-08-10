@@ -368,6 +368,50 @@ const main = () => {
         statsDiv.appendChild(newDiv);
     };
 
+    (document.getElementById("new_slot") as HTMLInputElement).onkeydown = (
+        event
+    ) => {
+        if (event.key === "Enter")
+            (document.getElementById("add_slot") as HTMLButtonElement).click();
+    };
+
+    var slots: Array<string> = [];
+
+    (document.getElementById("add_slot") as HTMLButtonElement).onclick = () => {
+        const slotsDiv = document.getElementById("slots") as HTMLDivElement;
+        const index = slots.length;
+        const new_slot = (
+            document.getElementById("new_slot") as HTMLInputElement
+        ).value.trim();
+        (document.getElementById("new_slot") as HTMLInputElement).value = "";
+
+        slots.push(new_slot);
+
+        const newDiv = document.createElement("div");
+        newDiv.className = "single_value";
+        newDiv.id = `slot_${index}`;
+
+        const inputElement = document.createElement("input");
+        inputElement.value = slots[index];
+        inputElement.onchange = () => {
+            slots[index] = inputElement.value;
+        };
+        newDiv.appendChild(inputElement);
+
+        const deleteSlot = document.createElement("button");
+        deleteSlot.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+      </svg>`;
+        deleteSlot.onclick = () => {
+            document.getElementById(`slot_${index}`)?.remove();
+            slots.splice(index, 1);
+        };
+        newDiv.appendChild(deleteSlot);
+
+        slotsDiv.appendChild(newDiv);
+    };
+
     (
         document.getElementById("add_item_inventory") as HTMLButtonElement
     ).onclick = () => {
@@ -718,6 +762,13 @@ const main = () => {
     };
 
     (document.getElementById("add_item") as HTMLInputElement).onclick = () => {
+        if (slots.length === 0) {
+            (
+                document.getElementById("errors") as HTMLParagraphElement
+            ).innerText = "Create a slot for the items.";
+            return;
+        }
+
         const itemsDiv = document.getElementById("items") as HTMLDivElement;
         const newItemName = (
             document.getElementById("new_item") as HTMLInputElement
@@ -739,12 +790,17 @@ const main = () => {
         itemSheet.appendChild(nameElement);
 
         const slotElement = document.createElement("li");
-        const slotInput = document.createElement("input");
-        slotInput.value = state.items[newItemName].slot;
-        slotInput.onchange = () => {
-            state.items[newItemName].slot = slotInput.value;
+        const slotSelect = document.createElement("select");
+        for (const slot of slots) {
+            const option = document.createElement("option");
+            option.text = option.value = slot;
+            slotSelect.appendChild(option);
+        }
+        slotSelect.value = slots[0];
+        slotSelect.onchange = () => {
+            state.items[newItemName].slot = slotSelect.value;
         };
-        slotElement.appendChild(slotInput);
+        slotElement.appendChild(slotSelect);
         itemSheet.appendChild(slotElement);
 
         const effectsElement = document.createElement("li");

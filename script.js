@@ -226,6 +226,36 @@ var main = function () {
         newDiv.appendChild(deleteStat);
         statsDiv.appendChild(newDiv);
     };
+    document.getElementById("new_slot").onkeydown = function (event) {
+        if (event.key === "Enter")
+            document.getElementById("add_slot").click();
+    };
+    var slots = [];
+    document.getElementById("add_slot").onclick = function () {
+        var slotsDiv = document.getElementById("slots");
+        var index = slots.length;
+        var new_slot = document.getElementById("new_slot").value.trim();
+        document.getElementById("new_slot").value = "";
+        slots.push(new_slot);
+        var newDiv = document.createElement("div");
+        newDiv.className = "single_value";
+        newDiv.id = "slot_".concat(index);
+        var inputElement = document.createElement("input");
+        inputElement.value = slots[index];
+        inputElement.onchange = function () {
+            slots[index] = inputElement.value;
+        };
+        newDiv.appendChild(inputElement);
+        var deleteSlot = document.createElement("button");
+        deleteSlot.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n      </svg>";
+        deleteSlot.onclick = function () {
+            var _a;
+            (_a = document.getElementById("slot_".concat(index))) === null || _a === void 0 ? void 0 : _a.remove();
+            slots.splice(index, 1);
+        };
+        newDiv.appendChild(deleteSlot);
+        slotsDiv.appendChild(newDiv);
+    };
     document.getElementById("add_item_inventory").onclick = function () {
         if (Object.keys(state.items).length === 0) {
             alert("Error: There are no items");
@@ -484,6 +514,10 @@ var main = function () {
             document.getElementById("add_item").click();
     };
     document.getElementById("add_item").onclick = function () {
+        if (slots.length === 0) {
+            document.getElementById("errors").innerText = "Create a slot for the items.";
+            return;
+        }
         var itemsDiv = document.getElementById("items");
         var newItemName = document.getElementById("new_item").value;
         document.getElementById("new_item").value = "";
@@ -498,12 +532,18 @@ var main = function () {
         nameElement.appendChild(nameParagraph);
         itemSheet.appendChild(nameElement);
         var slotElement = document.createElement("li");
-        var slotInput = document.createElement("input");
-        slotInput.value = state.items[newItemName].slot;
-        slotInput.onchange = function () {
-            state.items[newItemName].slot = slotInput.value;
+        var slotSelect = document.createElement("select");
+        for (var _i = 0, slots_1 = slots; _i < slots_1.length; _i++) {
+            var slot = slots_1[_i];
+            var option = document.createElement("option");
+            option.text = option.value = slot;
+            slotSelect.appendChild(option);
+        }
+        slotSelect.value = slots[0];
+        slotSelect.onchange = function () {
+            state.items[newItemName].slot = slotSelect.value;
         };
-        slotElement.appendChild(slotInput);
+        slotElement.appendChild(slotSelect);
         itemSheet.appendChild(slotElement);
         var effectsElement = document.createElement("li");
         var effects = document.createElement("div");
