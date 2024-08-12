@@ -336,12 +336,12 @@ const main = () => {
     (document.getElementById("add_stat") as HTMLButtonElement).onclick = () => {
         const statsDiv = document.getElementById("stats") as HTMLDivElement;
         const index = state.stats.length;
-        const new_stat = (
+        const newStat = (
             document.getElementById("new_stat") as HTMLInputElement
         ).value.trim();
         (document.getElementById("new_stat") as HTMLInputElement).value = "";
 
-        state.stats.push(new_stat);
+        state.stats.push(newStat);
 
         const newDiv = document.createElement("div");
         newDiv.className = "single_value";
@@ -354,12 +354,34 @@ const main = () => {
         };
         newDiv.appendChild(inputElement);
 
+        for (const element of Array.from(
+            document.getElementsByClassName("stat-select")
+        )) {
+            const select = element as HTMLSelectElement;
+
+            const option = document.createElement("option");
+            option.text = option.value = newStat;
+            select.appendChild(option);
+        }
+
         const deleteStat = document.createElement("button");
         deleteStat.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
         <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
         <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
       </svg>`;
         deleteStat.onclick = () => {
+            for (const element of Array.from(
+                document.getElementsByClassName("stat-select")
+            )) {
+                const select = element as HTMLSelectElement;
+
+                for (const option of Array.from(select.options)) {
+                    if (option.value === newStat) {
+                        select.removeChild(option);
+                        break;
+                    }
+                }
+            }
             document.getElementById(`stat_${index}`)?.remove();
             state.stats.splice(index, 1);
         };
@@ -380,12 +402,12 @@ const main = () => {
     (document.getElementById("add_slot") as HTMLButtonElement).onclick = () => {
         const slotsDiv = document.getElementById("slots") as HTMLDivElement;
         const index = slots.length;
-        const new_slot = (
+        const newSlot = (
             document.getElementById("new_slot") as HTMLInputElement
         ).value.trim();
         (document.getElementById("new_slot") as HTMLInputElement).value = "";
 
-        slots.push(new_slot);
+        slots.push(newSlot);
 
         const newDiv = document.createElement("div");
         newDiv.className = "single_value";
@@ -398,13 +420,36 @@ const main = () => {
         };
         newDiv.appendChild(inputElement);
 
+        for (const element of Array.from(
+            document.getElementsByClassName("slot-select")
+        )) {
+            const select = element as HTMLSelectElement;
+
+            const option = document.createElement("option");
+            option.value = option.text = newSlot;
+            select.appendChild(option);
+        }
+
         const deleteSlot = document.createElement("button");
         deleteSlot.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
         <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
         <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
       </svg>`;
         deleteSlot.onclick = () => {
-            document.getElementById(`slot_${index}`)?.remove();
+            for (const element of Array.from(
+                document.getElementsByClassName("slot-select")
+            )) {
+                const select = element as HTMLSelectElement;
+
+                for (const option of Array.from(select.options)) {
+                    if (option.value === newSlot) {
+                        select.removeChild(option);
+                        break;
+                    }
+                }
+            }
+
+            newDiv.remove();
             slots.splice(index, 1);
         };
         newDiv.appendChild(deleteSlot);
@@ -429,6 +474,7 @@ const main = () => {
         newDiv.className = "single_value";
 
         const newSelect = document.createElement("select");
+        newSelect.className = "item-select";
         newSelect.id = `inventory_item_${index}`;
 
         // const optionA = document.createElement("option");
@@ -791,6 +837,7 @@ const main = () => {
 
         const slotElement = document.createElement("li");
         const slotSelect = document.createElement("select");
+        slotSelect.className = "slot-select";
         for (const slot of slots) {
             const option = document.createElement("option");
             option.text = option.value = slot;
@@ -809,6 +856,7 @@ const main = () => {
         effectsElement.appendChild(effects);
 
         const effectAddInput = document.createElement("select");
+        effectAddInput.className = "effect-select";
         for (const effectName in state.effects) {
             const option = document.createElement("option");
             option.value = option.innerText = effectName;
@@ -865,6 +913,7 @@ const main = () => {
             const newModifier = document.createElement("li");
             newModifier.className = "single_value";
             const modifiedStat = document.createElement("select");
+            modifiedStat.className = "stat-select";
             let selected = false;
             let i = 0;
             for (const stat of state.stats) {
@@ -973,6 +1022,13 @@ const main = () => {
             deleteModifier.onclick = () => {
                 state.items[newItemName].modifiers[modifiedStat.value] -=
                     modifiedValue.valueAsNumber;
+                --modifierRefCount[previousStatName];
+                if (
+                    modifierRefCount[previousStatName] === 0 ||
+                    isNaN(modifierRefCount[previousStatName])
+                ) {
+                    delete state.items[newItemName].modifiers[previousStatName];
+                }
                 newModifier.remove();
             };
             newModifier.appendChild(deleteModifier);
@@ -983,12 +1039,34 @@ const main = () => {
         itemSheet.appendChild(modifiersElement);
         newItem.appendChild(itemSheet);
 
+        for (const element of Array.from(
+            document.getElementsByClassName("item-select")
+        )) {
+            const select = element as HTMLSelectElement;
+
+            const option = document.createElement("option");
+            option.text = option.value = newItemName;
+            select.appendChild(option);
+        }
+
         const deleteItem = document.createElement("button");
         deleteItem.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
                 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
                 <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
                 </svg>`;
         deleteItem.onclick = () => {
+            for (const element of Array.from(
+                document.getElementsByClassName("item-select")
+            )) {
+                const select = element as HTMLSelectElement;
+
+                for (const option of Array.from(select.options)) {
+                    if (option.value === newItemName) {
+                        select.removeChild(option);
+                        break;
+                    }
+                }
+            }
             delete state.items[newItemName];
             newItem.remove();
         };
@@ -1176,6 +1254,7 @@ const main = () => {
                 const newModifier = document.createElement("li");
                 newModifier.className = "single_value";
                 const modifiedStat = document.createElement("select");
+                modifiedStat.className = "stat-select";
                 let selected = false;
                 let i = 0;
                 for (const stat of state.stats) {
@@ -1312,6 +1391,41 @@ const main = () => {
             effectSheet.appendChild(modifiersElement);
 
             newEffect.appendChild(effectSheet);
+
+            for (const element of Array.from(
+                document.getElementsByClassName("effect-select")
+            )) {
+                const select = element as HTMLSelectElement;
+
+                const option = document.createElement("option");
+                option.text = option.value = newEffectName;
+                select.appendChild(option);
+            }
+
+            const deleteEffect = document.createElement("button");
+            deleteEffect.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                </svg>`;
+            deleteEffect.onclick = () => {
+                delete state.effects[newEffectName];
+
+                for (const element of Array.from(
+                    document.getElementsByClassName("effect-select")
+                )) {
+                    const select = element as HTMLSelectElement;
+
+                    for (const option of Array.from(select.options)) {
+                        if (option.value === newEffectName) {
+                            select.removeChild(option);
+                            break;
+                        }
+                    }
+                }
+
+                newEffect.remove();
+            };
+
             effectsDiv.appendChild(newEffect);
         };
 
