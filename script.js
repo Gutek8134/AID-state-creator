@@ -250,7 +250,9 @@ var main = function () {
             document.getElementById("add_slot").click();
     };
     var slots = [];
+    var itemsBySlot = {};
     document.getElementById("add_slot").onclick = function () {
+        var _a;
         var slotsDiv = document.getElementById("slots");
         var index = slots.length;
         var newSlot = document.getElementById("new_slot").value.trim();
@@ -265,15 +267,15 @@ var main = function () {
             slots[index] = inputElement.value;
         };
         newDiv.appendChild(inputElement);
-        for (var _i = 0, _a = Array.from(document.getElementsByClassName("slot-select")); _i < _a.length; _i++) {
-            var element = _a[_i];
+        for (var _i = 0, _b = Array.from(document.getElementsByClassName("slot-select")); _i < _b.length; _i++) {
+            var element = _b[_i];
             var select = element;
             var option = document.createElement("option");
             option.value = option.text = newSlot;
             select.appendChild(option);
         }
-        for (var _b = 0, _c = Array.from(document.getElementsByClassName("equipment-list")); _b < _c.length; _b++) {
-            var element = _c[_b];
+        for (var _c = 0, _d = Array.from(document.getElementsByClassName("equipment-list")); _c < _d.length; _c++) {
+            var element = _d[_c];
             var equipment = element;
             var slotElement = document.createElement("li");
             var slotName = document.createElement("p");
@@ -281,8 +283,9 @@ var main = function () {
             slotElement.appendChild(slotName);
             var equippedItem = document.createElement("select");
             equippedItem.className = "item-".concat(newSlot, "-select item-slot-select");
-            for (var _d = 0, _e = itemsBySlot[newSlot]; _d < _e.length; _d++) {
-                var itemName = _e[_d];
+            (_a = itemsBySlot[newSlot]) !== null && _a !== void 0 ? _a : (itemsBySlot[newSlot] = []);
+            for (var _e = 0, _f = itemsBySlot[newSlot]; _e < _f.length; _e++) {
+                var itemName = _f[_e];
                 var option = document.createElement("option");
                 option.text = option.value = itemName;
                 equippedItem.appendChild(option);
@@ -479,13 +482,13 @@ var main = function () {
             state.active[index] = newSelect.value;
         };
     };
-    var itemsBySlot;
     document.getElementById("new_character").onkeydown = function (event) {
         if (event.key === "Enter")
             document.getElementById("add_character").click();
     };
     document.getElementById("add_character").onclick =
         function () {
+            var _a;
             var charactersDiv = document.getElementById("characters");
             var newCharacterName = document.getElementById("new_character").value;
             document.getElementById("new_character").value = "";
@@ -664,8 +667,9 @@ var main = function () {
                 slotElement.appendChild(slotName);
                 var equippedItem = document.createElement("select");
                 equippedItem.className = "item-".concat(slot, "-select item-slot-select");
-                for (var _a = 0, _b = itemsBySlot[slot]; _a < _b.length; _a++) {
-                    var itemName = _b[_a];
+                (_a = itemsBySlot[slot]) !== null && _a !== void 0 ? _a : (itemsBySlot[slot] = []);
+                for (var _b = 0, _c = itemsBySlot[slot]; _b < _c.length; _b++) {
+                    var itemName = _c[_b];
                     var option = document.createElement("option");
                     option.text = option.value = itemName;
                     equippedItem.appendChild(option);

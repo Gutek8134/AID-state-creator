@@ -399,6 +399,7 @@ const main = () => {
     };
 
     let slots: Array<string> = [];
+    let itemsBySlot: { [key: string]: string[] } = {};
 
     (document.getElementById("add_slot") as HTMLButtonElement).onclick = () => {
         const slotsDiv = document.getElementById("slots") as HTMLDivElement;
@@ -443,6 +444,7 @@ const main = () => {
 
             const equippedItem = document.createElement("select");
             equippedItem.className = `item-${newSlot}-select item-slot-select`;
+            itemsBySlot[newSlot] ??= [];
             for (const itemName of itemsBySlot[newSlot]) {
                 const option = document.createElement("option");
                 option.text = option.value = itemName;
@@ -708,8 +710,6 @@ const main = () => {
         };
     };
 
-    let itemsBySlot: { [key: string]: string[] };
-
     (document.getElementById("new_character") as HTMLInputElement).onkeydown = (
         event
     ) => {
@@ -974,6 +974,7 @@ const main = () => {
 
                 const equippedItem = document.createElement("select");
                 equippedItem.className = `item-${slot}-select item-slot-select`;
+                itemsBySlot[slot] ??= [];
                 for (const itemName of itemsBySlot[slot]) {
                     const option = document.createElement("option");
                     option.text = option.value = itemName;
