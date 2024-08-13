@@ -143,6 +143,7 @@ var ParseState = function (state_text) {
     }
     catch (SyntaxError) {
         errors.push("JSON state invalid");
+        return;
     }
     var checkOutput = RecursiveTypeCheck(state, tempState, "state");
     if (typeof checkOutput !== "boolean")
@@ -271,19 +272,42 @@ var main = function () {
             option.value = option.text = newSlot;
             select.appendChild(option);
         }
+        for (var _b = 0, _c = Array.from(document.getElementsByClassName("equipment-list")); _b < _c.length; _b++) {
+            var element = _c[_b];
+            var equipment = element;
+            var slotElement = document.createElement("li");
+            var slotName = document.createElement("p");
+            slotName.innerText = newSlot;
+            slotElement.appendChild(slotName);
+            var equippedItem = document.createElement("select");
+            equippedItem.className = "item-".concat(newSlot, "-select item-slot-select");
+            for (var _d = 0, _e = itemsBySlot[newSlot]; _d < _e.length; _d++) {
+                var itemName = _e[_d];
+                var option = document.createElement("option");
+                option.text = option.value = itemName;
+                equippedItem.appendChild(option);
+            }
+            slotElement.appendChild(equippedItem);
+            equipment.appendChild(slotElement);
+        }
         var deleteSlot = document.createElement("button");
         deleteSlot.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n      </svg>";
         deleteSlot.onclick = function () {
-            for (var _i = 0, _a = Array.from(document.getElementsByClassName("slot-select")); _i < _a.length; _i++) {
-                var element = _a[_i];
+            var _a;
+            for (var _i = 0, _b = Array.from(document.getElementsByClassName("slot-select")); _i < _b.length; _i++) {
+                var element = _b[_i];
                 var select = element;
-                for (var _b = 0, _c = Array.from(select.options); _b < _c.length; _b++) {
-                    var option = _c[_b];
+                for (var _c = 0, _d = Array.from(select.options); _c < _d.length; _c++) {
+                    var option = _d[_c];
                     if (option.value === newSlot) {
                         select.removeChild(option);
                         break;
                     }
                 }
+            }
+            for (var _e = 0, _f = Array.from(document.getElementsByClassName("item-".concat(newSlot, "-select"))); _e < _f.length; _e++) {
+                var element = _f[_e];
+                (_a = element.parentElement) === null || _a === void 0 ? void 0 : _a.remove();
             }
             newDiv.remove();
             slots.splice(index, 1);
@@ -455,6 +479,7 @@ var main = function () {
             state.active[index] = newSelect.value;
         };
     };
+    var itemsBySlot;
     document.getElementById("new_character").onkeydown = function (event) {
         if (event.key === "Enter")
             document.getElementById("add_character").click();
@@ -526,21 +551,176 @@ var main = function () {
             skillpointsElement.appendChild(skillpointsParagraph);
             skillpointsElement.appendChild(skillpointsInput);
             characterSheet.appendChild(skillpointsElement);
-            //TODO: Items, Stats, Active Effects
+            var modifiersParagraph = document.createElement("p");
+            modifiersParagraph.innerText = "Stats:";
+            characterSheet.appendChild(modifiersParagraph);
+            var modifierRefCount = {};
+            var modifiersElement = document.createElement("ul");
+            modifiersElement.style.listStyleType = "none";
+            var modifierAddElement = document.createElement("li");
+            var modifierAdd = document.createElement("button");
+            modifierAdd.innerText = "Add modifier";
+            modifierAdd.onclick = function () {
+                var newModifier = document.createElement("li");
+                newModifier.className = "single_value";
+                var modifiedStat = document.createElement("select");
+                modifiedStat.className = "stat-select";
+                var selected = false;
+                var i = 0;
+                for (var _i = 0, _a = state.stats; _i < _a.length; _i++) {
+                    var stat = _a[_i];
+                    var statOption = document.createElement("option");
+                    statOption.innerText = statOption.value = stat;
+                    modifiedStat.appendChild(statOption);
+                    if (!Object.keys(state.characters[newCharacterName].stats).includes(stat) &&
+                        !selected) {
+                        selected = true;
+                        modifiedStat.selectedIndex = i;
+                        if (!state.characters[newCharacterName].stats[stat])
+                            state.characters[newCharacterName].stats[stat] =
+                                new Stat(stat, 0);
+                        modifierRefCount[stat] = isNaN(modifierRefCount[stat])
+                            ? 1
+                            : modifierRefCount[stat] + 1;
+                    }
+                    ++i;
+                }
+                if (!selected) {
+                    alert("All of the created stats have been used for this character, create a new stat or modify already existing modifier");
+                    modifiedStat.remove();
+                    newModifier.remove();
+                    return;
+                }
+                var previousStatName;
+                modifiedStat.onfocus = function () {
+                    previousStatName = modifiedStat.value;
+                };
+                modifiedStat.onchange = function () {
+                    if (state.characters[newCharacterName].stats[modifiedStat.value]) {
+                        state.characters[newCharacterName].stats[modifiedStat.value].level += modifiedValue.valueAsNumber;
+                    }
+                    else {
+                        state.characters[newCharacterName].stats[modifiedStat.value] = new Stat(modifiedStat.value, modifiedValue.valueAsNumber);
+                    }
+                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
+                        ? 1
+                        : modifierRefCount[modifiedStat.value] + 1;
+                    if (state.characters[newCharacterName].stats[previousStatName]) {
+                        state.characters[newCharacterName].stats[previousStatName].level -= modifiedValue.valueAsNumber;
+                    }
+                    else {
+                        state.characters[newCharacterName].stats[previousStatName] = new Stat(previousStatName, 0);
+                    }
+                    --modifierRefCount[previousStatName];
+                    if (modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])) {
+                        delete state.characters[newCharacterName].stats[previousStatName];
+                    }
+                    previousStatName = modifiedStat.value;
+                };
+                newModifier.appendChild(modifiedStat);
+                var modifiedValue = document.createElement("input");
+                modifiedValue.type = "number";
+                modifiedValue.value = "0";
+                var previousValue;
+                modifiedValue.onfocus = function () {
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                modifiedValue.onchange = function () {
+                    if (isNaN(modifiedValue.valueAsNumber))
+                        return;
+                    if (!state.characters[newCharacterName].stats[modifiedStat.value]) {
+                        state.characters[newCharacterName].stats[modifiedStat.value] = new Stat(modifiedStat.value, modifiedValue.valueAsNumber);
+                    }
+                    else {
+                        state.characters[newCharacterName].stats[modifiedStat.value].level += modifiedValue.valueAsNumber - previousValue;
+                    }
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                newModifier.appendChild(modifiedValue);
+                var deleteModifier = document.createElement("button");
+                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n                <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n                <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n                </svg>";
+                deleteModifier.onclick = function () {
+                    state.characters[newCharacterName].stats[modifiedStat.value].level -= modifiedValue.valueAsNumber;
+                    newModifier.remove();
+                };
+                newModifier.appendChild(deleteModifier);
+                modifiersElement.appendChild(newModifier);
+            };
+            modifierAddElement.appendChild(modifierAdd);
+            modifiersElement.appendChild(modifierAddElement);
+            characterSheet.appendChild(modifiersElement);
             var equipmentElement = document.createElement("li");
             var equipmentParagraph = document.createElement("p");
-            equipmentParagraph.innerText = "Equipment: TODO";
+            equipmentParagraph.innerText = "Equipment:";
             equipmentElement.appendChild(equipmentParagraph);
+            var equipment = document.createElement("ul");
+            equipment.className = "equipment-list";
+            for (var _i = 0, slots_1 = slots; _i < slots_1.length; _i++) {
+                var slot = slots_1[_i];
+                var slotElement = document.createElement("li");
+                var slotName = document.createElement("p");
+                slotName.innerText = slot;
+                slotElement.appendChild(slotName);
+                var equippedItem = document.createElement("select");
+                equippedItem.className = "item-".concat(slot, "-select item-slot-select");
+                for (var _a = 0, _b = itemsBySlot[slot]; _a < _b.length; _a++) {
+                    var itemName = _b[_a];
+                    var option = document.createElement("option");
+                    option.text = option.value = itemName;
+                    equippedItem.appendChild(option);
+                }
+                slotElement.appendChild(equippedItem);
+                equipment.appendChild(slotElement);
+            }
+            equipmentElement.appendChild(equipment);
             characterSheet.appendChild(equipmentElement);
-            var statsElement = document.createElement("li");
-            var statsParagraph = document.createElement("p");
-            statsParagraph.innerText = "Stats: TODO";
-            statsElement.appendChild(statsParagraph);
-            characterSheet.appendChild(statsElement);
             var effectsElement = document.createElement("li");
             var effectsParagraph = document.createElement("p");
-            effectsParagraph.innerText = "Active Effects: TODO";
+            effectsParagraph.innerText = "Effects:";
             effectsElement.appendChild(effectsParagraph);
+            var effects = document.createElement("div");
+            effects.className = "list";
+            effectsElement.appendChild(effects);
+            var effectAddInput = document.createElement("select");
+            effectAddInput.className = "effect-select";
+            for (var effectName in state.effects) {
+                var option = document.createElement("option");
+                option.value = option.innerText = effectName;
+                effectAddInput.appendChild(option);
+            }
+            var effectAddButton = document.createElement("button");
+            effectAddButton.innerText = "+";
+            effectAddButton.onclick = function () {
+                var _a, _b, _c;
+                if (!state.characters[newCharacterName].activeEffects) {
+                    state.characters[newCharacterName].activeEffects = [];
+                }
+                var selectedOption = effectAddInput.selectedOptions[0];
+                var effectIndex = (_b = (_a = state.characters[newCharacterName].activeEffects) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0;
+                (_c = state.characters[newCharacterName].activeEffects) === null || _c === void 0 ? void 0 : _c.push(state.effects[selectedOption.value]);
+                var newElement = document.createElement("div");
+                var newEffect = document.createElement("p");
+                newEffect.innerText = selectedOption.value;
+                newElement.appendChild(newEffect);
+                var deleteElement = document.createElement("button");
+                deleteElement.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+                deleteElement.onclick = function () {
+                    var _a;
+                    if (!state.characters[newCharacterName].activeEffects) {
+                        console.error("Effects disappeared?!");
+                        return;
+                    }
+                    (_a = state.characters[newCharacterName].activeEffects) === null || _a === void 0 ? void 0 : _a.splice(effectIndex, 1);
+                    effectAddInput.appendChild(selectedOption);
+                    newElement.remove();
+                };
+                newElement.appendChild(deleteElement);
+                effects.appendChild(newElement);
+                effectAddInput.removeChild(selectedOption);
+            };
+            effectsElement.appendChild(effectAddInput);
+            effectsElement.appendChild(effectAddButton);
             characterSheet.appendChild(effectsElement);
             newCharacter.appendChild(characterSheet);
             charactersDiv.appendChild(newCharacter);
@@ -570,15 +750,55 @@ var main = function () {
         var slotElement = document.createElement("li");
         var slotSelect = document.createElement("select");
         slotSelect.className = "slot-select";
-        for (var _i = 0, slots_1 = slots; _i < slots_1.length; _i++) {
-            var slot = slots_1[_i];
+        for (var _i = 0, slots_2 = slots; _i < slots_2.length; _i++) {
+            var slot = slots_2[_i];
             var option = document.createElement("option");
             option.text = option.value = slot;
             slotSelect.appendChild(option);
         }
         slotSelect.value = slots[0];
+        if (!itemsBySlot[slotSelect.value]) {
+            itemsBySlot[slotSelect.value] = [newItemName];
+        }
+        else {
+            itemsBySlot[slotSelect.value].push(newItemName);
+        }
+        for (var _a = 0, _b = Array.from(document.getElementsByClassName("item-".concat(slotSelect.value, "-select"))); _a < _b.length; _a++) {
+            var element = _b[_a];
+            var select = element;
+            var option = document.createElement("option");
+            option.text = option.value = newItemName;
+            select.appendChild(option);
+        }
+        var previousValue = slotSelect.value;
         slotSelect.onchange = function () {
             state.items[newItemName].slot = slotSelect.value;
+            if (!itemsBySlot[slotSelect.value]) {
+                itemsBySlot[slotSelect.value] = [newItemName];
+            }
+            else {
+                itemsBySlot[slotSelect.value].push(newItemName);
+            }
+            for (var _i = 0, _a = Array.from(document.getElementsByClassName("item-".concat(slotSelect.value, "-select"))); _i < _a.length; _i++) {
+                var element = _a[_i];
+                var select = element;
+                var option = document.createElement("option");
+                option.text = option.value = newItemName;
+                select.appendChild(option);
+            }
+            itemsBySlot[previousValue].splice(itemsBySlot[previousValue].indexOf(newItemName), 1);
+            for (var _b = 0, _c = Array.from(document.getElementsByClassName("item-".concat(previousValue, "-select"))); _b < _c.length; _b++) {
+                var element = _c[_b];
+                var select = element;
+                for (var _d = 0, _e = Array.from(select.options); _d < _e.length; _d++) {
+                    var option = _e[_d];
+                    if (option.value === newItemName) {
+                        select.removeChild(option);
+                        break;
+                    }
+                }
+            }
+            previousValue = slotSelect.value;
         };
         slotElement.appendChild(slotSelect);
         itemSheet.appendChild(slotElement);
@@ -727,8 +947,8 @@ var main = function () {
         modifiersElement.appendChild(modifierAddElement);
         itemSheet.appendChild(modifiersElement);
         newItem.appendChild(itemSheet);
-        for (var _a = 0, _b = Array.from(document.getElementsByClassName("item-select")); _a < _b.length; _a++) {
-            var element = _b[_a];
+        for (var _c = 0, _d = Array.from(document.getElementsByClassName("item-select")); _c < _d.length; _c++) {
+            var element = _d[_c];
             var select = element;
             var option = document.createElement("option");
             option.text = option.value = newItemName;
