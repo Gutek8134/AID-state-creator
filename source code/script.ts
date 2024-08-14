@@ -418,7 +418,7 @@ const main = () => {
         const inputElement = document.createElement("input");
         inputElement.value = slots[index];
         inputElement.onchange = () => {
-            slots[index] = inputElement.value;
+            slots[slots.indexOf(inputElement.value)] = inputElement.value;
         };
         newDiv.appendChild(inputElement);
 
@@ -481,7 +481,7 @@ const main = () => {
             }
 
             newDiv.remove();
-            slots.splice(index, 1);
+            slots.splice(slots.indexOf(inputElement.value), 1);
         };
         newDiv.appendChild(deleteSlot);
 
@@ -533,15 +533,16 @@ const main = () => {
         <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
       </svg>`;
         deleteItem.onclick = () => {
-            document.getElementById(`inventory_item_${index}`)?.remove();
-            state.inventory.splice(index, 1);
+            newDiv.remove();
+            state.inventory.splice(state.inventory.indexOf(newSelect.value), 1);
         };
         newDiv.appendChild(deleteItem);
 
         inventoryDiv.appendChild(newDiv);
 
         newSelect.onchange = () => {
-            state.inventory[index] = newSelect.value;
+            state.inventory[state.inventory.indexOf(newSelect.value)] =
+                newSelect.value;
         };
     };
 
@@ -563,6 +564,7 @@ const main = () => {
 
         const newSelect = document.createElement("select");
         newSelect.id = `side1_character_${index}`;
+        newSelect.className = "character-select";
 
         // const optionA = document.createElement("option");
         // optionA.value = optionA.innerText = "A";
@@ -588,7 +590,7 @@ const main = () => {
       </svg>`;
         deleteCharacter.onclick = () => {
             document.getElementById(`side1_character_${index}`)?.remove();
-            state.side1?.splice(index, 1);
+            state.side1?.splice(state.side1?.indexOf(newSelect.value), 1);
         };
         newDiv.appendChild(deleteCharacter);
 
@@ -596,7 +598,8 @@ const main = () => {
 
         newSelect.onchange = () => {
             state.side1 ??= [];
-            state.side1[index] = newSelect.value;
+            state.side1[state.side1?.indexOf(newSelect.value)] =
+                newSelect.value;
         };
     };
 
@@ -618,6 +621,7 @@ const main = () => {
 
         const newSelect = document.createElement("select");
         newSelect.id = `side2_character_${index}`;
+        newSelect.className = "character-select";
 
         // const optionA = document.createElement("option");
         // optionA.value = optionA.innerText = "A";
@@ -643,7 +647,7 @@ const main = () => {
       </svg>`;
         deleteCharacter.onclick = () => {
             document.getElementById(`side2_character_${index}`)?.remove();
-            state.side2?.splice(index, 1);
+            state.side2?.splice(state.side2?.indexOf(newSelect.value), 1);
         };
         newDiv.appendChild(deleteCharacter);
 
@@ -651,7 +655,8 @@ const main = () => {
 
         newSelect.onchange = () => {
             state.side2 ??= [];
-            state.side2[index] = newSelect.value;
+            state.side2[state.side2?.indexOf(newSelect.value)] =
+                newSelect.value;
         };
     };
 
@@ -673,6 +678,7 @@ const main = () => {
 
         const newSelect = document.createElement("select");
         newSelect.id = `active_character_${index}`;
+        newSelect.className = "character-select";
 
         // const optionA = document.createElement("option");
         // optionA.value = optionA.innerText = "A";
@@ -697,8 +703,8 @@ const main = () => {
         <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
       </svg>`;
         deleteCharacter.onclick = () => {
-            document.getElementById(`active_character_${index}`)?.remove();
-            state.side1?.splice(index, 1);
+            newDiv.remove();
+            state.active?.splice(state.active?.indexOf(newSelect.value), 1);
         };
         newDiv.appendChild(deleteCharacter);
 
@@ -706,7 +712,8 @@ const main = () => {
 
         newSelect.onchange = () => {
             state.active ??= [];
-            state.active[index] = newSelect.value;
+            state.active[state.active?.indexOf(newSelect.value)] =
+                newSelect.value;
         };
     };
 
@@ -793,7 +800,7 @@ const main = () => {
 
             const skillpointsElement = document.createElement("li");
             const skillpointsParagraph = document.createElement("p");
-            skillpointsParagraph.innerText = "Skillpoints: ";
+            skillpointsParagraph.innerText = "Skillpoints:";
             const skillpointsInput = document.createElement("input");
             skillpointsInput.type = "number";
             skillpointsInput.value = String(
@@ -816,7 +823,7 @@ const main = () => {
             modifiersElement.style.listStyleType = "none";
             const modifierAddElement = document.createElement("li");
             const modifierAdd = document.createElement("button");
-            modifierAdd.innerText = "Add modifier";
+            modifierAdd.innerText = "Add stat";
             modifierAdd.onclick = () => {
                 const newModifier = document.createElement("li");
                 newModifier.className = "single_value";
@@ -913,7 +920,7 @@ const main = () => {
                 const modifiedValue = document.createElement("input");
                 modifiedValue.type = "number";
                 modifiedValue.value = "0";
-                let previousValue: number;
+                let previousValue: number = modifiedValue.valueAsNumber;
                 modifiedValue.onfocus = () => {
                     previousValue = modifiedValue.valueAsNumber;
                 };
@@ -980,6 +987,12 @@ const main = () => {
                     option.text = option.value = itemName;
                     equippedItem.appendChild(option);
                 }
+
+                equippedItem.onchange = () => {
+                    state.characters[newCharacterName].items[slot] =
+                        state.items[equippedItem.value];
+                };
+
                 slotElement.appendChild(equippedItem);
 
                 equipment.appendChild(slotElement);
@@ -1023,6 +1036,10 @@ const main = () => {
                 const newEffect = document.createElement("p");
                 newEffect.innerText = selectedOption.value;
                 newElement.appendChild(newEffect);
+
+                state.characters[newCharacterName].activeEffects?.push(
+                    state.effects[effectAddInput.value]
+                );
 
                 const deleteElement = document.createElement("button");
                 deleteElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">

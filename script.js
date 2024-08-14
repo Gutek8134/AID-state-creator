@@ -543,7 +543,7 @@ var main = function () {
             characterSheet.appendChild(expToNextLvlElement);
             var skillpointsElement = document.createElement("li");
             var skillpointsParagraph = document.createElement("p");
-            skillpointsParagraph.innerText = "Skillpoints: ";
+            skillpointsParagraph.innerText = "Skillpoints:";
             var skillpointsInput = document.createElement("input");
             skillpointsInput.type = "number";
             skillpointsInput.value = String(state.characters[newCharacterName].skillpoints);
@@ -625,7 +625,7 @@ var main = function () {
                 var modifiedValue = document.createElement("input");
                 modifiedValue.type = "number";
                 modifiedValue.value = "0";
-                var previousValue;
+                var previousValue = modifiedValue.valueAsNumber;
                 modifiedValue.onfocus = function () {
                     previousValue = modifiedValue.valueAsNumber;
                 };
@@ -659,8 +659,7 @@ var main = function () {
             equipmentElement.appendChild(equipmentParagraph);
             var equipment = document.createElement("ul");
             equipment.className = "equipment-list";
-            for (var _i = 0, slots_1 = slots; _i < slots_1.length; _i++) {
-                var slot = slots_1[_i];
+            var _loop_1 = function (slot) {
                 var slotElement = document.createElement("li");
                 var slotName = document.createElement("p");
                 slotName.innerText = slot;
@@ -674,8 +673,16 @@ var main = function () {
                     option.text = option.value = itemName;
                     equippedItem.appendChild(option);
                 }
+                equippedItem.onchange = function () {
+                    state.characters[newCharacterName].items[slot] =
+                        state.items[equippedItem.value];
+                };
                 slotElement.appendChild(equippedItem);
                 equipment.appendChild(slotElement);
+            };
+            for (var _i = 0, slots_1 = slots; _i < slots_1.length; _i++) {
+                var slot = slots_1[_i];
+                _loop_1(slot);
             }
             equipmentElement.appendChild(equipment);
             characterSheet.appendChild(equipmentElement);
@@ -696,7 +703,7 @@ var main = function () {
             var effectAddButton = document.createElement("button");
             effectAddButton.innerText = "+";
             effectAddButton.onclick = function () {
-                var _a, _b, _c;
+                var _a, _b, _c, _d;
                 if (!state.characters[newCharacterName].activeEffects) {
                     state.characters[newCharacterName].activeEffects = [];
                 }
@@ -707,6 +714,7 @@ var main = function () {
                 var newEffect = document.createElement("p");
                 newEffect.innerText = selectedOption.value;
                 newElement.appendChild(newEffect);
+                (_d = state.characters[newCharacterName].activeEffects) === null || _d === void 0 ? void 0 : _d.push(state.effects[effectAddInput.value]);
                 var deleteElement = document.createElement("button");
                 deleteElement.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
                 deleteElement.onclick = function () {
