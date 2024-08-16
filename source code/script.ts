@@ -276,6 +276,9 @@ const UpdateFields = (): void => {
     );
     (document.getElementById("inBattle") as HTMLInputElement).checked =
         state.inBattle;
+    (
+        document.getElementById("effectsOutsideBattle") as HTMLInputElement
+    ).checked = state.runEffectsOutsideBattle;
     (document.getElementById("in") as HTMLTextAreaElement).value = String(
         state.in
     );
@@ -562,26 +565,21 @@ const main = () => {
         const newDiv = document.createElement("div");
         newDiv.className = "single_value";
 
-        const newSelect = document.createElement("select");
-        newSelect.id = `side1_character_${index}`;
-        newSelect.className = "character-select";
+        const characterSelect = document.getElementById(
+            "new_character_side1"
+        ) as HTMLSelectElement;
 
-        // const optionA = document.createElement("option");
-        // optionA.value = optionA.innerText = "A";
-        // const optionB = document.createElement("option");
-        // optionB.value = optionB.innerText = "B";
-        // newSelect.appendChild(optionA);
-        // newSelect.appendChild(optionB);
+        const characterName = characterSelect.value;
 
-        for (const characterName in state.characters) {
-            const option = document.createElement("option");
-            option.value = option.innerText = characterName;
-            newSelect.appendChild(option);
-        }
+        const selectedOption = characterSelect.selectedOptions[0];
+        characterSelect.removeChild(selectedOption);
 
-        state.side1[index] = (newSelect.firstChild as HTMLOptionElement).value;
+        state.side1[index] = characterName;
 
-        newDiv.appendChild(newSelect);
+        const characterParagraph = document.createElement("p");
+        characterParagraph.innerText = characterName;
+
+        newDiv.appendChild(characterParagraph);
 
         const deleteCharacter = document.createElement("button");
         deleteCharacter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
@@ -589,18 +587,14 @@ const main = () => {
         <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
       </svg>`;
         deleteCharacter.onclick = () => {
-            document.getElementById(`side1_character_${index}`)?.remove();
-            state.side1?.splice(state.side1?.indexOf(newSelect.value), 1);
+            newDiv.remove();
+            state.side1?.splice(state.side1?.indexOf(characterName), 1);
+            if (Object.keys(state.characters).includes(selectedOption.value))
+                characterSelect.appendChild(selectedOption);
         };
         newDiv.appendChild(deleteCharacter);
 
         side1Div.appendChild(newDiv);
-
-        newSelect.onchange = () => {
-            state.side1 ??= [];
-            state.side1[state.side1?.indexOf(newSelect.value)] =
-                newSelect.value;
-        };
     };
 
     (
@@ -619,26 +613,21 @@ const main = () => {
         const newDiv = document.createElement("div");
         newDiv.className = "single_value";
 
-        const newSelect = document.createElement("select");
-        newSelect.id = `side2_character_${index}`;
-        newSelect.className = "character-select";
+        const characterSelect = document.getElementById(
+            "new_character_side2"
+        ) as HTMLSelectElement;
 
-        // const optionA = document.createElement("option");
-        // optionA.value = optionA.innerText = "A";
-        // const optionB = document.createElement("option");
-        // optionB.value = optionB.innerText = "B";
-        // newSelect.appendChild(optionA);
-        // newSelect.appendChild(optionB);
+        const characterName = characterSelect.value;
 
-        for (const characterName in state.characters) {
-            const option = document.createElement("option");
-            option.value = option.innerText = characterName;
-            newSelect.appendChild(option);
-        }
+        const selectedOption = characterSelect.selectedOptions[0];
+        characterSelect.removeChild(selectedOption);
 
-        state.side2[index] = (newSelect.firstChild as HTMLOptionElement).value;
+        state.side2[index] = characterName;
 
-        newDiv.appendChild(newSelect);
+        const characterParagraph = document.createElement("p");
+        characterParagraph.innerText = characterName;
+
+        newDiv.appendChild(characterParagraph);
 
         const deleteCharacter = document.createElement("button");
         deleteCharacter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
@@ -646,18 +635,14 @@ const main = () => {
         <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
       </svg>`;
         deleteCharacter.onclick = () => {
-            document.getElementById(`side2_character_${index}`)?.remove();
-            state.side2?.splice(state.side2?.indexOf(newSelect.value), 1);
+            newDiv.remove();
+            state.side2?.splice(state.side2?.indexOf(characterName), 1);
+            if (Object.keys(state.characters).includes(selectedOption.value))
+                characterSelect.appendChild(selectedOption);
         };
         newDiv.appendChild(deleteCharacter);
 
         side2Div.appendChild(newDiv);
-
-        newSelect.onchange = () => {
-            state.side2 ??= [];
-            state.side2[state.side2?.indexOf(newSelect.value)] =
-                newSelect.value;
-        };
     };
 
     (
@@ -676,26 +661,21 @@ const main = () => {
         const newDiv = document.createElement("div");
         newDiv.className = "single_value";
 
-        const newSelect = document.createElement("select");
-        newSelect.id = `active_character_${index}`;
-        newSelect.className = "character-select";
+        const characterSelect = document.getElementById(
+            "new_character_active"
+        ) as HTMLSelectElement;
 
-        // const optionA = document.createElement("option");
-        // optionA.value = optionA.innerText = "A";
-        // const optionB = document.createElement("option");
-        // optionB.value = optionB.innerText = "B";
-        // newSelect.appendChild(optionA);
-        // newSelect.appendChild(optionB);
+        const characterName = characterSelect.value;
 
-        for (const characterName in state.characters) {
-            const option = document.createElement("option");
-            option.value = option.innerText = characterName;
-            newSelect.appendChild(option);
-        }
+        const selectedOption = characterSelect.selectedOptions[0];
+        characterSelect.removeChild(selectedOption);
 
-        state.active[index] = (newSelect.firstChild as HTMLOptionElement).value;
+        state.active[index] = characterName;
 
-        newDiv.appendChild(newSelect);
+        const characterParagraph = document.createElement("p");
+        characterParagraph.innerText = characterName;
+
+        newDiv.appendChild(characterParagraph);
 
         const deleteCharacter = document.createElement("button");
         deleteCharacter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
@@ -704,17 +684,13 @@ const main = () => {
       </svg>`;
         deleteCharacter.onclick = () => {
             newDiv.remove();
-            state.active?.splice(state.active?.indexOf(newSelect.value), 1);
+            state.active?.splice(state.active?.indexOf(characterName), 1);
+            if (Object.keys(state.characters).includes(selectedOption.value))
+                characterSelect.appendChild(selectedOption);
         };
         newDiv.appendChild(deleteCharacter);
 
         activeDiv.appendChild(newDiv);
-
-        newSelect.onchange = () => {
-            state.active ??= [];
-            state.active[state.active?.indexOf(newSelect.value)] =
-                newSelect.value;
-        };
     };
 
     (document.getElementById("new_character") as HTMLInputElement).onkeydown = (
@@ -735,9 +711,11 @@ const main = () => {
             const newCharacterName = (
                 document.getElementById("new_character") as HTMLInputElement
             ).value;
-            (
-                document.getElementById("new_character") as HTMLInputElement
-            ).value = "";
+
+            if (Object.keys(state.characters).includes(newCharacterName)) {
+                alert("Two characters with the same name cannot coexist");
+                return;
+            }
 
             state.characters[newCharacterName] = new Character();
             const newCharacter = document.createElement("div");
@@ -1072,6 +1050,30 @@ const main = () => {
             characterSheet.appendChild(effectsElement);
 
             newCharacter.appendChild(characterSheet);
+
+            const deleteCharacter = document.createElement("button");
+            deleteCharacter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                </svg>`;
+            deleteCharacter.onclick = () => {
+                for (const element of Array.from(
+                    document.getElementsByClassName("character-select")
+                )) {
+                    const select = element as HTMLSelectElement;
+
+                    for (const option of Array.from(select.options)) {
+                        if (option.value === newCharacterName) {
+                            select.removeChild(option);
+                            break;
+                        }
+                    }
+                }
+                delete state.characters[newCharacterName];
+                newCharacter.remove();
+            };
+            newCharacter.appendChild(deleteCharacter);
+
             charactersDiv.appendChild(newCharacter);
         };
 
@@ -1094,6 +1096,11 @@ const main = () => {
         const newItemName = (
             document.getElementById("new_item") as HTMLInputElement
         ).value;
+        if (Object.keys(state.items).includes(newItemName)) {
+            alert("Two items with the same name cannot coexist");
+            return;
+        }
+
         (document.getElementById("new_item") as HTMLInputElement).value = "";
 
         state.items[newItemName] = new Item(newItemName, []);
@@ -1424,6 +1431,10 @@ const main = () => {
             const newEffectName = (
                 document.getElementById("new_effect") as HTMLInputElement
             ).value;
+            if (Object.keys(state.effects).includes(newEffectName)) {
+                alert("Two effects with the same name cannot coexist");
+                return;
+            }
 
             (document.getElementById("new_effect") as HTMLInputElement).value =
                 "";
@@ -1588,7 +1599,7 @@ const main = () => {
                 modifiedStat.className = "stat-select";
                 let selected = false;
                 let i = 0;
-                for (const stat of state.stats) {
+                for (const stat of state.stats.concat(["hp"])) {
                     const statOption = document.createElement("option");
                     statOption.innerText = statOption.value = stat;
                     modifiedStat.appendChild(statOption);
@@ -1756,6 +1767,8 @@ const main = () => {
 
                 newEffect.remove();
             };
+
+            newEffect.appendChild(deleteEffect);
 
             effectsDiv.appendChild(newEffect);
         };

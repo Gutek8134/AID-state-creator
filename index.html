@@ -34,6 +34,10 @@
             In battle: <input type="checkbox" name="inBattle" id="inBattle">
         </div>
         <div class="single_value">
+            Run effects when not in battle: <input type="checkbox"
+                name="effectsOutsideBattle" id="effectsOutsideBattle">
+        </div>
+        <div class="single_value">
             Last input: <br>
             <textarea name="in" id="in" cols="30"
                 rows="10"></textarea>
@@ -67,15 +71,21 @@
         <br>
 
         <div class="list">Battle side 1: <div id="side1"></div><br>
-            <button id="add_character_side1">+</button></div>
+            <select class="character-select"
+                id="new_character_side1"></select><button
+                id="add_character_side1">+</button></div>
         <br>
 
         <div class="list">Battle side 2: <div id="side2"></div><br>
-            <button id="add_character_side2">+</button></div>
+            <select class="character-select"
+                id="new_character_side2"></select><button
+                id="add_character_side2">+</button></div>
         <br>
 
         <div class="list">Active characters: <div id="active"></div><br>
-            <button id="add_character_active">+</button></div>
+            <select class="character-select"
+                id="new_character_active"></select><button
+                id="add_character_active">+</button></div>
         <br>
 
         <div class="list">Characters: <div id="characters"></div><br>

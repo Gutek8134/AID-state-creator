@@ -168,6 +168,7 @@ var UpdateFields = function () {
     document.getElementById("punishment").value = String(state.punishment);
     document.getElementById("inBattle").checked =
         state.inBattle;
+    document.getElementById("effectsOutsideBattle").checked = state.runEffectsOutsideBattle;
     document.getElementById("in").value = String(state.in);
     document.getElementById("ctxt").value = String(state.ctxt);
     document.getElementById("out").value = String(state.out);
@@ -264,7 +265,7 @@ var main = function () {
         var inputElement = document.createElement("input");
         inputElement.value = slots[index];
         inputElement.onchange = function () {
-            slots[index] = inputElement.value;
+            slots[slots.indexOf(inputElement.value)] = inputElement.value;
         };
         newDiv.appendChild(inputElement);
         for (var _i = 0, _b = Array.from(document.getElementsByClassName("slot-select")); _i < _b.length; _i++) {
@@ -313,7 +314,7 @@ var main = function () {
                 (_a = element.parentElement) === null || _a === void 0 ? void 0 : _a.remove();
             }
             newDiv.remove();
-            slots.splice(index, 1);
+            slots.splice(slots.indexOf(inputElement.value), 1);
         };
         newDiv.appendChild(deleteSlot);
         slotsDiv.appendChild(newDiv);
@@ -346,14 +347,14 @@ var main = function () {
         var deleteItem = document.createElement("button");
         deleteItem.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n      </svg>";
         deleteItem.onclick = function () {
-            var _a;
-            (_a = document.getElementById("inventory_item_".concat(index))) === null || _a === void 0 ? void 0 : _a.remove();
-            state.inventory.splice(index, 1);
+            newDiv.remove();
+            state.inventory.splice(state.inventory.indexOf(newSelect.value), 1);
         };
         newDiv.appendChild(deleteItem);
         inventoryDiv.appendChild(newDiv);
         newSelect.onchange = function () {
-            state.inventory[index] = newSelect.value;
+            state.inventory[state.inventory.indexOf(newSelect.value)] =
+                newSelect.value;
         };
     };
     document.getElementById("add_character_side1").onclick = function () {
@@ -368,35 +369,25 @@ var main = function () {
         var index = side1Div.childElementCount;
         var newDiv = document.createElement("div");
         newDiv.className = "single_value";
-        var newSelect = document.createElement("select");
-        newSelect.id = "side1_character_".concat(index);
-        // const optionA = document.createElement("option");
-        // optionA.value = optionA.innerText = "A";
-        // const optionB = document.createElement("option");
-        // optionB.value = optionB.innerText = "B";
-        // newSelect.appendChild(optionA);
-        // newSelect.appendChild(optionB);
-        for (var characterName in state.characters) {
-            var option = document.createElement("option");
-            option.value = option.innerText = characterName;
-            newSelect.appendChild(option);
-        }
-        state.side1[index] = newSelect.firstChild.value;
-        newDiv.appendChild(newSelect);
+        var characterSelect = document.getElementById("new_character_side1");
+        var characterName = characterSelect.value;
+        var selectedOption = characterSelect.selectedOptions[0];
+        characterSelect.removeChild(selectedOption);
+        state.side1[index] = characterName;
+        var characterParagraph = document.createElement("p");
+        characterParagraph.innerText = characterName;
+        newDiv.appendChild(characterParagraph);
         var deleteCharacter = document.createElement("button");
         deleteCharacter.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n      </svg>";
         deleteCharacter.onclick = function () {
             var _a, _b;
-            (_a = document.getElementById("side1_character_".concat(index))) === null || _a === void 0 ? void 0 : _a.remove();
-            (_b = state.side1) === null || _b === void 0 ? void 0 : _b.splice(index, 1);
+            newDiv.remove();
+            (_a = state.side1) === null || _a === void 0 ? void 0 : _a.splice((_b = state.side1) === null || _b === void 0 ? void 0 : _b.indexOf(characterName), 1);
+            if (Object.keys(state.characters).includes(selectedOption.value))
+                characterSelect.appendChild(selectedOption);
         };
         newDiv.appendChild(deleteCharacter);
         side1Div.appendChild(newDiv);
-        newSelect.onchange = function () {
-            var _a;
-            (_a = state.side1) !== null && _a !== void 0 ? _a : (state.side1 = []);
-            state.side1[index] = newSelect.value;
-        };
     };
     document.getElementById("add_character_side2").onclick = function () {
         var _a;
@@ -410,35 +401,25 @@ var main = function () {
         var index = side2Div.childElementCount;
         var newDiv = document.createElement("div");
         newDiv.className = "single_value";
-        var newSelect = document.createElement("select");
-        newSelect.id = "side2_character_".concat(index);
-        // const optionA = document.createElement("option");
-        // optionA.value = optionA.innerText = "A";
-        // const optionB = document.createElement("option");
-        // optionB.value = optionB.innerText = "B";
-        // newSelect.appendChild(optionA);
-        // newSelect.appendChild(optionB);
-        for (var characterName in state.characters) {
-            var option = document.createElement("option");
-            option.value = option.innerText = characterName;
-            newSelect.appendChild(option);
-        }
-        state.side2[index] = newSelect.firstChild.value;
-        newDiv.appendChild(newSelect);
+        var characterSelect = document.getElementById("new_character_side2");
+        var characterName = characterSelect.value;
+        var selectedOption = characterSelect.selectedOptions[0];
+        characterSelect.removeChild(selectedOption);
+        state.side2[index] = characterName;
+        var characterParagraph = document.createElement("p");
+        characterParagraph.innerText = characterName;
+        newDiv.appendChild(characterParagraph);
         var deleteCharacter = document.createElement("button");
         deleteCharacter.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n      </svg>";
         deleteCharacter.onclick = function () {
             var _a, _b;
-            (_a = document.getElementById("side2_character_".concat(index))) === null || _a === void 0 ? void 0 : _a.remove();
-            (_b = state.side2) === null || _b === void 0 ? void 0 : _b.splice(index, 1);
+            newDiv.remove();
+            (_a = state.side2) === null || _a === void 0 ? void 0 : _a.splice((_b = state.side2) === null || _b === void 0 ? void 0 : _b.indexOf(characterName), 1);
+            if (Object.keys(state.characters).includes(selectedOption.value))
+                characterSelect.appendChild(selectedOption);
         };
         newDiv.appendChild(deleteCharacter);
         side2Div.appendChild(newDiv);
-        newSelect.onchange = function () {
-            var _a;
-            (_a = state.side2) !== null && _a !== void 0 ? _a : (state.side2 = []);
-            state.side2[index] = newSelect.value;
-        };
     };
     document.getElementById("add_character_active").onclick = function () {
         var _a;
@@ -452,35 +433,25 @@ var main = function () {
         var index = activeDiv.childElementCount;
         var newDiv = document.createElement("div");
         newDiv.className = "single_value";
-        var newSelect = document.createElement("select");
-        newSelect.id = "active_character_".concat(index);
-        // const optionA = document.createElement("option");
-        // optionA.value = optionA.innerText = "A";
-        // const optionB = document.createElement("option");
-        // optionB.value = optionB.innerText = "B";
-        // newSelect.appendChild(optionA);
-        // newSelect.appendChild(optionB);
-        for (var characterName in state.characters) {
-            var option = document.createElement("option");
-            option.value = option.innerText = characterName;
-            newSelect.appendChild(option);
-        }
-        state.active[index] = newSelect.firstChild.value;
-        newDiv.appendChild(newSelect);
+        var characterSelect = document.getElementById("new_character_active");
+        var characterName = characterSelect.value;
+        var selectedOption = characterSelect.selectedOptions[0];
+        characterSelect.removeChild(selectedOption);
+        state.active[index] = characterName;
+        var characterParagraph = document.createElement("p");
+        characterParagraph.innerText = characterName;
+        newDiv.appendChild(characterParagraph);
         var deleteCharacter = document.createElement("button");
         deleteCharacter.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n      </svg>";
         deleteCharacter.onclick = function () {
             var _a, _b;
-            (_a = document.getElementById("active_character_".concat(index))) === null || _a === void 0 ? void 0 : _a.remove();
-            (_b = state.side1) === null || _b === void 0 ? void 0 : _b.splice(index, 1);
+            newDiv.remove();
+            (_a = state.active) === null || _a === void 0 ? void 0 : _a.splice((_b = state.active) === null || _b === void 0 ? void 0 : _b.indexOf(characterName), 1);
+            if (Object.keys(state.characters).includes(selectedOption.value))
+                characterSelect.appendChild(selectedOption);
         };
         newDiv.appendChild(deleteCharacter);
         activeDiv.appendChild(newDiv);
-        newSelect.onchange = function () {
-            var _a;
-            (_a = state.active) !== null && _a !== void 0 ? _a : (state.active = []);
-            state.active[index] = newSelect.value;
-        };
     };
     document.getElementById("new_character").onkeydown = function (event) {
         if (event.key === "Enter")
@@ -491,7 +462,10 @@ var main = function () {
             var _a;
             var charactersDiv = document.getElementById("characters");
             var newCharacterName = document.getElementById("new_character").value;
-            document.getElementById("new_character").value = "";
+            if (Object.keys(state.characters).includes(newCharacterName)) {
+                alert("Two characters with the same name cannot coexist");
+                return;
+            }
             state.characters[newCharacterName] = new Character();
             var newCharacter = document.createElement("div");
             newCharacter.className = "character";
@@ -562,7 +536,7 @@ var main = function () {
             modifiersElement.style.listStyleType = "none";
             var modifierAddElement = document.createElement("li");
             var modifierAdd = document.createElement("button");
-            modifierAdd.innerText = "Add modifier";
+            modifierAdd.innerText = "Add stat";
             modifierAdd.onclick = function () {
                 var newModifier = document.createElement("li");
                 newModifier.className = "single_value";
@@ -735,6 +709,24 @@ var main = function () {
             effectsElement.appendChild(effectAddButton);
             characterSheet.appendChild(effectsElement);
             newCharacter.appendChild(characterSheet);
+            var deleteCharacter = document.createElement("button");
+            deleteCharacter.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n                <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n                <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n                </svg>";
+            deleteCharacter.onclick = function () {
+                for (var _i = 0, _a = Array.from(document.getElementsByClassName("character-select")); _i < _a.length; _i++) {
+                    var element = _a[_i];
+                    var select = element;
+                    for (var _b = 0, _c = Array.from(select.options); _b < _c.length; _b++) {
+                        var option = _c[_b];
+                        if (option.value === newCharacterName) {
+                            select.removeChild(option);
+                            break;
+                        }
+                    }
+                }
+                delete state.characters[newCharacterName];
+                newCharacter.remove();
+            };
+            newCharacter.appendChild(deleteCharacter);
             charactersDiv.appendChild(newCharacter);
         };
     document.getElementById("new_item").onkeydown = function (event) {
@@ -748,6 +740,10 @@ var main = function () {
         }
         var itemsDiv = document.getElementById("items");
         var newItemName = document.getElementById("new_item").value;
+        if (Object.keys(state.items).includes(newItemName)) {
+            alert("Two items with the same name cannot coexist");
+            return;
+        }
         document.getElementById("new_item").value = "";
         state.items[newItemName] = new Item(newItemName, []);
         var newItem = document.createElement("div");
@@ -994,6 +990,10 @@ var main = function () {
         function () {
             var effectsDiv = document.getElementById("effects");
             var newEffectName = document.getElementById("new_effect").value;
+            if (Object.keys(state.effects).includes(newEffectName)) {
+                alert("Two effects with the same name cannot coexist");
+                return;
+            }
             document.getElementById("new_effect").value =
                 "";
             state.effects[newEffectName] = new Effect(newEffectName, [], 5, "attack", "enemy", "on end", false);
@@ -1128,7 +1128,7 @@ var main = function () {
                 modifiedStat.className = "stat-select";
                 var selected = false;
                 var i = 0;
-                for (var _i = 0, _a = state.stats; _i < _a.length; _i++) {
+                for (var _i = 0, _a = state.stats.concat(["hp"]); _i < _a.length; _i++) {
                     var stat = _a[_i];
                     var statOption = document.createElement("option");
                     statOption.innerText = statOption.value = stat;
@@ -1235,6 +1235,7 @@ var main = function () {
                 }
                 newEffect.remove();
             };
+            newEffect.appendChild(deleteEffect);
             effectsDiv.appendChild(newEffect);
         };
     document.getElementById("state_default").onclick =
