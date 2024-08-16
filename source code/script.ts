@@ -717,6 +717,10 @@ const main = () => {
                 return;
             }
 
+            (
+                document.getElementById("new_character") as HTMLInputElement
+            ).value = "";
+
             state.characters[newCharacterName] = new Character();
             const newCharacter = document.createElement("div");
             newCharacter.className = "character";
@@ -1050,6 +1054,16 @@ const main = () => {
             characterSheet.appendChild(effectsElement);
 
             newCharacter.appendChild(characterSheet);
+
+            for (const element of Array.from(
+                document.getElementsByClassName("character-select")
+            )) {
+                const select = element as HTMLSelectElement;
+
+                const option = document.createElement("option");
+                option.text = option.value = newCharacterName;
+                select.appendChild(option);
+            }
 
             const deleteCharacter = document.createElement("button");
             deleteCharacter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
