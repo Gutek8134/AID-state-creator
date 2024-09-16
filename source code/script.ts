@@ -233,6 +233,9 @@ const RecursiveTypeCheck = (
     return errors.length > 0 ? errors : true;
 };
 
+let slots: Array<string> = [];
+let itemsBySlot: { [key: string]: string[] } = {};
+
 const ParseState = (state_text: string): void | string[] => {
     let tempState: { [key: string]: any } = {};
 
@@ -255,6 +258,7 @@ const ParseState = (state_text: string): void | string[] => {
                 state[key] = tempState[key];
             }
         }
+        itemsBySlot = {};
         UpdateFields();
     } else return errors;
 };
@@ -289,30 +293,1671 @@ const UpdateFields = (): void => {
         state.out
     );
 
-    if (state.stats.length == 0)
-        (document.getElementById("stats") as HTMLDivElement).innerHTML = "";
+    (document.getElementById("stats") as HTMLDivElement).innerHTML = "";
+    {
+        const statsDiv = document.getElementById("stats") as HTMLDivElement;
+        for (const stat of state.stats) {
+            const newStat = stat;
 
-    if (state.inventory.length == 0)
-        (document.getElementById("inventory") as HTMLDivElement).innerHTML = "";
+            const newDiv = document.createElement("div");
+            newDiv.className = "single_value";
 
-    if (!state.side1 || state.side1.length == 0)
-        (document.getElementById("side1") as HTMLDivElement).innerHTML = "";
+            const inputElement = document.createElement("input");
+            inputElement.value = stat;
+            inputElement.onchange = () => {
+                state.stats[state.stats.indexOf(stat)] = inputElement.value;
+            };
+            newDiv.appendChild(inputElement);
 
-    if (!state.side2 || state.side2.length == 0)
-        (document.getElementById("side2") as HTMLDivElement).innerHTML = "";
+            for (const element of Array.from(
+                document.getElementsByClassName("stat-select")
+            )) {
+                const select = element as HTMLSelectElement;
 
-    if (!state.active || state.active.length == 0)
-        (document.getElementById("active") as HTMLDivElement).innerHTML = "";
+                const option = document.createElement("option");
+                option.text = option.value = newStat;
+                select.appendChild(option);
+            }
 
-    if (!state.characters || Object.keys(state.characters).length == 0)
-        (document.getElementById("characters") as HTMLDivElement).innerHTML =
-            "";
+            const deleteStat = document.createElement("button");
+            deleteStat.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+            deleteStat.onclick = () => {
+                for (const element of Array.from(
+                    document.getElementsByClassName("stat-select")
+                )) {
+                    const select = element as HTMLSelectElement;
 
-    if (!state.items || Object.keys(state.items).length == 0)
-        (document.getElementById("items") as HTMLDivElement).innerHTML = "";
+                    for (const option of Array.from(select.options)) {
+                        if (option.value === newStat) {
+                            select.removeChild(option);
+                            break;
+                        }
+                    }
+                }
+                newDiv.remove();
+                state.stats.splice(state.stats.indexOf(stat), 1);
+            };
+            newDiv.appendChild(deleteStat);
 
-    if (!state.effects || Object.keys(state.effects).length == 0)
-        (document.getElementById("effects") as HTMLDivElement).innerHTML = "";
+            statsDiv.appendChild(newDiv);
+        }
+    }
+
+    (document.getElementById("inventory") as HTMLDivElement).innerHTML = "";
+    {
+        const inventoryDiv = document.getElementById(
+            "inventory"
+        ) as HTMLDivElement;
+        for (const inventoryItemName of state.inventory) {
+            const newDiv = document.createElement("div");
+            newDiv.className = "single_value";
+
+            const newSelect = document.createElement("select");
+            newSelect.className = "item-select";
+
+            for (const itemName in state.items) {
+                const option = document.createElement("option");
+                option.value = option.innerText = itemName;
+                newSelect.appendChild(option);
+            }
+
+            state.inventory.push(inventoryItemName);
+
+            newDiv.appendChild(newSelect);
+
+            const deleteItem = document.createElement("button");
+            deleteItem.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+    </svg>`;
+            deleteItem.onclick = () => {
+                newDiv.remove();
+                state.inventory.splice(
+                    state.inventory.indexOf(newSelect.value),
+                    1
+                );
+            };
+            newDiv.appendChild(deleteItem);
+
+            inventoryDiv.appendChild(newDiv);
+            let previousValue = newSelect.value;
+            newSelect.onchange = () => {
+                state.inventory[state.inventory.indexOf(previousValue)] =
+                    newSelect.value;
+                previousValue = newSelect.value;
+            };
+        }
+    }
+
+    (document.getElementById("side1") as HTMLDivElement).innerHTML = "";
+    {
+        state.side1 ??= [];
+        const side1Div = document.getElementById("side1") as HTMLDivElement;
+        for (const characterName of state.side1) {
+            const newDiv = document.createElement("div");
+            newDiv.className = "single_value";
+
+            const characterSelect = document.getElementById(
+                "new_character_side1"
+            ) as HTMLSelectElement;
+
+            let selectedOption = characterSelect.selectedOptions[0];
+            for (const option of Array.from(characterSelect.options)) {
+                if (option.value === characterName) {
+                    selectedOption = option;
+                    characterSelect.removeChild(selectedOption);
+                    break;
+                }
+            }
+
+            state.side1.push(characterName);
+
+            const characterParagraph = document.createElement("p");
+            characterParagraph.innerText = characterName;
+
+            newDiv.appendChild(characterParagraph);
+
+            const deleteCharacter = document.createElement("button");
+            deleteCharacter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+            deleteCharacter.onclick = () => {
+                newDiv.remove();
+                state.side1?.splice(state.side1?.indexOf(characterName), 1);
+                if (
+                    Object.keys(state.characters).includes(selectedOption.value)
+                )
+                    characterSelect.appendChild(selectedOption);
+            };
+            newDiv.appendChild(deleteCharacter);
+
+            side1Div.appendChild(newDiv);
+        }
+    }
+
+    (document.getElementById("side2") as HTMLDivElement).innerHTML = "";
+    {
+        state.side2 ??= [];
+        const side2Div = document.getElementById("side2") as HTMLDivElement;
+        for (const characterName of state.side2) {
+            const newDiv = document.createElement("div");
+            newDiv.className = "single_value";
+
+            const characterSelect = document.getElementById(
+                "new_character_side2"
+            ) as HTMLSelectElement;
+
+            let selectedOption = characterSelect.selectedOptions[0];
+            for (const option of Array.from(characterSelect.options)) {
+                if (option.value === characterName) {
+                    selectedOption = option;
+                    characterSelect.removeChild(selectedOption);
+                    break;
+                }
+            }
+
+            state.side2.push(characterName);
+
+            const characterParagraph = document.createElement("p");
+            characterParagraph.innerText = characterName;
+
+            newDiv.appendChild(characterParagraph);
+
+            const deleteCharacter = document.createElement("button");
+            deleteCharacter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+      </svg>`;
+            deleteCharacter.onclick = () => {
+                newDiv.remove();
+                state.side2?.splice(state.side2?.indexOf(characterName), 1);
+                if (
+                    Object.keys(state.characters).includes(selectedOption.value)
+                )
+                    characterSelect.appendChild(selectedOption);
+            };
+            newDiv.appendChild(deleteCharacter);
+
+            side2Div.appendChild(newDiv);
+        }
+    }
+
+    (document.getElementById("active") as HTMLDivElement).innerHTML = "";
+    {
+        state.active ??= [];
+        const activeDiv = document.getElementById("active") as HTMLDivElement;
+
+        for (const characterName of state.active) {
+            const newDiv = document.createElement("div");
+            newDiv.className = "single_value";
+
+            const characterSelect = document.getElementById(
+                "new_character_active"
+            ) as HTMLSelectElement;
+
+            let selectedOption: HTMLOptionElement;
+            for (const option of Array.from(characterSelect.options)) {
+                if (option.value === characterName) {
+                    selectedOption = option;
+                    characterSelect.removeChild(option);
+                    break;
+                }
+            }
+
+            const characterParagraph = document.createElement("p");
+            characterParagraph.innerText = characterName;
+
+            newDiv.appendChild(characterParagraph);
+
+            const deleteCharacter = document.createElement("button");
+            deleteCharacter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+          </svg>`;
+            deleteCharacter.onclick = () => {
+                newDiv.remove();
+                state.active?.splice(state.active?.indexOf(characterName), 1);
+                if (
+                    Object.keys(state.characters).includes(selectedOption.value)
+                )
+                    characterSelect.appendChild(selectedOption);
+            };
+            newDiv.appendChild(deleteCharacter);
+
+            activeDiv.appendChild(newDiv);
+        }
+    }
+
+    (document.getElementById("characters") as HTMLDivElement).innerHTML = "";
+    {
+        const charactersDiv = document.getElementById(
+            "characters"
+        ) as HTMLDivElement;
+        for (const characterName of Object.keys(state.characters)) {
+            const character = state.characters[characterName];
+
+            const newCharacter = document.createElement("div");
+            newCharacter.className = "character";
+
+            const characterSheet = document.createElement("ul");
+            characterSheet.className = "character-sheet";
+
+            const nameElement = document.createElement("li");
+            const nameParagraph = document.createElement("p");
+            nameParagraph.innerText = characterName;
+            nameElement.appendChild(nameParagraph);
+            characterSheet.appendChild(nameElement);
+
+            const levelElement = document.createElement("li");
+            const levelParagraph = document.createElement("p");
+            levelParagraph.innerText = "Level: ";
+            const levelInput = document.createElement("input");
+            levelInput.type = "number";
+            levelInput.value = String(state.characters[characterName].level);
+            levelInput.onchange = () => {
+                state.characters[characterName].level =
+                    levelInput.valueAsNumber;
+            };
+            levelElement.appendChild(levelParagraph);
+            levelElement.appendChild(levelInput);
+            characterSheet.appendChild(levelElement);
+
+            const experienceElement = document.createElement("li");
+            const experienceParagraph = document.createElement("p");
+            experienceParagraph.innerText = "Experience: ";
+            const experienceInput = document.createElement("input");
+            experienceInput.type = "number";
+            experienceInput.value = String(
+                state.characters[characterName].experience
+            );
+            experienceInput.onchange = () => {
+                state.characters[characterName].experience =
+                    experienceInput.valueAsNumber;
+            };
+            experienceElement.appendChild(experienceParagraph);
+            experienceElement.appendChild(experienceInput);
+            characterSheet.appendChild(experienceElement);
+
+            const expToNextLvlElement = document.createElement("li");
+            const expToNextLvlParagraph = document.createElement("p");
+            expToNextLvlParagraph.innerText = "Experience to next level: ";
+            const expToNextLvlInput = document.createElement("input");
+            expToNextLvlInput.type = "number";
+            expToNextLvlInput.value = String(
+                state.characters[characterName].expToNextLvl
+            );
+            expToNextLvlInput.onchange = () => {
+                state.characters[characterName].expToNextLvl =
+                    expToNextLvlInput.valueAsNumber;
+            };
+            expToNextLvlElement.appendChild(expToNextLvlParagraph);
+            expToNextLvlElement.appendChild(expToNextLvlInput);
+            characterSheet.appendChild(expToNextLvlElement);
+
+            const skillpointsElement = document.createElement("li");
+            const skillpointsParagraph = document.createElement("p");
+            skillpointsParagraph.innerText = "Skillpoints:";
+            const skillpointsInput = document.createElement("input");
+            skillpointsInput.type = "number";
+            skillpointsInput.value = String(
+                state.characters[characterName].skillpoints
+            );
+            skillpointsInput.onchange = () => {
+                state.characters[characterName].skillpoints =
+                    skillpointsInput.valueAsNumber;
+            };
+            skillpointsElement.appendChild(skillpointsParagraph);
+            skillpointsElement.appendChild(skillpointsInput);
+            characterSheet.appendChild(skillpointsElement);
+
+            const modifiersParagraph = document.createElement("p");
+            modifiersParagraph.innerText = "Stats:";
+            characterSheet.appendChild(modifiersParagraph);
+
+            const modifierRefCount: { [key: string]: number } = {};
+            const modifiersElement = document.createElement("ul");
+            modifiersElement.style.listStyleType = "none";
+            for (const statName of Object.keys(character.stats)) {
+                const newModifier = document.createElement("li");
+                newModifier.className = "single_value";
+                const modifiedStat = document.createElement("select");
+                modifiedStat.className = "stat-select";
+
+                for (const stat of state.stats) {
+                    const statOption = document.createElement("option");
+                    statOption.innerText = statOption.value = stat;
+                    modifiedStat.appendChild(statOption);
+                    if (!state.characters[characterName].stats[stat])
+                        state.characters[characterName].stats[stat] = new Stat(
+                            stat,
+                            0
+                        );
+                    modifierRefCount[stat] = isNaN(modifierRefCount[stat])
+                        ? 1
+                        : modifierRefCount[stat] + 1;
+                }
+
+                modifiedStat.value = statName;
+
+                let previousStatName: string;
+
+                modifiedStat.onfocus = () => {
+                    previousStatName = modifiedStat.value;
+                };
+
+                modifiedStat.onchange = () => {
+                    if (
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ]
+                    ) {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ].level += modifiedValue.valueAsNumber;
+                    } else {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ] = new Stat(
+                            modifiedStat.value,
+                            modifiedValue.valueAsNumber
+                        );
+                    }
+
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
+                        ? 1
+                        : modifierRefCount[modifiedStat.value] + 1;
+
+                    if (
+                        state.characters[characterName].stats[previousStatName]
+                    ) {
+                        state.characters[characterName].stats[
+                            previousStatName
+                        ].level -= modifiedValue.valueAsNumber;
+                    } else {
+                        state.characters[characterName].stats[
+                            previousStatName
+                        ] = new Stat(previousStatName, 0);
+                    }
+                    --modifierRefCount[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete state.characters[characterName].stats[
+                            previousStatName
+                        ];
+                    }
+                    previousStatName = modifiedStat.value;
+                };
+
+                newModifier.appendChild(modifiedStat);
+                const modifiedValue = document.createElement("input");
+                modifiedValue.type = "number";
+                modifiedValue.value =
+                    character.stats[statName].level.toString();
+                let previousValue: number = modifiedValue.valueAsNumber;
+                modifiedValue.onfocus = () => {
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                modifiedValue.onchange = () => {
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
+
+                    if (
+                        !state.characters[characterName].stats[
+                            modifiedStat.value
+                        ]
+                    ) {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ] = new Stat(
+                            modifiedStat.value,
+                            modifiedValue.valueAsNumber
+                        );
+                    } else {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ].level += modifiedValue.valueAsNumber - previousValue;
+                    }
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                newModifier.appendChild(modifiedValue);
+
+                const deleteModifier = document.createElement("button");
+                deleteModifier.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+                deleteModifier.onclick = () => {
+                    state.characters[characterName].stats[
+                        modifiedStat.value
+                    ].level -= modifiedValue.valueAsNumber;
+                    newModifier.remove();
+                };
+                newModifier.appendChild(deleteModifier);
+                modifiersElement.appendChild(newModifier);
+            }
+            const modifierAddElement = document.createElement("li");
+            const modifierAdd = document.createElement("button");
+            modifierAdd.innerText = "Add stat";
+            modifierAdd.onclick = () => {
+                const newModifier = document.createElement("li");
+                newModifier.className = "single_value";
+                const modifiedStat = document.createElement("select");
+                modifiedStat.className = "stat-select";
+                let selected = false;
+                let i = 0;
+                for (const stat of state.stats) {
+                    const statOption = document.createElement("option");
+                    statOption.innerText = statOption.value = stat;
+                    modifiedStat.appendChild(statOption);
+                    if (
+                        !Object.keys(
+                            state.characters[characterName].stats
+                        ).includes(stat) &&
+                        !selected
+                    ) {
+                        selected = true;
+                        modifiedStat.selectedIndex = i;
+                        if (!state.characters[characterName].stats[stat])
+                            state.characters[characterName].stats[stat] =
+                                new Stat(stat, 0);
+                        modifierRefCount[stat] = isNaN(modifierRefCount[stat])
+                            ? 1
+                            : modifierRefCount[stat] + 1;
+                    }
+                    ++i;
+                }
+                if (!selected) {
+                    alert(
+                        "All of the created stats have been used for this character, create a new stat or modify already existing modifier"
+                    );
+                    modifiedStat.remove();
+                    newModifier.remove();
+                    return;
+                }
+
+                let previousStatName: string;
+
+                modifiedStat.onfocus = () => {
+                    previousStatName = modifiedStat.value;
+                };
+
+                modifiedStat.onchange = () => {
+                    if (
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ]
+                    ) {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ].level += modifiedValue.valueAsNumber;
+                    } else {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ] = new Stat(
+                            modifiedStat.value,
+                            modifiedValue.valueAsNumber
+                        );
+                    }
+
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
+                        ? 1
+                        : modifierRefCount[modifiedStat.value] + 1;
+
+                    if (
+                        state.characters[characterName].stats[previousStatName]
+                    ) {
+                        state.characters[characterName].stats[
+                            previousStatName
+                        ].level -= modifiedValue.valueAsNumber;
+                    } else {
+                        state.characters[characterName].stats[
+                            previousStatName
+                        ] = new Stat(previousStatName, 0);
+                    }
+                    --modifierRefCount[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete state.characters[characterName].stats[
+                            previousStatName
+                        ];
+                    }
+                    previousStatName = modifiedStat.value;
+                };
+
+                newModifier.appendChild(modifiedStat);
+                const modifiedValue = document.createElement("input");
+                modifiedValue.type = "number";
+                modifiedValue.value = "0";
+                let previousValue: number = modifiedValue.valueAsNumber;
+                modifiedValue.onfocus = () => {
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                modifiedValue.onchange = () => {
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
+
+                    if (
+                        !state.characters[characterName].stats[
+                            modifiedStat.value
+                        ]
+                    ) {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ] = new Stat(
+                            modifiedStat.value,
+                            modifiedValue.valueAsNumber
+                        );
+                    } else {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ].level += modifiedValue.valueAsNumber - previousValue;
+                    }
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                newModifier.appendChild(modifiedValue);
+
+                const deleteModifier = document.createElement("button");
+                deleteModifier.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+                deleteModifier.onclick = () => {
+                    state.characters[characterName].stats[
+                        modifiedStat.value
+                    ].level -= modifiedValue.valueAsNumber;
+                    newModifier.remove();
+                };
+                newModifier.appendChild(deleteModifier);
+                modifiersElement.appendChild(newModifier);
+            };
+            modifierAddElement.appendChild(modifierAdd);
+            modifiersElement.appendChild(modifierAddElement);
+            characterSheet.appendChild(modifiersElement);
+
+            const equipmentElement = document.createElement("li");
+            const equipmentParagraph = document.createElement("p");
+            equipmentParagraph.innerText = "Equipment:";
+            equipmentElement.appendChild(equipmentParagraph);
+
+            const equipment = document.createElement("ul");
+            equipment.className = "equipment-list";
+            for (const slot of slots) {
+                const slotElement = document.createElement("li");
+
+                const slotName = document.createElement("p");
+                slotName.innerText = slot;
+                slotElement.appendChild(slotName);
+
+                const equippedItem = document.createElement("select");
+                equippedItem.className = `item-${slot}-select item-slot-select`;
+                itemsBySlot[slot] ??= [];
+                for (const itemName of itemsBySlot[slot]) {
+                    const option = document.createElement("option");
+                    option.text = option.value = itemName;
+                    equippedItem.appendChild(option);
+                }
+
+                if (character.items[slot])
+                    equippedItem.value = character.items[slot].name;
+
+                equippedItem.onchange = () => {
+                    state.characters[characterName].items[slot] =
+                        state.items[equippedItem.value];
+                };
+
+                slotElement.appendChild(equippedItem);
+
+                equipment.appendChild(slotElement);
+            }
+            equipmentElement.appendChild(equipment);
+            characterSheet.appendChild(equipmentElement);
+
+            const effectsElement = document.createElement("li");
+            const effectsParagraph = document.createElement("p");
+            effectsParagraph.innerText = "Effects:";
+            effectsElement.appendChild(effectsParagraph);
+            const effects = document.createElement("div");
+            effects.className = "list";
+            effectsElement.appendChild(effects);
+
+            const effectAddInput = document.createElement("select");
+            effectAddInput.className = "effect-select";
+            for (const effectName in state.effects) {
+                const option = document.createElement("option");
+                option.value = option.innerText = effectName;
+                effectAddInput.appendChild(option);
+            }
+
+            character.activeEffects ??= [];
+            for (const effect of character.activeEffects) {
+                character.activeEffects?.push(effect);
+
+                const newElement = document.createElement("div");
+
+                const newEffect = document.createElement("p");
+                newEffect.innerText = effect.name;
+                newElement.appendChild(newEffect);
+
+                const deleteElement = document.createElement("button");
+                deleteElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+        </svg>`;
+
+                let effectOption = effectAddInput.options[0];
+                for (const option of Array.from(effectAddInput.options)) {
+                    if (option.value === effect.name) {
+                        effectOption = option;
+                        break;
+                    }
+                }
+
+                deleteElement.onclick = () => {
+                    if (!character.activeEffects) {
+                        console.error("Effects disappeared?!");
+
+                        return;
+                    }
+                    character.activeEffects?.splice(
+                        character.activeEffects?.indexOf(effect),
+                        1
+                    );
+                    effectAddInput.appendChild(effectOption);
+                    newElement.remove();
+                };
+
+                newElement.appendChild(deleteElement);
+                effects.appendChild(newElement);
+
+                effectAddInput.removeChild(effectOption);
+            }
+
+            const effectAddButton = document.createElement("button");
+            effectAddButton.innerText = "+";
+
+            effectAddButton.onclick = () => {
+                if (!state.characters[characterName].activeEffects) {
+                    state.characters[characterName].activeEffects = [];
+                }
+                const selectedOption = effectAddInput.selectedOptions[0];
+                state.characters[characterName].activeEffects?.push(
+                    state.effects[selectedOption.value]
+                );
+
+                const newElement = document.createElement("div");
+
+                const newEffect = document.createElement("p");
+                newEffect.innerText = selectedOption.value;
+                newElement.appendChild(newEffect);
+
+                state.characters[characterName].activeEffects?.push(
+                    state.effects[effectAddInput.value]
+                );
+
+                const deleteElement = document.createElement("button");
+                deleteElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+        </svg>`;
+
+                deleteElement.onclick = () => {
+                    if (!state.characters[characterName].activeEffects) {
+                        console.error("Effects disappeared?!");
+
+                        return;
+                    }
+                    state.characters[characterName].activeEffects?.splice(
+                        state.characters[characterName].activeEffects?.indexOf(
+                            state.effects[selectedOption.value]
+                        ) ?? 0,
+                        1
+                    );
+                    effectAddInput.appendChild(selectedOption);
+                    newElement.remove();
+                };
+
+                newElement.appendChild(deleteElement);
+                effects.appendChild(newElement);
+
+                effectAddInput.removeChild(selectedOption);
+            };
+
+            effectsElement.appendChild(effectAddInput);
+            effectsElement.appendChild(effectAddButton);
+            characterSheet.appendChild(effectsElement);
+
+            newCharacter.appendChild(characterSheet);
+
+            for (const element of Array.from(
+                document.getElementsByClassName("character-select")
+            )) {
+                const select = element as HTMLSelectElement;
+
+                const option = document.createElement("option");
+                option.text = option.value = characterName;
+                select.appendChild(option);
+            }
+
+            const deleteCharacter = document.createElement("button");
+            deleteCharacter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+            deleteCharacter.onclick = () => {
+                for (const element of Array.from(
+                    document.getElementsByClassName("character-select")
+                )) {
+                    const select = element as HTMLSelectElement;
+
+                    for (const option of Array.from(select.options)) {
+                        if (option.value === characterName) {
+                            select.removeChild(option);
+                            break;
+                        }
+                    }
+                }
+                delete state.characters[characterName];
+                newCharacter.remove();
+            };
+            newCharacter.appendChild(deleteCharacter);
+
+            charactersDiv.appendChild(newCharacter);
+        }
+    }
+
+    (document.getElementById("items") as HTMLDivElement).innerHTML = "";
+    {
+        const itemsDiv = document.getElementById("items") as HTMLDivElement;
+        for (const itemName of Object.keys(state.items)) {
+            const item = state.items[itemName];
+
+            state.items[itemName] = new Item(itemName, []);
+
+            const newItem = document.createElement("div");
+            newItem.className = "item";
+
+            const itemSheet = document.createElement("ul");
+            itemSheet.className = "item-sheet";
+
+            const nameElement = document.createElement("li");
+            const nameParagraph = document.createElement("p");
+            nameParagraph.innerText = itemName;
+            nameElement.appendChild(nameParagraph);
+            itemSheet.appendChild(nameElement);
+
+            const slotElement = document.createElement("li");
+            const slotSelect = document.createElement("select");
+            slotSelect.className = "slot-select";
+            for (const slot of slots) {
+                const option = document.createElement("option");
+                option.text = option.value = slot;
+                slotSelect.appendChild(option);
+            }
+            slotSelect.value = item.slot;
+
+            if (!itemsBySlot[slotSelect.value]) {
+                itemsBySlot[slotSelect.value] = [itemName];
+            } else {
+                itemsBySlot[slotSelect.value].push(itemName);
+            }
+
+            for (const element of Array.from(
+                document.getElementsByClassName(
+                    `item-${slotSelect.value}-select`
+                )
+            )) {
+                const select = element as HTMLSelectElement;
+
+                const option = document.createElement("option");
+                option.text = option.value = itemName;
+                select.appendChild(option);
+            }
+
+            let previousValue = slotSelect.value;
+            slotSelect.onchange = () => {
+                state.items[itemName].slot = slotSelect.value;
+
+                if (!itemsBySlot[slotSelect.value]) {
+                    itemsBySlot[slotSelect.value] = [itemName];
+                } else {
+                    itemsBySlot[slotSelect.value].push(itemName);
+                }
+
+                for (const element of Array.from(
+                    document.getElementsByClassName(
+                        `item-${slotSelect.value}-select`
+                    )
+                )) {
+                    const select = element as HTMLSelectElement;
+
+                    const option = document.createElement("option");
+                    option.text = option.value = itemName;
+                    select.appendChild(option);
+                }
+
+                itemsBySlot[previousValue].splice(
+                    itemsBySlot[previousValue].indexOf(itemName),
+                    1
+                );
+
+                for (const element of Array.from(
+                    document.getElementsByClassName(
+                        `item-${previousValue}-select`
+                    )
+                )) {
+                    const select = element as HTMLSelectElement;
+
+                    for (const option of Array.from(select.options)) {
+                        if (option.value === itemName) {
+                            select.removeChild(option);
+                            break;
+                        }
+                    }
+                }
+
+                previousValue = slotSelect.value;
+            };
+            slotElement.appendChild(slotSelect);
+            itemSheet.appendChild(slotElement);
+
+            const effectsElement = document.createElement("li");
+            const effects = document.createElement("div");
+            effects.className = "list";
+            for (const effectName of item.effects) {
+                state.items[itemName].effects.push(effectName);
+
+                const newElement = document.createElement("div");
+
+                const newEffect = document.createElement("p");
+                newEffect.innerText = effectName;
+                newElement.appendChild(newEffect);
+
+                const deleteElement = document.createElement("button");
+                deleteElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+
+                deleteElement.onclick = () => {
+                    state.items[itemName].effects.splice(
+                        item.effects.indexOf(effectName),
+                        1
+                    );
+                    const option = document.createElement("option");
+                    option.text = option.value = effectName;
+                    effectAddInput.appendChild(option);
+                    newElement.remove();
+                };
+
+                newElement.appendChild(deleteElement);
+                effects.appendChild(newElement);
+            }
+            effectsElement.appendChild(effects);
+
+            const effectAddInput = document.createElement("select");
+            effectAddInput.className = "effect-select";
+            for (const effectName in state.effects) {
+                if (item.effects.includes(effectName)) continue;
+
+                const option = document.createElement("option");
+                option.value = option.innerText = effectName;
+                effectAddInput.appendChild(option);
+            }
+
+            const effectAddButton = document.createElement("button");
+            effectAddButton.innerText = "+";
+
+            effectAddButton.onclick = () => {
+                const selectedOption = effectAddInput.selectedOptions[0];
+                state.items[itemName].effects.push(selectedOption.value);
+
+                const newElement = document.createElement("div");
+
+                const newEffect = document.createElement("p");
+                newEffect.innerText = selectedOption.value;
+                newElement.appendChild(newEffect);
+
+                const deleteElement = document.createElement("button");
+                deleteElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+
+                deleteElement.onclick = () => {
+                    state.items[itemName].effects.splice(
+                        item.effects.indexOf(selectedOption.value),
+                        1
+                    );
+                    effectAddInput.appendChild(selectedOption);
+                    newElement.remove();
+                };
+
+                newElement.appendChild(deleteElement);
+                effects.appendChild(newElement);
+
+                effectAddInput.removeChild(selectedOption);
+            };
+
+            effectsElement.appendChild(effectAddInput);
+            effectsElement.appendChild(effectAddButton);
+            itemSheet.appendChild(effectsElement);
+
+            const modifiersParagraph = document.createElement("p");
+            modifiersParagraph.innerText = "Modifiers:";
+            itemSheet.appendChild(modifiersParagraph);
+
+            const modifierRefCount: { [key: string]: number } = {};
+            const modifiersElement = document.createElement("ul");
+            modifiersElement.style.listStyleType = "none";
+
+            for (const modifierName of Object.keys(item.modifiers)) {
+                const modifierValue = item.modifiers[modifierName];
+
+                const newModifier = document.createElement("li");
+                newModifier.className = "single_value";
+                const modifiedStat = document.createElement("select");
+                modifiedStat.className = "stat-select";
+                for (const stat of state.stats.concat(["hp"])) {
+                    const statOption = document.createElement("option");
+                    statOption.innerText = statOption.value = stat;
+                    modifiedStat.appendChild(statOption);
+                }
+                modifiedStat.value = modifierName;
+
+                let previousStatName: string;
+
+                modifiedStat.onfocus = () => {
+                    previousStatName = modifiedStat.value;
+                };
+
+                modifiedStat.onchange = () => {
+                    if (!isNaN(item.modifiers[modifiedStat.value])) {
+                        item.modifiers[modifiedStat.value] +=
+                            modifiedValue.valueAsNumber;
+                    } else {
+                        item.modifiers[modifiedStat.value] =
+                            modifiedValue.valueAsNumber;
+                    }
+
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
+                        ? 1
+                        : modifierRefCount[modifiedStat.value] + 1;
+
+                    if (!isNaN(item.modifiers[previousStatName])) {
+                        item.modifiers[previousStatName] -=
+                            modifiedValue.valueAsNumber;
+                    } else {
+                        item.modifiers[previousStatName] = 0;
+                    }
+                    --modifierRefCount[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete item.modifiers[previousStatName];
+                    }
+                    previousStatName = modifiedStat.value;
+                };
+
+                newModifier.appendChild(modifiedStat);
+                const modifiedValue = document.createElement("input");
+                modifiedValue.type = "number";
+                modifiedValue.value = modifierValue.toString();
+                let previousValue: number;
+                modifiedValue.onfocus = () => {
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                modifiedValue.onchange = () => {
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
+
+                    if (isNaN(item.modifiers[modifiedStat.value])) {
+                        item.modifiers[modifiedStat.value] =
+                            modifiedValue.valueAsNumber;
+                    } else {
+                        item.modifiers[modifiedStat.value] +=
+                            modifiedValue.valueAsNumber - previousValue;
+                    }
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                newModifier.appendChild(modifiedValue);
+
+                const deleteModifier = document.createElement("button");
+                deleteModifier.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+                deleteModifier.onclick = () => {
+                    item.modifiers[modifiedStat.value] -=
+                        modifiedValue.valueAsNumber;
+                    newModifier.remove();
+                };
+                newModifier.appendChild(deleteModifier);
+                modifiersElement.appendChild(newModifier);
+            }
+
+            const modifierAddElement = document.createElement("li");
+            const modifierAdd = document.createElement("button");
+            modifierAdd.innerText = "Add modifier";
+            modifierAdd.onclick = () => {
+                const newModifier = document.createElement("li");
+                newModifier.className = "single_value";
+                const modifiedStat = document.createElement("select");
+                modifiedStat.className = "stat-select";
+                let selected = false;
+                let i = 0;
+                for (const stat of state.stats) {
+                    const statOption = document.createElement("option");
+                    statOption.innerText = statOption.value = stat;
+                    modifiedStat.appendChild(statOption);
+                    if (
+                        !Object.keys(state.items[itemName].modifiers).includes(
+                            stat
+                        ) &&
+                        !selected
+                    ) {
+                        selected = true;
+                        modifiedStat.selectedIndex = i;
+                        if (isNaN(state.items[itemName].modifiers[stat]))
+                            state.items[itemName].modifiers[stat] = 0;
+                        modifierRefCount[stat] = isNaN(modifierRefCount[stat])
+                            ? 1
+                            : modifierRefCount[stat] + 1;
+                    }
+                    ++i;
+                }
+                if (!selected) {
+                    alert(
+                        "All of the created stats have been used for this item, create a new stat or modify already existing modifier"
+                    );
+                    modifiedStat.remove();
+                    newModifier.remove();
+                    return;
+                }
+
+                let previousStatName: string;
+
+                modifiedStat.onfocus = () => {
+                    previousStatName = modifiedStat.value;
+                };
+
+                modifiedStat.onchange = () => {
+                    if (
+                        !isNaN(
+                            state.items[itemName].modifiers[modifiedStat.value]
+                        )
+                    ) {
+                        state.items[itemName].modifiers[modifiedStat.value] +=
+                            modifiedValue.valueAsNumber;
+                    } else {
+                        state.items[itemName].modifiers[modifiedStat.value] =
+                            modifiedValue.valueAsNumber;
+                    }
+
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
+                        ? 1
+                        : modifierRefCount[modifiedStat.value] + 1;
+
+                    if (
+                        !isNaN(
+                            state.items[itemName].modifiers[previousStatName]
+                        )
+                    ) {
+                        state.items[itemName].modifiers[previousStatName] -=
+                            modifiedValue.valueAsNumber;
+                    } else {
+                        state.items[itemName].modifiers[previousStatName] = 0;
+                    }
+                    --modifierRefCount[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete state.items[itemName].modifiers[
+                            previousStatName
+                        ];
+                    }
+                    previousStatName = modifiedStat.value;
+                };
+
+                newModifier.appendChild(modifiedStat);
+                const modifiedValue = document.createElement("input");
+                modifiedValue.type = "number";
+                modifiedValue.value = "0";
+                let previousValue: number;
+                modifiedValue.onfocus = () => {
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                modifiedValue.onchange = () => {
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
+
+                    if (
+                        isNaN(
+                            state.items[itemName].modifiers[modifiedStat.value]
+                        )
+                    ) {
+                        state.items[itemName].modifiers[modifiedStat.value] =
+                            modifiedValue.valueAsNumber;
+                    } else {
+                        state.items[itemName].modifiers[modifiedStat.value] +=
+                            modifiedValue.valueAsNumber - previousValue;
+                    }
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                newModifier.appendChild(modifiedValue);
+
+                const deleteModifier = document.createElement("button");
+                deleteModifier.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                </svg>`;
+                deleteModifier.onclick = () => {
+                    state.items[itemName].modifiers[modifiedStat.value] -=
+                        modifiedValue.valueAsNumber;
+                    --modifierRefCount[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete state.items[itemName].modifiers[
+                            previousStatName
+                        ];
+                    }
+                    newModifier.remove();
+                };
+                newModifier.appendChild(deleteModifier);
+                modifiersElement.appendChild(newModifier);
+            };
+            modifierAddElement.appendChild(modifierAdd);
+            modifiersElement.appendChild(modifierAddElement);
+            itemSheet.appendChild(modifiersElement);
+            newItem.appendChild(itemSheet);
+
+            const deleteItem = document.createElement("button");
+            deleteItem.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                </svg>`;
+            deleteItem.onclick = () => {
+                for (const element of Array.from(
+                    document.getElementsByClassName("item-select")
+                )) {
+                    const select = element as HTMLSelectElement;
+
+                    for (const option of Array.from(select.options)) {
+                        if (option.value === itemName) {
+                            select.removeChild(option);
+                            break;
+                        }
+                    }
+                }
+                delete state.items[itemName];
+                newItem.remove();
+            };
+            newItem.appendChild(deleteItem);
+
+            itemsDiv.appendChild(newItem);
+        }
+    }
+
+    (document.getElementById("effects") as HTMLDivElement).innerHTML = "";
+    {
+        const effectsDiv = document.getElementById("effects") as HTMLDivElement;
+
+        for (const effectName of Object.keys(state.effects)) {
+            const newEffect = document.createElement("div");
+            const effectSheet = document.createElement("ul");
+            effectSheet.className = "effect-sheet";
+
+            const nameElement = document.createElement("li");
+            const nameParagraph = document.createElement("p");
+            nameParagraph.innerText = effectName;
+            nameElement.appendChild(nameParagraph);
+            newEffect.appendChild(nameElement);
+
+            const baseDurationElement = document.createElement("li");
+            const baseDurationParagraph = document.createElement("p");
+            baseDurationParagraph.innerText = "Base duration: ";
+            baseDurationElement.appendChild(baseDurationParagraph);
+            const baseDurationInput = document.createElement("input");
+            baseDurationInput.type = "number";
+            baseDurationInput.value =
+                state.effects[effectName].baseDuration.toString();
+            baseDurationInput.onchange = () => {
+                state.effects[effectName].baseDuration = state.effects[
+                    effectName
+                ].durationLeft = baseDurationInput.valueAsNumber;
+            };
+            baseDurationElement.appendChild(baseDurationInput);
+            effectSheet.appendChild(baseDurationElement);
+
+            const applyUniqueElement = document.createElement("li");
+            const applyUniqueParagraph = document.createElement("p");
+            applyUniqueParagraph.innerText = "Apply unique: ";
+            applyUniqueElement.appendChild(applyUniqueParagraph);
+            const applyUniqueInput = document.createElement("input");
+            applyUniqueInput.type = "checkbox";
+            applyUniqueInput.checked = state.effects[effectName].applyUnique;
+            applyUniqueInput.onchange = () => {
+                state.effects[effectName].applyUnique =
+                    applyUniqueInput.checked;
+            };
+            applyUniqueElement.appendChild(applyUniqueInput);
+            effectSheet.appendChild(applyUniqueElement);
+
+            const appliedOnElement = document.createElement("li");
+            const appliedOnParagraph = document.createElement("p");
+            appliedOnParagraph.innerText = "Applied on: ";
+            appliedOnElement.appendChild(appliedOnParagraph);
+            const appliedOnInput = document.createElement("select");
+            for (const option of [
+                "attack",
+                "defense",
+                "battle start",
+                "not applied",
+            ]) {
+                const appliedOnOption = document.createElement("option");
+                appliedOnOption.innerText = appliedOnOption.value = option;
+                appliedOnInput.appendChild(appliedOnOption);
+            }
+            appliedOnInput.value = state.effects[effectName].appliedOn;
+            appliedOnInput.onchange = () => {
+                switch (appliedOnInput.value) {
+                    case "attack":
+                    case "defense":
+                    case "battle start":
+                    case "not applied":
+                        state.effects[effectName].appliedOn =
+                            appliedOnInput.value;
+                        break;
+                    default:
+                        (
+                            document.getElementById(
+                                "errors"
+                            ) as HTMLParagraphElement
+                        ).innerHTML = "appliedOn invalid";
+                }
+            };
+            appliedOnElement.appendChild(appliedOnInput);
+            effectSheet.appendChild(appliedOnElement);
+
+            const appliedToElement = document.createElement("li");
+            const appliedToParagraph = document.createElement("p");
+            appliedToParagraph.innerText = "Applied to: ";
+            appliedToElement.appendChild(appliedToParagraph);
+            const appliedToInput = document.createElement("select");
+            for (const option of ["enemy", "self"]) {
+                const appliedToOption = document.createElement("option");
+                appliedToOption.innerText = appliedToOption.value = option;
+                appliedToInput.appendChild(appliedToOption);
+            }
+            appliedToInput.value = state.effects[effectName].appliedTo;
+            appliedToInput.onchange = () => {
+                switch (appliedToInput.value) {
+                    case "self":
+                    case "enemy":
+                        state.effects[effectName].appliedTo =
+                            appliedToInput.value;
+                        break;
+                    default:
+                        (
+                            document.getElementById(
+                                "errors"
+                            ) as HTMLParagraphElement
+                        ).innerHTML = "appliedTo invalid";
+                }
+            };
+            appliedToElement.appendChild(appliedToInput);
+            effectSheet.appendChild(appliedToElement);
+
+            const impactElement = document.createElement("li");
+            const impactParagraph = document.createElement("p");
+            impactParagraph.innerText = "Impact: ";
+            impactElement.appendChild(impactParagraph);
+            const impactInput = document.createElement("select");
+            for (const option of ["on end", "continuous", "every turn"]) {
+                const impactOption = document.createElement("option");
+                impactOption.innerText = impactOption.value = option;
+                impactInput.appendChild(impactOption);
+            }
+            impactInput.value = state.effects[effectName].impact;
+            impactInput.onchange = () => {
+                switch (impactInput.value) {
+                    case "on end":
+                    case "continuous":
+                    case "every turn":
+                        state.effects[effectName].impact = impactInput.value;
+                        break;
+                    default:
+                        (
+                            document.getElementById(
+                                "errors"
+                            ) as HTMLParagraphElement
+                        ).innerHTML = "impact invalid";
+                }
+            };
+            impactElement.appendChild(impactInput);
+            effectSheet.appendChild(impactElement);
+
+            const modifiersParagraph = document.createElement("p");
+            modifiersParagraph.innerText = "Modifiers:";
+            effectSheet.appendChild(modifiersParagraph);
+
+            const modifierRefCount: { [key: string]: number } = {};
+            const modifiersElement = document.createElement("ul");
+            modifiersElement.style.listStyleType = "none";
+
+            for (const modifierName of Object.keys(
+                state.effects[effectName].modifiers
+            )) {
+                const modifierValue =
+                    state.effects[effectName].modifiers[modifierName];
+
+                const newModifier = document.createElement("li");
+                newModifier.className = "single_value";
+                const modifiedStat = document.createElement("select");
+                modifiedStat.className = "stat-select";
+                for (const stat of state.stats.concat(["hp"])) {
+                    const statOption = document.createElement("option");
+                    statOption.innerText = statOption.value = stat;
+                    modifiedStat.appendChild(statOption);
+                }
+                modifiedStat.value = modifierName;
+
+                let previousStatName: string;
+
+                modifiedStat.onfocus = () => {
+                    previousStatName = modifiedStat.value;
+                };
+
+                modifiedStat.onchange = () => {
+                    if (
+                        !isNaN(
+                            state.effects[effectName].modifiers[
+                                modifiedStat.value
+                            ]
+                        )
+                    ) {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] += modifiedValue.valueAsNumber;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] = modifiedValue.valueAsNumber;
+                    }
+
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
+                        ? 1
+                        : modifierRefCount[modifiedStat.value] + 1;
+
+                    if (
+                        !isNaN(
+                            state.effects[effectName].modifiers[
+                                previousStatName
+                            ]
+                        )
+                    ) {
+                        state.effects[effectName].modifiers[previousStatName] -=
+                            modifiedValue.valueAsNumber;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            previousStatName
+                        ] = 0;
+                    }
+                    --modifierRefCount[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete state.effects[effectName].modifiers[
+                            previousStatName
+                        ];
+                    }
+                    previousStatName = modifiedStat.value;
+                };
+
+                newModifier.appendChild(modifiedStat);
+                const modifiedValue = document.createElement("input");
+                modifiedValue.type = "number";
+                modifiedValue.value = modifierValue.toString();
+                let previousValue: number;
+                modifiedValue.onfocus = () => {
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                modifiedValue.onchange = () => {
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
+
+                    if (
+                        isNaN(
+                            state.effects[effectName].modifiers[
+                                modifiedStat.value
+                            ]
+                        )
+                    ) {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] = modifiedValue.valueAsNumber;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] += modifiedValue.valueAsNumber - previousValue;
+                    }
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                newModifier.appendChild(modifiedValue);
+
+                const deleteModifier = document.createElement("button");
+                deleteModifier.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+                deleteModifier.onclick = () => {
+                    state.effects[effectName].modifiers[modifiedStat.value] -=
+                        modifiedValue.valueAsNumber;
+                    newModifier.remove();
+                };
+                newModifier.appendChild(deleteModifier);
+                modifiersElement.appendChild(newModifier);
+            }
+
+            const modifierAddElement = document.createElement("li");
+            const modifierAdd = document.createElement("button");
+            modifierAdd.innerText = "Add modifier";
+            modifierAdd.onclick = () => {
+                const newModifier = document.createElement("li");
+                newModifier.className = "single_value";
+                const modifiedStat = document.createElement("select");
+                modifiedStat.className = "stat-select";
+                let selected = false;
+                let i = 0;
+                for (const stat of state.stats.concat(["hp"])) {
+                    const statOption = document.createElement("option");
+                    statOption.innerText = statOption.value = stat;
+                    modifiedStat.appendChild(statOption);
+                    if (
+                        !Object.keys(
+                            state.effects[effectName].modifiers
+                        ).includes(stat) &&
+                        !selected
+                    ) {
+                        selected = true;
+                        modifiedStat.selectedIndex = i;
+                        if (isNaN(state.effects[effectName].modifiers[stat]))
+                            state.effects[effectName].modifiers[stat] = 0;
+                        modifierRefCount[stat] = isNaN(modifierRefCount[stat])
+                            ? 1
+                            : modifierRefCount[stat] + 1;
+                    }
+                    ++i;
+                }
+                if (!selected) {
+                    alert(
+                        "All of the created stats have been used for this effect, create a new stat or modify already existing modifier"
+                    );
+                    modifiedStat.remove();
+                    newModifier.remove();
+                    return;
+                }
+
+                let previousStatName: string;
+
+                modifiedStat.onfocus = () => {
+                    previousStatName = modifiedStat.value;
+                };
+
+                modifiedStat.onchange = () => {
+                    if (
+                        !isNaN(
+                            state.effects[effectName].modifiers[
+                                modifiedStat.value
+                            ]
+                        )
+                    ) {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] += modifiedValue.valueAsNumber;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] = modifiedValue.valueAsNumber;
+                    }
+
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
+                        ? 1
+                        : modifierRefCount[modifiedStat.value] + 1;
+
+                    if (
+                        !isNaN(
+                            state.effects[effectName].modifiers[
+                                previousStatName
+                            ]
+                        )
+                    ) {
+                        state.effects[effectName].modifiers[previousStatName] -=
+                            modifiedValue.valueAsNumber;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            previousStatName
+                        ] = 0;
+                    }
+                    --modifierRefCount[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete state.effects[effectName].modifiers[
+                            previousStatName
+                        ];
+                    }
+                    previousStatName = modifiedStat.value;
+                };
+
+                newModifier.appendChild(modifiedStat);
+                const modifiedValue = document.createElement("input");
+                modifiedValue.type = "number";
+                modifiedValue.value = "0";
+                let previousValue: number;
+                modifiedValue.onfocus = () => {
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                modifiedValue.onchange = () => {
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
+
+                    if (
+                        isNaN(
+                            state.effects[effectName].modifiers[
+                                modifiedStat.value
+                            ]
+                        )
+                    ) {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] = modifiedValue.valueAsNumber;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] += modifiedValue.valueAsNumber - previousValue;
+                    }
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                newModifier.appendChild(modifiedValue);
+
+                const deleteModifier = document.createElement("button");
+                deleteModifier.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+                deleteModifier.onclick = () => {
+                    state.effects[effectName].modifiers[modifiedStat.value] -=
+                        modifiedValue.valueAsNumber;
+                    newModifier.remove();
+                };
+                newModifier.appendChild(deleteModifier);
+                modifiersElement.appendChild(newModifier);
+            };
+            modifierAddElement.appendChild(modifierAdd);
+            modifiersElement.appendChild(modifierAddElement);
+            effectSheet.appendChild(modifiersElement);
+
+            newEffect.appendChild(effectSheet);
+
+            for (const element of Array.from(
+                document.getElementsByClassName("effect-select")
+            )) {
+                const select = element as HTMLSelectElement;
+
+                const option = document.createElement("option");
+                option.text = option.value = effectName;
+                select.appendChild(option);
+            }
+
+            const deleteEffect = document.createElement("button");
+            deleteEffect.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+            deleteEffect.onclick = () => {
+                delete state.effects[effectName];
+
+                for (const element of Array.from(
+                    document.getElementsByClassName("effect-select")
+                )) {
+                    const select = element as HTMLSelectElement;
+
+                    for (const option of Array.from(select.options)) {
+                        if (option.value === effectName) {
+                            select.removeChild(option);
+                            break;
+                        }
+                    }
+                }
+
+                newEffect.remove();
+            };
+
+            newEffect.appendChild(deleteEffect);
+
+            effectsDiv.appendChild(newEffect);
+        }
+    }
 };
 
 const main = () => {
@@ -339,7 +1984,6 @@ const main = () => {
 
     (document.getElementById("add_stat") as HTMLButtonElement).onclick = () => {
         const statsDiv = document.getElementById("stats") as HTMLDivElement;
-        const index = state.stats.length;
         const newStat = (
             document.getElementById("new_stat") as HTMLInputElement
         ).value.trim();
@@ -349,12 +1993,11 @@ const main = () => {
 
         const newDiv = document.createElement("div");
         newDiv.className = "single_value";
-        newDiv.id = `stat_${index}`;
 
         const inputElement = document.createElement("input");
-        inputElement.value = state.stats[index];
+        inputElement.value = newStat;
         inputElement.onchange = () => {
-            state.stats[index] = inputElement.value;
+            state.stats[state.stats.indexOf(newStat)] = inputElement.value;
         };
         newDiv.appendChild(inputElement);
 
@@ -386,8 +2029,8 @@ const main = () => {
                     }
                 }
             }
-            document.getElementById(`stat_${index}`)?.remove();
-            state.stats.splice(index, 1);
+            newDiv.remove();
+            state.stats.splice(state.stats.indexOf(newStat), 1);
         };
         newDiv.appendChild(deleteStat);
 
@@ -401,12 +2044,8 @@ const main = () => {
             (document.getElementById("add_slot") as HTMLButtonElement).click();
     };
 
-    let slots: Array<string> = [];
-    let itemsBySlot: { [key: string]: string[] } = {};
-
     (document.getElementById("add_slot") as HTMLButtonElement).onclick = () => {
         const slotsDiv = document.getElementById("slots") as HTMLDivElement;
-        const index = slots.length;
         const newSlot = (
             document.getElementById("new_slot") as HTMLInputElement
         ).value.trim();
@@ -416,10 +2055,9 @@ const main = () => {
 
         const newDiv = document.createElement("div");
         newDiv.className = "single_value";
-        newDiv.id = `slot_${index}`;
 
         const inputElement = document.createElement("input");
-        inputElement.value = slots[index];
+        inputElement.value = newSlot;
         inputElement.onchange = () => {
             slots[slots.indexOf(inputElement.value)] = inputElement.value;
         };
@@ -502,21 +2140,12 @@ const main = () => {
         const inventoryDiv = document.getElementById(
             "inventory"
         ) as HTMLDivElement;
-        const index = inventoryDiv.childElementCount;
 
         const newDiv = document.createElement("div");
         newDiv.className = "single_value";
 
         const newSelect = document.createElement("select");
         newSelect.className = "item-select";
-        newSelect.id = `inventory_item_${index}`;
-
-        // const optionA = document.createElement("option");
-        // optionA.value = optionA.innerText = "A";
-        // const optionB = document.createElement("option");
-        // optionB.value = optionB.innerText = "B";
-        // newSelect.appendChild(optionA);
-        // newSelect.appendChild(optionB);
 
         for (const itemName in state.items) {
             const option = document.createElement("option");
@@ -524,9 +2153,7 @@ const main = () => {
             newSelect.appendChild(option);
         }
 
-        state.inventory[index] = (
-            newSelect.firstChild as HTMLOptionElement
-        ).value;
+        state.inventory.push((newSelect.firstChild as HTMLOptionElement).value);
 
         newDiv.appendChild(newSelect);
 
@@ -543,9 +2170,11 @@ const main = () => {
 
         inventoryDiv.appendChild(newDiv);
 
+        let previousValue = newSelect.value;
         newSelect.onchange = () => {
-            state.inventory[state.inventory.indexOf(newSelect.value)] =
+            state.inventory[state.inventory.indexOf(previousValue)] =
                 newSelect.value;
+            previousValue = newSelect.value;
         };
     };
 
@@ -558,7 +2187,6 @@ const main = () => {
         }
 
         state.side1 ??= [];
-        state.inBattle = true;
         const side1Div = document.getElementById("side1") as HTMLDivElement;
         const index = side1Div.childElementCount;
 
@@ -606,7 +2234,6 @@ const main = () => {
         }
 
         state.side2 ??= [];
-        state.inBattle = true;
         const side2Div = document.getElementById("side2") as HTMLDivElement;
         const index = side2Div.childElementCount;
 
@@ -1006,9 +2633,6 @@ const main = () => {
                     state.characters[newCharacterName].activeEffects = [];
                 }
                 const selectedOption = effectAddInput.selectedOptions[0];
-                const effectIndex: number =
-                    state.characters[newCharacterName].activeEffects?.length ??
-                    0;
                 state.characters[newCharacterName].activeEffects?.push(
                     state.effects[selectedOption.value]
                 );
@@ -1035,8 +2659,13 @@ const main = () => {
 
                         return;
                     }
+                    state.characters[newCharacterName].activeEffects ??= [];
                     state.characters[newCharacterName].activeEffects?.splice(
-                        effectIndex,
+                        state.characters[
+                            newCharacterName
+                        ].activeEffects?.indexOf(
+                            state.effects[selectedOption.value]
+                        ) ?? 0,
                         1
                     );
                     effectAddInput.appendChild(selectedOption);
@@ -1220,7 +2849,6 @@ const main = () => {
 
         effectAddButton.onclick = () => {
             const selectedOption = effectAddInput.selectedOptions[0];
-            const effectIndex = state.items[newItemName].effects.length;
             state.items[newItemName].effects.push(selectedOption.value);
 
             const newElement = document.createElement("div");
@@ -1236,7 +2864,12 @@ const main = () => {
             </svg>`;
 
             deleteElement.onclick = () => {
-                state.items[newItemName].effects.splice(effectIndex, 1);
+                state.items[newItemName].effects.splice(
+                    state.items[newItemName].effects.indexOf(
+                        selectedOption.value
+                    ),
+                    1
+                );
                 effectAddInput.appendChild(selectedOption);
                 newElement.remove();
             };
