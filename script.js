@@ -2,9 +2,7 @@
 function copy(aObject) {
     // Prevent undefined objects
     // if (!aObject) return aObject;
-    var bObject = Array.isArray(aObject)
-        ? []
-        : {};
+    var bObject = Array.isArray(aObject) ? [] : {};
     var value, key;
     for (key in aObject) {
         // Prevent self-references to parent object
@@ -15,8 +13,18 @@ function copy(aObject) {
     return bObject;
 }
 var Effect = /** @class */ (function () {
-    function Effect(inName, inModifiers, inDuration, inAppliedOn, inAppliedTo, inImpact, inApplyUnique) {
-        if (inApplyUnique === void 0) { inApplyUnique = true; }
+    function Effect(
+        inName,
+        inModifiers,
+        inDuration,
+        inAppliedOn,
+        inAppliedTo,
+        inImpact,
+        inApplyUnique
+    ) {
+        if (inApplyUnique === void 0) {
+            inApplyUnique = true;
+        }
         this.name = inName;
         this.modifiers = Object.fromEntries(inModifiers);
         this.durationLeft = this.baseDuration = inDuration;
@@ -27,7 +35,7 @@ var Effect = /** @class */ (function () {
         this.type = "effect";
     }
     return Effect;
-}());
+})();
 var Item = /** @class */ (function () {
     function Item(name, values) {
         //slot - string representing slot name
@@ -38,7 +46,9 @@ var Item = /** @class */ (function () {
             //el in format ["slot/stat", "equipmentPart"/statObj]
             //Sanitized beforehand
             for (var _i = 0, values_1 = values; _i < values_1.length; _i++) {
-                var _a = values_1[_i], name_1 = _a[0], value = _a[1];
+                var _a = values_1[_i],
+                    name_1 = _a[0],
+                    value = _a[1];
                 //Slot and effects are strings, everything else must be a number
                 //Until buffs and debuffs will be extended to items
                 if (name_1 === "slot") {
@@ -58,13 +68,14 @@ var Item = /** @class */ (function () {
         this.type = "item";
     }
     return Item;
-}());
+})();
 var Stat = /** @class */ (function () {
     function Stat(name, level) {
         if (!isInStats(name)) {
             state.stats.push(name);
         }
-        this.level = level !== null && level !== void 0 ? level : state.startingLevel;
+        this.level =
+            level !== null && level !== void 0 ? level : state.startingLevel;
         if (levellingToOblivion) {
             this.experience = 0;
             this.expToNextLvl = 2 * this.level;
@@ -74,10 +85,14 @@ var Stat = /** @class */ (function () {
     Stat.prototype.toString = function () {
         return levellingToOblivion || !(this.expToNextLvl && this.experience)
             ? String(this.level)
-            : "level = ".concat(this.level, " exp = ").concat(this.experience, " exp to lvl up=").concat(this.expToNextLvl, "(").concat(this.expToNextLvl - this.experience, ")");
+            : "level = "
+                  .concat(this.level, " exp = ")
+                  .concat(this.experience, " exp to lvl up=")
+                  .concat(this.expToNextLvl, "(")
+                  .concat(this.expToNextLvl - this.experience, ")");
     };
     return Stat;
-}());
+})();
 var Character = /** @class */ (function () {
     function Character() {
         //Type declarations
@@ -94,7 +109,7 @@ var Character = /** @class */ (function () {
         this.activeEffects = [];
     }
     return Character;
-}());
+})();
 var isInStats = function (name) {
     return state.stats.indexOf(name) > -1;
 };
@@ -120,18 +135,27 @@ var state = {
 var defaultState = copy(state);
 var levellingToOblivion = true;
 var stateKeys = Object.keys(state);
-var RecursiveTypeCheck = function (originalObject, comparedObject, comparedObjectName) {
+var RecursiveTypeCheck = function (
+    originalObject,
+    comparedObject,
+    comparedObjectName
+) {
     if (typeof comparedObject !== typeof originalObject)
         return [
-            "".concat(comparedObjectName, " is of incorrect type (").concat(typeof comparedObject, " instead of ").concat(typeof originalObject, ")"),
+            ""
+                .concat(comparedObjectName, " is of incorrect type (")
+                .concat(typeof comparedObject, " instead of ")
+                .concat(typeof originalObject, ")"),
         ];
-    if (typeof comparedObject !== "object")
-        return true;
+    if (typeof comparedObject !== "object") return true;
     var errors = [];
     for (var key in comparedObject) {
-        var temp = RecursiveTypeCheck(originalObject[key], comparedObject[key], "".concat(comparedObjectName, ": ").concat(key));
-        if (typeof temp !== "boolean")
-            errors.concat(temp);
+        var temp = RecursiveTypeCheck(
+            originalObject[key],
+            comparedObject[key],
+            "".concat(comparedObjectName, ": ").concat(key)
+        );
+        if (typeof temp !== "boolean") errors.concat(temp);
     }
     return errors.length > 0 ? errors : true;
 };
@@ -142,14 +166,12 @@ var ParseState = function (state_text) {
     var errors = [];
     try {
         tempState = JSON.parse(state_text.replace("\n", ""));
-    }
-    catch (SyntaxError) {
+    } catch (SyntaxError) {
         errors.push("JSON state invalid");
         return;
     }
     var checkOutput = RecursiveTypeCheck(state, tempState, "state");
-    if (typeof checkOutput !== "boolean")
-        errors.concat(checkOutput);
+    if (typeof checkOutput !== "boolean") errors.concat(checkOutput);
     if (errors.length === 0) {
         for (var key in tempState) {
             if (Object.prototype.hasOwnProperty.call(tempState, key)) {
@@ -158,24 +180,38 @@ var ParseState = function (state_text) {
         }
         itemsBySlot = {};
         UpdateFields();
-    }
-    else
-        return errors;
+    } else return errors;
 };
+var t = false;
 var UpdateFields = function () {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e;
+    console.log("updating fields");
+    console.log("dice");
     document.getElementById("dice").value = String(state.dice);
-    document.getElementById("startingLevel").value =
-        String(state.startingLevel);
+    console.log("starting level");
+    document.getElementById("startingLevel").value = String(
+        state.startingLevel
+    );
+    console.log("starting hp");
     document.getElementById("startingHP").value = String(state.startingHP);
-    document.getElementById("skillpointsOnLevelUp").value = String(state.skillpointsOnLevelUp);
+    console.log("skillpoints on lvl up");
+    document.getElementById("skillpointsOnLevelUp").value = String(
+        state.skillpointsOnLevelUp
+    );
+    console.log("punishment");
     document.getElementById("punishment").value = String(state.punishment);
-    document.getElementById("inBattle").checked =
-        state.inBattle;
-    document.getElementById("effectsOutsideBattle").checked = state.runEffectsOutsideBattle;
+    console.log("in battle");
+    document.getElementById("inBattle").checked = state.inBattle;
+    console.log("effects outside battle");
+    document.getElementById("effectsOutsideBattle").checked =
+        state.runEffectsOutsideBattle;
+    console.log("in");
     document.getElementById("in").value = String(state.in);
+    console.log("ctxt");
     document.getElementById("ctxt").value = String(state.ctxt);
+    console.log("out");
     document.getElementById("out").value = String(state.out);
+    console.log("stats");
     document.getElementById("stats").innerHTML = "";
     {
         var statsDiv = document.getElementById("stats");
@@ -189,20 +225,39 @@ var UpdateFields = function () {
                 state.stats[state.stats.indexOf(stat)] = inputElement.value;
             };
             newDiv.appendChild(inputElement);
-            for (var _x = 0, _y = Array.from(document.getElementsByClassName("stat-select")); _x < _y.length; _x++) {
-                var element = _y[_x];
+            for (
+                var _w = 0,
+                    _x = Array.from(
+                        document.getElementsByClassName("stat-select")
+                    );
+                _w < _x.length;
+                _w++
+            ) {
+                var element = _x[_w];
                 var select = element;
                 var option = document.createElement("option");
                 option.text = option.value = newStat;
                 select.appendChild(option);
             }
             var deleteStat = document.createElement("button");
-            deleteStat.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+            deleteStat.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n            </svg>';
             deleteStat.onclick = function () {
-                for (var _i = 0, _a = Array.from(document.getElementsByClassName("stat-select")); _i < _a.length; _i++) {
+                for (
+                    var _i = 0,
+                        _a = Array.from(
+                            document.getElementsByClassName("stat-select")
+                        );
+                    _i < _a.length;
+                    _i++
+                ) {
                     var element = _a[_i];
                     var select = element;
-                    for (var _b = 0, _c = Array.from(select.options); _b < _c.length; _b++) {
+                    for (
+                        var _b = 0, _c = Array.from(select.options);
+                        _b < _c.length;
+                        _b++
+                    ) {
                         var option = _c[_b];
                         if (option.value === newStat) {
                             select.removeChild(option);
@@ -216,11 +271,12 @@ var UpdateFields = function () {
             newDiv.appendChild(deleteStat);
             statsDiv.appendChild(newDiv);
         };
-        for (var _i = 0, _g = state.stats; _i < _g.length; _i++) {
-            var stat = _g[_i];
+        for (var _i = 0, _f = state.stats; _i < _f.length; _i++) {
+            var stat = _f[_i];
             _loop_1(stat);
         }
     }
+    console.log("inventory");
     document.getElementById("inventory").innerHTML = "";
     {
         var inventoryDiv = document.getElementById("inventory");
@@ -234,13 +290,17 @@ var UpdateFields = function () {
                 option.value = option.innerText = itemName;
                 newSelect.appendChild(option);
             }
-            state.inventory.push(inventoryItemName);
+            newSelect.value = inventoryItemName;
             newDiv.appendChild(newSelect);
             var deleteItem = document.createElement("button");
-            deleteItem.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n    <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n    <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n    </svg>";
+            deleteItem.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n    </svg>';
             deleteItem.onclick = function () {
                 newDiv.remove();
-                state.inventory.splice(state.inventory.indexOf(newSelect.value), 1);
+                state.inventory.splice(
+                    state.inventory.indexOf(newSelect.value),
+                    1
+                );
             };
             newDiv.appendChild(deleteItem);
             inventoryDiv.appendChild(newDiv);
@@ -251,11 +311,12 @@ var UpdateFields = function () {
                 previousValue = newSelect.value;
             };
         };
-        for (var _h = 0, _j = state.inventory; _h < _j.length; _h++) {
-            var inventoryItemName = _j[_h];
+        for (var _g = 0, _h = state.inventory; _g < _h.length; _g++) {
+            var inventoryItemName = _h[_g];
             _loop_2(inventoryItemName);
         }
     }
+    console.log("side1");
     document.getElementById("side1").innerHTML = "";
     {
         (_a = state.side1) !== null && _a !== void 0 ? _a : (state.side1 = []);
@@ -263,10 +324,16 @@ var UpdateFields = function () {
         var _loop_3 = function (characterName) {
             var newDiv = document.createElement("div");
             newDiv.className = "single_value";
-            var characterSelect = document.getElementById("new_character_side1");
+            var characterSelect = document.getElementById(
+                "new_character_side1"
+            );
             var selectedOption = characterSelect.selectedOptions[0];
-            for (var _z = 0, _0 = Array.from(characterSelect.options); _z < _0.length; _z++) {
-                var option = _0[_z];
+            for (
+                var _y = 0, _z = Array.from(characterSelect.options);
+                _y < _z.length;
+                _y++
+            ) {
+                var option = _z[_y];
                 if (option.value === characterName) {
                     selectedOption = option;
                     characterSelect.removeChild(selectedOption);
@@ -278,22 +345,33 @@ var UpdateFields = function () {
             characterParagraph.innerText = characterName;
             newDiv.appendChild(characterParagraph);
             var deleteCharacter = document.createElement("button");
-            deleteCharacter.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+            deleteCharacter.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n            </svg>';
             deleteCharacter.onclick = function () {
                 var _a, _b;
                 newDiv.remove();
-                (_a = state.side1) === null || _a === void 0 ? void 0 : _a.splice((_b = state.side1) === null || _b === void 0 ? void 0 : _b.indexOf(characterName), 1);
-                if (Object.keys(state.characters).includes(selectedOption.value))
+                (_a = state.side1) === null || _a === void 0
+                    ? void 0
+                    : _a.splice(
+                          (_b = state.side1) === null || _b === void 0
+                              ? void 0
+                              : _b.indexOf(characterName),
+                          1
+                      );
+                if (
+                    Object.keys(state.characters).includes(selectedOption.value)
+                )
                     characterSelect.appendChild(selectedOption);
             };
             newDiv.appendChild(deleteCharacter);
             side1Div.appendChild(newDiv);
         };
-        for (var _k = 0, _l = state.side1; _k < _l.length; _k++) {
-            var characterName = _l[_k];
+        for (var _j = 0, _k = state.side1; _j < _k.length; _j++) {
+            var characterName = _k[_j];
             _loop_3(characterName);
         }
     }
+    console.log("side2");
     document.getElementById("side2").innerHTML = "";
     {
         (_b = state.side2) !== null && _b !== void 0 ? _b : (state.side2 = []);
@@ -301,10 +379,16 @@ var UpdateFields = function () {
         var _loop_4 = function (characterName) {
             var newDiv = document.createElement("div");
             newDiv.className = "single_value";
-            var characterSelect = document.getElementById("new_character_side2");
+            var characterSelect = document.getElementById(
+                "new_character_side2"
+            );
             var selectedOption = characterSelect.selectedOptions[0];
-            for (var _1 = 0, _2 = Array.from(characterSelect.options); _1 < _2.length; _1++) {
-                var option = _2[_1];
+            for (
+                var _0 = 0, _1 = Array.from(characterSelect.options);
+                _0 < _1.length;
+                _0++
+            ) {
+                var option = _1[_0];
                 if (option.value === characterName) {
                     selectedOption = option;
                     characterSelect.removeChild(selectedOption);
@@ -316,33 +400,52 @@ var UpdateFields = function () {
             characterParagraph.innerText = characterName;
             newDiv.appendChild(characterParagraph);
             var deleteCharacter = document.createElement("button");
-            deleteCharacter.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n      </svg>";
+            deleteCharacter.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n      </svg>';
             deleteCharacter.onclick = function () {
                 var _a, _b;
                 newDiv.remove();
-                (_a = state.side2) === null || _a === void 0 ? void 0 : _a.splice((_b = state.side2) === null || _b === void 0 ? void 0 : _b.indexOf(characterName), 1);
-                if (Object.keys(state.characters).includes(selectedOption.value))
+                (_a = state.side2) === null || _a === void 0
+                    ? void 0
+                    : _a.splice(
+                          (_b = state.side2) === null || _b === void 0
+                              ? void 0
+                              : _b.indexOf(characterName),
+                          1
+                      );
+                if (
+                    Object.keys(state.characters).includes(selectedOption.value)
+                )
                     characterSelect.appendChild(selectedOption);
             };
             newDiv.appendChild(deleteCharacter);
             side2Div.appendChild(newDiv);
         };
-        for (var _m = 0, _o = state.side2; _m < _o.length; _m++) {
-            var characterName = _o[_m];
+        for (var _l = 0, _m = state.side2; _l < _m.length; _l++) {
+            var characterName = _m[_l];
             _loop_4(characterName);
         }
     }
+    console.log("active");
     document.getElementById("active").innerHTML = "";
     {
-        (_c = state.active) !== null && _c !== void 0 ? _c : (state.active = []);
+        (_c = state.active) !== null && _c !== void 0
+            ? _c
+            : (state.active = []);
         var activeDiv = document.getElementById("active");
         var _loop_5 = function (characterName) {
             var newDiv = document.createElement("div");
             newDiv.className = "single_value";
-            var characterSelect = document.getElementById("new_character_active");
+            var characterSelect = document.getElementById(
+                "new_character_active"
+            );
             var selectedOption;
-            for (var _3 = 0, _4 = Array.from(characterSelect.options); _3 < _4.length; _3++) {
-                var option = _4[_3];
+            for (
+                var _2 = 0, _3 = Array.from(characterSelect.options);
+                _2 < _3.length;
+                _2++
+            ) {
+                var option = _3[_2];
                 if (option.value === characterName) {
                     selectedOption = option;
                     characterSelect.removeChild(option);
@@ -353,22 +456,33 @@ var UpdateFields = function () {
             characterParagraph.innerText = characterName;
             newDiv.appendChild(characterParagraph);
             var deleteCharacter = document.createElement("button");
-            deleteCharacter.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n          </svg>";
+            deleteCharacter.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n          </svg>';
             deleteCharacter.onclick = function () {
                 var _a, _b;
                 newDiv.remove();
-                (_a = state.active) === null || _a === void 0 ? void 0 : _a.splice((_b = state.active) === null || _b === void 0 ? void 0 : _b.indexOf(characterName), 1);
-                if (Object.keys(state.characters).includes(selectedOption.value))
+                (_a = state.active) === null || _a === void 0
+                    ? void 0
+                    : _a.splice(
+                          (_b = state.active) === null || _b === void 0
+                              ? void 0
+                              : _b.indexOf(characterName),
+                          1
+                      );
+                if (
+                    Object.keys(state.characters).includes(selectedOption.value)
+                )
                     characterSelect.appendChild(selectedOption);
             };
             newDiv.appendChild(deleteCharacter);
             activeDiv.appendChild(newDiv);
         };
-        for (var _p = 0, _q = state.active; _p < _q.length; _p++) {
-            var characterName = _q[_p];
+        for (var _o = 0, _p = state.active; _o < _p.length; _o++) {
+            var characterName = _p[_o];
             _loop_5(characterName);
         }
     }
+    console.log("characters");
     document.getElementById("characters").innerHTML = "";
     {
         var charactersDiv = document.getElementById("characters");
@@ -401,7 +515,9 @@ var UpdateFields = function () {
             experienceParagraph.innerText = "Experience: ";
             var experienceInput = document.createElement("input");
             experienceInput.type = "number";
-            experienceInput.value = String(state.characters[characterName].experience);
+            experienceInput.value = String(
+                state.characters[characterName].experience
+            );
             experienceInput.onchange = function () {
                 state.characters[characterName].experience =
                     experienceInput.valueAsNumber;
@@ -414,7 +530,9 @@ var UpdateFields = function () {
             expToNextLvlParagraph.innerText = "Experience to next level: ";
             var expToNextLvlInput = document.createElement("input");
             expToNextLvlInput.type = "number";
-            expToNextLvlInput.value = String(state.characters[characterName].expToNextLvl);
+            expToNextLvlInput.value = String(
+                state.characters[characterName].expToNextLvl
+            );
             expToNextLvlInput.onchange = function () {
                 state.characters[characterName].expToNextLvl =
                     expToNextLvlInput.valueAsNumber;
@@ -427,7 +545,9 @@ var UpdateFields = function () {
             skillpointsParagraph.innerText = "Skillpoints:";
             var skillpointsInput = document.createElement("input");
             skillpointsInput.type = "number";
-            skillpointsInput.value = String(state.characters[characterName].skillpoints);
+            skillpointsInput.value = String(
+                state.characters[characterName].skillpoints
+            );
             skillpointsInput.onchange = function () {
                 state.characters[characterName].skillpoints =
                     skillpointsInput.valueAsNumber;
@@ -446,16 +566,11 @@ var UpdateFields = function () {
                 newModifier.className = "single_value";
                 var modifiedStat = document.createElement("select");
                 modifiedStat.className = "stat-select";
-                for (var _12 = 0, _13 = state.stats; _12 < _13.length; _12++) {
-                    var stat = _13[_12];
+                for (var _11 = 0, _12 = state.stats; _11 < _12.length; _11++) {
+                    var stat = _12[_11];
                     var statOption = document.createElement("option");
                     statOption.innerText = statOption.value = stat;
                     modifiedStat.appendChild(statOption);
-                    if (!state.characters[characterName].stats[stat])
-                        state.characters[characterName].stats[stat] = new Stat(stat, 0);
-                    modifierRefCount[stat] = isNaN(modifierRefCount[stat])
-                        ? 1
-                        : modifierRefCount[stat] + 1;
                 }
                 modifiedStat.value = statName;
                 var previousStatName;
@@ -463,25 +578,46 @@ var UpdateFields = function () {
                     previousStatName = modifiedStat.value;
                 };
                 modifiedStat.onchange = function () {
-                    if (state.characters[characterName].stats[modifiedStat.value]) {
-                        state.characters[characterName].stats[modifiedStat.value].level += modifiedValue.valueAsNumber;
+                    if (
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ]
+                    ) {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ].level += modifiedValue.valueAsNumber;
+                    } else {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ] = new Stat(
+                            modifiedStat.value,
+                            modifiedValue.valueAsNumber
+                        );
                     }
-                    else {
-                        state.characters[characterName].stats[modifiedStat.value] = new Stat(modifiedStat.value, modifiedValue.valueAsNumber);
-                    }
-                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
                         ? 1
                         : modifierRefCount[modifiedStat.value] + 1;
-                    if (state.characters[characterName].stats[previousStatName]) {
-                        state.characters[characterName].stats[previousStatName].level -= modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.characters[characterName].stats[previousStatName] = new Stat(previousStatName, 0);
+                    if (
+                        state.characters[characterName].stats[previousStatName]
+                    ) {
+                        state.characters[characterName].stats[
+                            previousStatName
+                        ].level -= modifiedValue.valueAsNumber;
+                    } else {
+                        state.characters[characterName].stats[
+                            previousStatName
+                        ] = new Stat(previousStatName, 0);
                     }
                     --modifierRefCount[previousStatName];
-                    if (modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])) {
-                        delete state.characters[characterName].stats[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete state.characters[characterName].stats[
+                            previousStatName
+                        ];
                     }
                     previousStatName = modifiedStat.value;
                 };
@@ -495,28 +631,44 @@ var UpdateFields = function () {
                     previousValue = modifiedValue.valueAsNumber;
                 };
                 modifiedValue.onchange = function () {
-                    if (isNaN(modifiedValue.valueAsNumber))
-                        return;
-                    if (!state.characters[characterName].stats[modifiedStat.value]) {
-                        state.characters[characterName].stats[modifiedStat.value] = new Stat(modifiedStat.value, modifiedValue.valueAsNumber);
-                    }
-                    else {
-                        state.characters[characterName].stats[modifiedStat.value].level += modifiedValue.valueAsNumber - previousValue;
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
+                    if (
+                        !state.characters[characterName].stats[
+                            modifiedStat.value
+                        ]
+                    ) {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ] = new Stat(
+                            modifiedStat.value,
+                            modifiedValue.valueAsNumber
+                        );
+                    } else {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ].level += modifiedValue.valueAsNumber - previousValue;
                     }
                     previousValue = modifiedValue.valueAsNumber;
                 };
                 newModifier.appendChild(modifiedValue);
                 var deleteModifier = document.createElement("button");
-                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+                deleteModifier.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n            </svg>';
                 deleteModifier.onclick = function () {
-                    state.characters[characterName].stats[modifiedStat.value].level -= modifiedValue.valueAsNumber;
+                    state.characters[characterName].stats[
+                        modifiedStat.value
+                    ].level -= modifiedValue.valueAsNumber;
                     newModifier.remove();
                 };
                 newModifier.appendChild(deleteModifier);
                 modifiersElement.appendChild(newModifier);
             };
-            for (var _5 = 0, _6 = Object.keys(character.stats); _5 < _6.length; _5++) {
-                var statName = _6[_5];
+            for (
+                var _4 = 0, _5 = Object.keys(character.stats);
+                _4 < _5.length;
+                _4++
+            ) {
+                var statName = _5[_4];
                 _loop_9(statName);
             }
             var modifierAddElement = document.createElement("li");
@@ -534,8 +686,12 @@ var UpdateFields = function () {
                     var statOption = document.createElement("option");
                     statOption.innerText = statOption.value = stat;
                     modifiedStat.appendChild(statOption);
-                    if (!Object.keys(state.characters[characterName].stats).includes(stat) &&
-                        !selected) {
+                    if (
+                        !Object.keys(
+                            state.characters[characterName].stats
+                        ).includes(stat) &&
+                        !selected
+                    ) {
                         selected = true;
                         modifiedStat.selectedIndex = i;
                         if (!state.characters[characterName].stats[stat])
@@ -548,7 +704,9 @@ var UpdateFields = function () {
                     ++i;
                 }
                 if (!selected) {
-                    alert("All of the created stats have been used for this character, create a new stat or modify already existing modifier");
+                    alert(
+                        "All of the created stats have been used for this character, create a new stat or modify already existing modifier"
+                    );
                     modifiedStat.remove();
                     newModifier.remove();
                     return;
@@ -558,25 +716,46 @@ var UpdateFields = function () {
                     previousStatName = modifiedStat.value;
                 };
                 modifiedStat.onchange = function () {
-                    if (state.characters[characterName].stats[modifiedStat.value]) {
-                        state.characters[characterName].stats[modifiedStat.value].level += modifiedValue.valueAsNumber;
+                    if (
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ]
+                    ) {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ].level += modifiedValue.valueAsNumber;
+                    } else {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ] = new Stat(
+                            modifiedStat.value,
+                            modifiedValue.valueAsNumber
+                        );
                     }
-                    else {
-                        state.characters[characterName].stats[modifiedStat.value] = new Stat(modifiedStat.value, modifiedValue.valueAsNumber);
-                    }
-                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
                         ? 1
                         : modifierRefCount[modifiedStat.value] + 1;
-                    if (state.characters[characterName].stats[previousStatName]) {
-                        state.characters[characterName].stats[previousStatName].level -= modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.characters[characterName].stats[previousStatName] = new Stat(previousStatName, 0);
+                    if (
+                        state.characters[characterName].stats[previousStatName]
+                    ) {
+                        state.characters[characterName].stats[
+                            previousStatName
+                        ].level -= modifiedValue.valueAsNumber;
+                    } else {
+                        state.characters[characterName].stats[
+                            previousStatName
+                        ] = new Stat(previousStatName, 0);
                     }
                     --modifierRefCount[previousStatName];
-                    if (modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])) {
-                        delete state.characters[characterName].stats[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete state.characters[characterName].stats[
+                            previousStatName
+                        ];
                     }
                     previousStatName = modifiedStat.value;
                 };
@@ -589,21 +768,33 @@ var UpdateFields = function () {
                     previousValue = modifiedValue.valueAsNumber;
                 };
                 modifiedValue.onchange = function () {
-                    if (isNaN(modifiedValue.valueAsNumber))
-                        return;
-                    if (!state.characters[characterName].stats[modifiedStat.value]) {
-                        state.characters[characterName].stats[modifiedStat.value] = new Stat(modifiedStat.value, modifiedValue.valueAsNumber);
-                    }
-                    else {
-                        state.characters[characterName].stats[modifiedStat.value].level += modifiedValue.valueAsNumber - previousValue;
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
+                    if (
+                        !state.characters[characterName].stats[
+                            modifiedStat.value
+                        ]
+                    ) {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ] = new Stat(
+                            modifiedStat.value,
+                            modifiedValue.valueAsNumber
+                        );
+                    } else {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ].level += modifiedValue.valueAsNumber - previousValue;
                     }
                     previousValue = modifiedValue.valueAsNumber;
                 };
                 newModifier.appendChild(modifiedValue);
                 var deleteModifier = document.createElement("button");
-                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+                deleteModifier.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n            </svg>';
                 deleteModifier.onclick = function () {
-                    state.characters[characterName].stats[modifiedStat.value].level -= modifiedValue.valueAsNumber;
+                    state.characters[characterName].stats[
+                        modifiedStat.value
+                    ].level -= modifiedValue.valueAsNumber;
                     newModifier.remove();
                 };
                 newModifier.appendChild(deleteModifier);
@@ -624,10 +815,19 @@ var UpdateFields = function () {
                 slotName.innerText = slot;
                 slotElement.appendChild(slotName);
                 var equippedItem = document.createElement("select");
-                equippedItem.className = "item-".concat(slot, "-select item-slot-select");
-                (_d = itemsBySlot[slot]) !== null && _d !== void 0 ? _d : (itemsBySlot[slot] = []);
-                for (var _14 = 0, _15 = itemsBySlot[slot]; _14 < _15.length; _14++) {
-                    var itemName = _15[_14];
+                equippedItem.className = "item-".concat(
+                    slot,
+                    "-select item-slot-select"
+                );
+                (_d = itemsBySlot[slot]) !== null && _d !== void 0
+                    ? _d
+                    : (itemsBySlot[slot] = []);
+                for (
+                    var _13 = 0, _14 = itemsBySlot[slot];
+                    _13 < _14.length;
+                    _13++
+                ) {
+                    var itemName = _14[_13];
                     var option = document.createElement("option");
                     option.text = option.value = itemName;
                     equippedItem.appendChild(option);
@@ -641,8 +841,8 @@ var UpdateFields = function () {
                 slotElement.appendChild(equippedItem);
                 equipment.appendChild(slotElement);
             };
-            for (var _7 = 0, slots_1 = slots; _7 < slots_1.length; _7++) {
-                var slot = slots_1[_7];
+            for (var _6 = 0, slots_1 = slots; _6 < slots_1.length; _6++) {
+                var slot = slots_1[_6];
                 _loop_10(slot);
             }
             equipmentElement.appendChild(equipment);
@@ -661,18 +861,24 @@ var UpdateFields = function () {
                 option.value = option.innerText = effectName;
                 effectAddInput.appendChild(option);
             }
-            (_e = character.activeEffects) !== null && _e !== void 0 ? _e : (character.activeEffects = []);
+            (_e = character.activeEffects) !== null && _e !== void 0
+                ? _e
+                : (character.activeEffects = []);
             var _loop_11 = function (effect) {
-                (_f = character.activeEffects) === null || _f === void 0 ? void 0 : _f.push(effect);
                 var newElement = document.createElement("div");
                 var newEffect = document.createElement("p");
                 newEffect.innerText = effect.name;
                 newElement.appendChild(newEffect);
                 var deleteElement = document.createElement("button");
-                deleteElement.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n        </svg>";
+                deleteElement.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n        </svg>';
                 var effectOption = effectAddInput.options[0];
-                for (var _16 = 0, _17 = Array.from(effectAddInput.options); _16 < _17.length; _16++) {
-                    var option = _17[_16];
+                for (
+                    var _15 = 0, _16 = Array.from(effectAddInput.options);
+                    _15 < _16.length;
+                    _15++
+                ) {
+                    var option = _16[_15];
                     if (option.value === effect.name) {
                         effectOption = option;
                         break;
@@ -684,16 +890,28 @@ var UpdateFields = function () {
                         console.error("Effects disappeared?!");
                         return;
                     }
-                    (_a = character.activeEffects) === null || _a === void 0 ? void 0 : _a.splice((_b = character.activeEffects) === null || _b === void 0 ? void 0 : _b.indexOf(effect), 1);
-                    effectAddInput.appendChild(effectOption);
+                    (_a = character.activeEffects) === null || _a === void 0
+                        ? void 0
+                        : _a.splice(
+                              (_b = character.activeEffects) === null ||
+                                  _b === void 0
+                                  ? void 0
+                                  : _b.indexOf(effect),
+                              1
+                          );
+                    if (effectOption) effectAddInput.appendChild(effectOption);
                     newElement.remove();
                 };
                 newElement.appendChild(deleteElement);
                 effects.appendChild(newElement);
-                effectAddInput.removeChild(effectOption);
+                if (effectOption) effectAddInput.removeChild(effectOption);
             };
-            for (var _8 = 0, _9 = character.activeEffects; _8 < _9.length; _8++) {
-                var effect = _9[_8];
+            for (
+                var _7 = 0, _8 = character.activeEffects;
+                _7 < _8.length;
+                _7++
+            ) {
+                var effect = _8[_7];
                 _loop_11(effect);
             }
             var effectAddButton = document.createElement("button");
@@ -704,21 +922,44 @@ var UpdateFields = function () {
                     state.characters[characterName].activeEffects = [];
                 }
                 var selectedOption = effectAddInput.selectedOptions[0];
-                (_a = state.characters[characterName].activeEffects) === null || _a === void 0 ? void 0 : _a.push(state.effects[selectedOption.value]);
+                (_a = state.characters[characterName].activeEffects) === null ||
+                _a === void 0
+                    ? void 0
+                    : _a.push(state.effects[selectedOption.value]);
                 var newElement = document.createElement("div");
                 var newEffect = document.createElement("p");
                 newEffect.innerText = selectedOption.value;
                 newElement.appendChild(newEffect);
-                (_b = state.characters[characterName].activeEffects) === null || _b === void 0 ? void 0 : _b.push(state.effects[effectAddInput.value]);
+                (_b = state.characters[characterName].activeEffects) === null ||
+                _b === void 0
+                    ? void 0
+                    : _b.push(state.effects[effectAddInput.value]);
                 var deleteElement = document.createElement("button");
-                deleteElement.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n        </svg>";
+                deleteElement.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n        </svg>';
                 deleteElement.onclick = function () {
                     var _a, _b, _c;
                     if (!state.characters[characterName].activeEffects) {
                         console.error("Effects disappeared?!");
                         return;
                     }
-                    (_a = state.characters[characterName].activeEffects) === null || _a === void 0 ? void 0 : _a.splice((_c = (_b = state.characters[characterName].activeEffects) === null || _b === void 0 ? void 0 : _b.indexOf(state.effects[selectedOption.value])) !== null && _c !== void 0 ? _c : 0, 1);
+                    (_a = state.characters[characterName].activeEffects) ===
+                        null || _a === void 0
+                        ? void 0
+                        : _a.splice(
+                              (_c =
+                                  (_b =
+                                      state.characters[characterName]
+                                          .activeEffects) === null ||
+                                  _b === void 0
+                                      ? void 0
+                                      : _b.indexOf(
+                                            state.effects[selectedOption.value]
+                                        )) !== null && _c !== void 0
+                                  ? _c
+                                  : 0,
+                              1
+                          );
                     effectAddInput.appendChild(selectedOption);
                     newElement.remove();
                 };
@@ -730,20 +971,39 @@ var UpdateFields = function () {
             effectsElement.appendChild(effectAddButton);
             characterSheet.appendChild(effectsElement);
             newCharacter.appendChild(characterSheet);
-            for (var _10 = 0, _11 = Array.from(document.getElementsByClassName("character-select")); _10 < _11.length; _10++) {
-                var element = _11[_10];
+            for (
+                var _9 = 0,
+                    _10 = Array.from(
+                        document.getElementsByClassName("character-select")
+                    );
+                _9 < _10.length;
+                _9++
+            ) {
+                var element = _10[_9];
                 var select = element;
                 var option = document.createElement("option");
                 option.text = option.value = characterName;
                 select.appendChild(option);
             }
             var deleteCharacter = document.createElement("button");
-            deleteCharacter.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+            deleteCharacter.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n            </svg>';
             deleteCharacter.onclick = function () {
-                for (var _i = 0, _a = Array.from(document.getElementsByClassName("character-select")); _i < _a.length; _i++) {
+                for (
+                    var _i = 0,
+                        _a = Array.from(
+                            document.getElementsByClassName("character-select")
+                        );
+                    _i < _a.length;
+                    _i++
+                ) {
                     var element = _a[_i];
                     var select = element;
-                    for (var _b = 0, _c = Array.from(select.options); _b < _c.length; _b++) {
+                    for (
+                        var _b = 0, _c = Array.from(select.options);
+                        _b < _c.length;
+                        _b++
+                    ) {
                         var option = _c[_b];
                         if (option.value === characterName) {
                             select.removeChild(option);
@@ -757,31 +1017,38 @@ var UpdateFields = function () {
             newCharacter.appendChild(deleteCharacter);
             charactersDiv.appendChild(newCharacter);
         };
-        for (var _r = 0, _s = Object.keys(state.characters); _r < _s.length; _r++) {
-            var characterName = _s[_r];
+        for (
+            var _q = 0, _r = Object.keys(state.characters);
+            _q < _r.length;
+            _q++
+        ) {
+            var characterName = _r[_q];
             _loop_6(characterName);
         }
     }
+    //Infinite loop somewhere here
     document.getElementById("items").innerHTML = "";
     {
         var itemsDiv = document.getElementById("items");
         var _loop_7 = function (itemName) {
+            console.log(itemName);
             var item = state.items[itemName];
-            state.items[itemName] = new Item(itemName, []);
             var newItem = document.createElement("div");
             newItem.className = "item";
             var itemSheet = document.createElement("ul");
             itemSheet.className = "item-sheet";
+            console.log("name");
             var nameElement = document.createElement("li");
             var nameParagraph = document.createElement("p");
             nameParagraph.innerText = itemName;
             nameElement.appendChild(nameParagraph);
             itemSheet.appendChild(nameElement);
+            console.log("slot");
             var slotElement = document.createElement("li");
             var slotSelect = document.createElement("select");
             slotSelect.className = "slot-select";
-            for (var _18 = 0, slots_2 = slots; _18 < slots_2.length; _18++) {
-                var slot = slots_2[_18];
+            for (var _17 = 0, slots_2 = slots; _17 < slots_2.length; _17++) {
+                var slot = slots_2[_17];
                 var option = document.createElement("option");
                 option.text = option.value = slot;
                 slotSelect.appendChild(option);
@@ -789,12 +1056,20 @@ var UpdateFields = function () {
             slotSelect.value = item.slot;
             if (!itemsBySlot[slotSelect.value]) {
                 itemsBySlot[slotSelect.value] = [itemName];
-            }
-            else {
+            } else {
                 itemsBySlot[slotSelect.value].push(itemName);
             }
-            for (var _19 = 0, _20 = Array.from(document.getElementsByClassName("item-".concat(slotSelect.value, "-select"))); _19 < _20.length; _19++) {
-                var element = _20[_19];
+            for (
+                var _18 = 0,
+                    _19 = Array.from(
+                        document.getElementsByClassName(
+                            "item-".concat(slotSelect.value, "-select")
+                        )
+                    );
+                _18 < _19.length;
+                _18++
+            ) {
+                var element = _19[_18];
                 var select = element;
                 var option = document.createElement("option");
                 option.text = option.value = itemName;
@@ -805,22 +1080,46 @@ var UpdateFields = function () {
                 state.items[itemName].slot = slotSelect.value;
                 if (!itemsBySlot[slotSelect.value]) {
                     itemsBySlot[slotSelect.value] = [itemName];
-                }
-                else {
+                } else {
                     itemsBySlot[slotSelect.value].push(itemName);
                 }
-                for (var _i = 0, _a = Array.from(document.getElementsByClassName("item-".concat(slotSelect.value, "-select"))); _i < _a.length; _i++) {
+                for (
+                    var _i = 0,
+                        _a = Array.from(
+                            document.getElementsByClassName(
+                                "item-".concat(slotSelect.value, "-select")
+                            )
+                        );
+                    _i < _a.length;
+                    _i++
+                ) {
                     var element = _a[_i];
                     var select = element;
                     var option = document.createElement("option");
                     option.text = option.value = itemName;
                     select.appendChild(option);
                 }
-                itemsBySlot[previousValue].splice(itemsBySlot[previousValue].indexOf(itemName), 1);
-                for (var _b = 0, _c = Array.from(document.getElementsByClassName("item-".concat(previousValue, "-select"))); _b < _c.length; _b++) {
+                itemsBySlot[previousValue].splice(
+                    itemsBySlot[previousValue].indexOf(itemName),
+                    1
+                );
+                for (
+                    var _b = 0,
+                        _c = Array.from(
+                            document.getElementsByClassName(
+                                "item-".concat(previousValue, "-select")
+                            )
+                        );
+                    _b < _c.length;
+                    _b++
+                ) {
                     var element = _c[_b];
                     var select = element;
-                    for (var _d = 0, _e = Array.from(select.options); _d < _e.length; _d++) {
+                    for (
+                        var _d = 0, _e = Array.from(select.options);
+                        _d < _e.length;
+                        _d++
+                    ) {
                         var option = _e[_d];
                         if (option.value === itemName) {
                             select.removeChild(option);
@@ -836,15 +1135,18 @@ var UpdateFields = function () {
             var effects = document.createElement("div");
             effects.className = "list";
             var _loop_12 = function (effectName) {
-                state.items[itemName].effects.push(effectName);
                 var newElement = document.createElement("div");
                 var newEffect = document.createElement("p");
                 newEffect.innerText = effectName;
                 newElement.appendChild(newEffect);
                 var deleteElement = document.createElement("button");
-                deleteElement.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+                deleteElement.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n            </svg>';
                 deleteElement.onclick = function () {
-                    state.items[itemName].effects.splice(item.effects.indexOf(effectName), 1);
+                    state.items[itemName].effects.splice(
+                        item.effects.indexOf(effectName),
+                        1
+                    );
                     var option = document.createElement("option");
                     option.text = option.value = effectName;
                     effectAddInput.appendChild(option);
@@ -853,16 +1155,15 @@ var UpdateFields = function () {
                 newElement.appendChild(deleteElement);
                 effects.appendChild(newElement);
             };
-            for (var _21 = 0, _22 = item.effects; _21 < _22.length; _21++) {
-                var effectName = _22[_21];
+            for (var _20 = 0, _21 = item.effects; _20 < _21.length; _20++) {
+                var effectName = _21[_20];
                 _loop_12(effectName);
             }
             effectsElement.appendChild(effects);
             var effectAddInput = document.createElement("select");
             effectAddInput.className = "effect-select";
             for (var effectName in state.effects) {
-                if (item.effects.includes(effectName))
-                    continue;
+                if (item.effects.includes(effectName)) continue;
                 var option = document.createElement("option");
                 option.value = option.innerText = effectName;
                 effectAddInput.appendChild(option);
@@ -877,9 +1178,13 @@ var UpdateFields = function () {
                 newEffect.innerText = selectedOption.value;
                 newElement.appendChild(newEffect);
                 var deleteElement = document.createElement("button");
-                deleteElement.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+                deleteElement.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n            </svg>';
                 deleteElement.onclick = function () {
-                    state.items[itemName].effects.splice(item.effects.indexOf(selectedOption.value), 1);
+                    state.items[itemName].effects.splice(
+                        item.effects.indexOf(selectedOption.value),
+                        1
+                    );
                     effectAddInput.appendChild(selectedOption);
                     newElement.remove();
                 };
@@ -890,6 +1195,7 @@ var UpdateFields = function () {
             effectsElement.appendChild(effectAddInput);
             effectsElement.appendChild(effectAddButton);
             itemSheet.appendChild(effectsElement);
+            console.log("modifiers");
             var modifiersParagraph = document.createElement("p");
             modifiersParagraph.innerText = "Modifiers:";
             itemSheet.appendChild(modifiersParagraph);
@@ -902,8 +1208,12 @@ var UpdateFields = function () {
                 newModifier.className = "single_value";
                 var modifiedStat = document.createElement("select");
                 modifiedStat.className = "stat-select";
-                for (var _25 = 0, _26 = state.stats.concat(["hp"]); _25 < _26.length; _25++) {
-                    var stat = _26[_25];
+                for (
+                    var _24 = 0, _25 = state.stats.concat(["hp"]);
+                    _24 < _25.length;
+                    _24++
+                ) {
+                    var stat = _25[_24];
                     var statOption = document.createElement("option");
                     statOption.innerText = statOption.value = stat;
                     modifiedStat.appendChild(statOption);
@@ -917,24 +1227,26 @@ var UpdateFields = function () {
                     if (!isNaN(item.modifiers[modifiedStat.value])) {
                         item.modifiers[modifiedStat.value] +=
                             modifiedValue.valueAsNumber;
-                    }
-                    else {
+                    } else {
                         item.modifiers[modifiedStat.value] =
                             modifiedValue.valueAsNumber;
                     }
-                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
                         ? 1
                         : modifierRefCount[modifiedStat.value] + 1;
                     if (!isNaN(item.modifiers[previousStatName])) {
                         item.modifiers[previousStatName] -=
                             modifiedValue.valueAsNumber;
-                    }
-                    else {
+                    } else {
                         item.modifiers[previousStatName] = 0;
                     }
                     --modifierRefCount[previousStatName];
-                    if (modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])) {
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
                         delete item.modifiers[previousStatName];
                     }
                     previousStatName = modifiedStat.value;
@@ -948,13 +1260,11 @@ var UpdateFields = function () {
                     previousValue_1 = modifiedValue.valueAsNumber;
                 };
                 modifiedValue.onchange = function () {
-                    if (isNaN(modifiedValue.valueAsNumber))
-                        return;
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
                     if (isNaN(item.modifiers[modifiedStat.value])) {
                         item.modifiers[modifiedStat.value] =
                             modifiedValue.valueAsNumber;
-                    }
-                    else {
+                    } else {
                         item.modifiers[modifiedStat.value] +=
                             modifiedValue.valueAsNumber - previousValue_1;
                     }
@@ -962,7 +1272,8 @@ var UpdateFields = function () {
                 };
                 newModifier.appendChild(modifiedValue);
                 var deleteModifier = document.createElement("button");
-                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+                deleteModifier.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n            </svg>';
                 deleteModifier.onclick = function () {
                     item.modifiers[modifiedStat.value] -=
                         modifiedValue.valueAsNumber;
@@ -971,8 +1282,12 @@ var UpdateFields = function () {
                 newModifier.appendChild(deleteModifier);
                 modifiersElement.appendChild(newModifier);
             };
-            for (var _23 = 0, _24 = Object.keys(item.modifiers); _23 < _24.length; _23++) {
-                var modifierName = _24[_23];
+            for (
+                var _22 = 0, _23 = Object.keys(item.modifiers);
+                _22 < _23.length;
+                _22++
+            ) {
+                var modifierName = _23[_22];
                 _loop_13(modifierName);
             }
             var modifierAddElement = document.createElement("li");
@@ -990,8 +1305,12 @@ var UpdateFields = function () {
                     var statOption = document.createElement("option");
                     statOption.innerText = statOption.value = stat;
                     modifiedStat.appendChild(statOption);
-                    if (!Object.keys(state.items[itemName].modifiers).includes(stat) &&
-                        !selected) {
+                    if (
+                        !Object.keys(state.items[itemName].modifiers).includes(
+                            stat
+                        ) &&
+                        !selected
+                    ) {
                         selected = true;
                         modifiedStat.selectedIndex = i;
                         if (isNaN(state.items[itemName].modifiers[stat]))
@@ -1003,7 +1322,9 @@ var UpdateFields = function () {
                     ++i;
                 }
                 if (!selected) {
-                    alert("All of the created stats have been used for this item, create a new stat or modify already existing modifier");
+                    alert(
+                        "All of the created stats have been used for this item, create a new stat or modify already existing modifier"
+                    );
                     modifiedStat.remove();
                     newModifier.remove();
                     return;
@@ -1013,28 +1334,40 @@ var UpdateFields = function () {
                     previousStatName = modifiedStat.value;
                 };
                 modifiedStat.onchange = function () {
-                    if (!isNaN(state.items[itemName].modifiers[modifiedStat.value])) {
+                    if (
+                        !isNaN(
+                            state.items[itemName].modifiers[modifiedStat.value]
+                        )
+                    ) {
                         state.items[itemName].modifiers[modifiedStat.value] +=
                             modifiedValue.valueAsNumber;
-                    }
-                    else {
+                    } else {
                         state.items[itemName].modifiers[modifiedStat.value] =
                             modifiedValue.valueAsNumber;
                     }
-                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
                         ? 1
                         : modifierRefCount[modifiedStat.value] + 1;
-                    if (!isNaN(state.items[itemName].modifiers[previousStatName])) {
+                    if (
+                        !isNaN(
+                            state.items[itemName].modifiers[previousStatName]
+                        )
+                    ) {
                         state.items[itemName].modifiers[previousStatName] -=
                             modifiedValue.valueAsNumber;
-                    }
-                    else {
+                    } else {
                         state.items[itemName].modifiers[previousStatName] = 0;
                     }
                     --modifierRefCount[previousStatName];
-                    if (modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])) {
-                        delete state.items[itemName].modifiers[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete state.items[itemName].modifiers[
+                            previousStatName
+                        ];
                     }
                     previousStatName = modifiedStat.value;
                 };
@@ -1047,13 +1380,15 @@ var UpdateFields = function () {
                     previousValue = modifiedValue.valueAsNumber;
                 };
                 modifiedValue.onchange = function () {
-                    if (isNaN(modifiedValue.valueAsNumber))
-                        return;
-                    if (isNaN(state.items[itemName].modifiers[modifiedStat.value])) {
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
+                    if (
+                        isNaN(
+                            state.items[itemName].modifiers[modifiedStat.value]
+                        )
+                    ) {
                         state.items[itemName].modifiers[modifiedStat.value] =
                             modifiedValue.valueAsNumber;
-                    }
-                    else {
+                    } else {
                         state.items[itemName].modifiers[modifiedStat.value] +=
                             modifiedValue.valueAsNumber - previousValue;
                     }
@@ -1061,14 +1396,19 @@ var UpdateFields = function () {
                 };
                 newModifier.appendChild(modifiedValue);
                 var deleteModifier = document.createElement("button");
-                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n                <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n                <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n                </svg>";
+                deleteModifier.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n                </svg>';
                 deleteModifier.onclick = function () {
                     state.items[itemName].modifiers[modifiedStat.value] -=
                         modifiedValue.valueAsNumber;
                     --modifierRefCount[previousStatName];
-                    if (modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])) {
-                        delete state.items[itemName].modifiers[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete state.items[itemName].modifiers[
+                            previousStatName
+                        ];
                     }
                     newModifier.remove();
                 };
@@ -1080,12 +1420,24 @@ var UpdateFields = function () {
             itemSheet.appendChild(modifiersElement);
             newItem.appendChild(itemSheet);
             var deleteItem = document.createElement("button");
-            deleteItem.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n                <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n                <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n                </svg>";
+            deleteItem.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n                </svg>';
             deleteItem.onclick = function () {
-                for (var _i = 0, _a = Array.from(document.getElementsByClassName("item-select")); _i < _a.length; _i++) {
+                for (
+                    var _i = 0,
+                        _a = Array.from(
+                            document.getElementsByClassName("item-select")
+                        );
+                    _i < _a.length;
+                    _i++
+                ) {
                     var element = _a[_i];
                     var select = element;
-                    for (var _b = 0, _c = Array.from(select.options); _b < _c.length; _b++) {
+                    for (
+                        var _b = 0, _c = Array.from(select.options);
+                        _b < _c.length;
+                        _b++
+                    ) {
                         var option = _c[_b];
                         if (option.value === itemName) {
                             select.removeChild(option);
@@ -1099,11 +1451,16 @@ var UpdateFields = function () {
             newItem.appendChild(deleteItem);
             itemsDiv.appendChild(newItem);
         };
-        for (var _t = 0, _u = Object.keys(state.items); _t < _u.length; _t++) {
-            var itemName = _u[_t];
+        for (var _s = 0, _t = Object.keys(state.items); _s < _t.length; _s++) {
+            var itemName = _t[_s];
             _loop_7(itemName);
         }
     }
+    if (t) {
+        console.log(state);
+        return;
+    }
+    console.log("effects");
     document.getElementById("effects").innerHTML = "";
     {
         var effectsDiv = document.getElementById("effects");
@@ -1125,7 +1482,9 @@ var UpdateFields = function () {
             baseDurationInput.value =
                 state.effects[effectName].baseDuration.toString();
             baseDurationInput.onchange = function () {
-                state.effects[effectName].baseDuration = state.effects[effectName].durationLeft = baseDurationInput.valueAsNumber;
+                state.effects[effectName].baseDuration = state.effects[
+                    effectName
+                ].durationLeft = baseDurationInput.valueAsNumber;
             };
             baseDurationElement.appendChild(baseDurationInput);
             effectSheet.appendChild(baseDurationElement);
@@ -1147,13 +1506,13 @@ var UpdateFields = function () {
             appliedOnParagraph.innerText = "Applied on: ";
             appliedOnElement.appendChild(appliedOnParagraph);
             var appliedOnInput = document.createElement("select");
-            for (var _27 = 0, _28 = [
-                "attack",
-                "defense",
-                "battle start",
-                "not applied",
-            ]; _27 < _28.length; _27++) {
-                var option = _28[_27];
+            for (
+                var _26 = 0,
+                    _27 = ["attack", "defense", "battle start", "not applied"];
+                _26 < _27.length;
+                _26++
+            ) {
+                var option = _27[_26];
                 var appliedOnOption = document.createElement("option");
                 appliedOnOption.innerText = appliedOnOption.value = option;
                 appliedOnInput.appendChild(appliedOnOption);
@@ -1169,7 +1528,8 @@ var UpdateFields = function () {
                             appliedOnInput.value;
                         break;
                     default:
-                        document.getElementById("errors").innerHTML = "appliedOn invalid";
+                        document.getElementById("errors").innerHTML =
+                            "appliedOn invalid";
                 }
             };
             appliedOnElement.appendChild(appliedOnInput);
@@ -1179,8 +1539,12 @@ var UpdateFields = function () {
             appliedToParagraph.innerText = "Applied to: ";
             appliedToElement.appendChild(appliedToParagraph);
             var appliedToInput = document.createElement("select");
-            for (var _29 = 0, _30 = ["enemy", "self"]; _29 < _30.length; _29++) {
-                var option = _30[_29];
+            for (
+                var _28 = 0, _29 = ["enemy", "self"];
+                _28 < _29.length;
+                _28++
+            ) {
+                var option = _29[_28];
                 var appliedToOption = document.createElement("option");
                 appliedToOption.innerText = appliedToOption.value = option;
                 appliedToInput.appendChild(appliedToOption);
@@ -1194,7 +1558,8 @@ var UpdateFields = function () {
                             appliedToInput.value;
                         break;
                     default:
-                        document.getElementById("errors").innerHTML = "appliedTo invalid";
+                        document.getElementById("errors").innerHTML =
+                            "appliedTo invalid";
                 }
             };
             appliedToElement.appendChild(appliedToInput);
@@ -1204,8 +1569,12 @@ var UpdateFields = function () {
             impactParagraph.innerText = "Impact: ";
             impactElement.appendChild(impactParagraph);
             var impactInput = document.createElement("select");
-            for (var _31 = 0, _32 = ["on end", "continuous", "every turn"]; _31 < _32.length; _31++) {
-                var option = _32[_31];
+            for (
+                var _30 = 0, _31 = ["on end", "continuous", "every turn"];
+                _30 < _31.length;
+                _30++
+            ) {
+                var option = _31[_30];
                 var impactOption = document.createElement("option");
                 impactOption.innerText = impactOption.value = option;
                 impactInput.appendChild(impactOption);
@@ -1219,7 +1588,8 @@ var UpdateFields = function () {
                         state.effects[effectName].impact = impactInput.value;
                         break;
                     default:
-                        document.getElementById("errors").innerHTML = "impact invalid";
+                        document.getElementById("errors").innerHTML =
+                            "impact invalid";
                 }
             };
             impactElement.appendChild(impactInput);
@@ -1231,13 +1601,18 @@ var UpdateFields = function () {
             var modifiersElement = document.createElement("ul");
             modifiersElement.style.listStyleType = "none";
             var _loop_14 = function (modifierName) {
-                var modifierValue = state.effects[effectName].modifiers[modifierName];
+                var modifierValue =
+                    state.effects[effectName].modifiers[modifierName];
                 var newModifier = document.createElement("li");
                 newModifier.className = "single_value";
                 var modifiedStat = document.createElement("select");
                 modifiedStat.className = "stat-select";
-                for (var _37 = 0, _38 = state.stats.concat(["hp"]); _37 < _38.length; _37++) {
-                    var stat = _38[_37];
+                for (
+                    var _36 = 0, _37 = state.stats.concat(["hp"]);
+                    _36 < _37.length;
+                    _36++
+                ) {
+                    var stat = _37[_36];
                     var statOption = document.createElement("option");
                     statOption.innerText = statOption.value = stat;
                     modifiedStat.appendChild(statOption);
@@ -1248,26 +1623,48 @@ var UpdateFields = function () {
                     previousStatName = modifiedStat.value;
                 };
                 modifiedStat.onchange = function () {
-                    if (!isNaN(state.effects[effectName].modifiers[modifiedStat.value])) {
-                        state.effects[effectName].modifiers[modifiedStat.value] += modifiedValue.valueAsNumber;
+                    if (
+                        !isNaN(
+                            state.effects[effectName].modifiers[
+                                modifiedStat.value
+                            ]
+                        )
+                    ) {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] += modifiedValue.valueAsNumber;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] = modifiedValue.valueAsNumber;
                     }
-                    else {
-                        state.effects[effectName].modifiers[modifiedStat.value] = modifiedValue.valueAsNumber;
-                    }
-                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
                         ? 1
                         : modifierRefCount[modifiedStat.value] + 1;
-                    if (!isNaN(state.effects[effectName].modifiers[previousStatName])) {
+                    if (
+                        !isNaN(
+                            state.effects[effectName].modifiers[
+                                previousStatName
+                            ]
+                        )
+                    ) {
                         state.effects[effectName].modifiers[previousStatName] -=
                             modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.effects[effectName].modifiers[previousStatName] = 0;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            previousStatName
+                        ] = 0;
                     }
                     --modifierRefCount[previousStatName];
-                    if (modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])) {
-                        delete state.effects[effectName].modifiers[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete state.effects[effectName].modifiers[
+                            previousStatName
+                        ];
                     }
                     previousStatName = modifiedStat.value;
                 };
@@ -1280,19 +1677,28 @@ var UpdateFields = function () {
                     previousValue = modifiedValue.valueAsNumber;
                 };
                 modifiedValue.onchange = function () {
-                    if (isNaN(modifiedValue.valueAsNumber))
-                        return;
-                    if (isNaN(state.effects[effectName].modifiers[modifiedStat.value])) {
-                        state.effects[effectName].modifiers[modifiedStat.value] = modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.effects[effectName].modifiers[modifiedStat.value] += modifiedValue.valueAsNumber - previousValue;
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
+                    if (
+                        isNaN(
+                            state.effects[effectName].modifiers[
+                                modifiedStat.value
+                            ]
+                        )
+                    ) {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] = modifiedValue.valueAsNumber;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] += modifiedValue.valueAsNumber - previousValue;
                     }
                     previousValue = modifiedValue.valueAsNumber;
                 };
                 newModifier.appendChild(modifiedValue);
                 var deleteModifier = document.createElement("button");
-                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+                deleteModifier.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n            </svg>';
                 deleteModifier.onclick = function () {
                     state.effects[effectName].modifiers[modifiedStat.value] -=
                         modifiedValue.valueAsNumber;
@@ -1301,8 +1707,13 @@ var UpdateFields = function () {
                 newModifier.appendChild(deleteModifier);
                 modifiersElement.appendChild(newModifier);
             };
-            for (var _33 = 0, _34 = Object.keys(state.effects[effectName].modifiers); _33 < _34.length; _33++) {
-                var modifierName = _34[_33];
+            for (
+                var _32 = 0,
+                    _33 = Object.keys(state.effects[effectName].modifiers);
+                _32 < _33.length;
+                _32++
+            ) {
+                var modifierName = _33[_32];
                 _loop_14(modifierName);
             }
             var modifierAddElement = document.createElement("li");
@@ -1315,13 +1726,21 @@ var UpdateFields = function () {
                 modifiedStat.className = "stat-select";
                 var selected = false;
                 var i = 0;
-                for (var _i = 0, _a = state.stats.concat(["hp"]); _i < _a.length; _i++) {
+                for (
+                    var _i = 0, _a = state.stats.concat(["hp"]);
+                    _i < _a.length;
+                    _i++
+                ) {
                     var stat = _a[_i];
                     var statOption = document.createElement("option");
                     statOption.innerText = statOption.value = stat;
                     modifiedStat.appendChild(statOption);
-                    if (!Object.keys(state.effects[effectName].modifiers).includes(stat) &&
-                        !selected) {
+                    if (
+                        !Object.keys(
+                            state.effects[effectName].modifiers
+                        ).includes(stat) &&
+                        !selected
+                    ) {
                         selected = true;
                         modifiedStat.selectedIndex = i;
                         if (isNaN(state.effects[effectName].modifiers[stat]))
@@ -1333,7 +1752,9 @@ var UpdateFields = function () {
                     ++i;
                 }
                 if (!selected) {
-                    alert("All of the created stats have been used for this effect, create a new stat or modify already existing modifier");
+                    alert(
+                        "All of the created stats have been used for this effect, create a new stat or modify already existing modifier"
+                    );
                     modifiedStat.remove();
                     newModifier.remove();
                     return;
@@ -1343,26 +1764,48 @@ var UpdateFields = function () {
                     previousStatName = modifiedStat.value;
                 };
                 modifiedStat.onchange = function () {
-                    if (!isNaN(state.effects[effectName].modifiers[modifiedStat.value])) {
-                        state.effects[effectName].modifiers[modifiedStat.value] += modifiedValue.valueAsNumber;
+                    if (
+                        !isNaN(
+                            state.effects[effectName].modifiers[
+                                modifiedStat.value
+                            ]
+                        )
+                    ) {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] += modifiedValue.valueAsNumber;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] = modifiedValue.valueAsNumber;
                     }
-                    else {
-                        state.effects[effectName].modifiers[modifiedStat.value] = modifiedValue.valueAsNumber;
-                    }
-                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
                         ? 1
                         : modifierRefCount[modifiedStat.value] + 1;
-                    if (!isNaN(state.effects[effectName].modifiers[previousStatName])) {
+                    if (
+                        !isNaN(
+                            state.effects[effectName].modifiers[
+                                previousStatName
+                            ]
+                        )
+                    ) {
                         state.effects[effectName].modifiers[previousStatName] -=
                             modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.effects[effectName].modifiers[previousStatName] = 0;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            previousStatName
+                        ] = 0;
                     }
                     --modifierRefCount[previousStatName];
-                    if (modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])) {
-                        delete state.effects[effectName].modifiers[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete state.effects[effectName].modifiers[
+                            previousStatName
+                        ];
                     }
                     previousStatName = modifiedStat.value;
                 };
@@ -1375,19 +1818,28 @@ var UpdateFields = function () {
                     previousValue = modifiedValue.valueAsNumber;
                 };
                 modifiedValue.onchange = function () {
-                    if (isNaN(modifiedValue.valueAsNumber))
-                        return;
-                    if (isNaN(state.effects[effectName].modifiers[modifiedStat.value])) {
-                        state.effects[effectName].modifiers[modifiedStat.value] = modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.effects[effectName].modifiers[modifiedStat.value] += modifiedValue.valueAsNumber - previousValue;
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
+                    if (
+                        isNaN(
+                            state.effects[effectName].modifiers[
+                                modifiedStat.value
+                            ]
+                        )
+                    ) {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] = modifiedValue.valueAsNumber;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] += modifiedValue.valueAsNumber - previousValue;
                     }
                     previousValue = modifiedValue.valueAsNumber;
                 };
                 newModifier.appendChild(modifiedValue);
                 var deleteModifier = document.createElement("button");
-                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+                deleteModifier.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n            </svg>';
                 deleteModifier.onclick = function () {
                     state.effects[effectName].modifiers[modifiedStat.value] -=
                         modifiedValue.valueAsNumber;
@@ -1400,21 +1852,40 @@ var UpdateFields = function () {
             modifiersElement.appendChild(modifierAddElement);
             effectSheet.appendChild(modifiersElement);
             newEffect.appendChild(effectSheet);
-            for (var _35 = 0, _36 = Array.from(document.getElementsByClassName("effect-select")); _35 < _36.length; _35++) {
-                var element = _36[_35];
+            for (
+                var _34 = 0,
+                    _35 = Array.from(
+                        document.getElementsByClassName("effect-select")
+                    );
+                _34 < _35.length;
+                _34++
+            ) {
+                var element = _35[_34];
                 var select = element;
                 var option = document.createElement("option");
                 option.text = option.value = effectName;
                 select.appendChild(option);
             }
             var deleteEffect = document.createElement("button");
-            deleteEffect.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+            deleteEffect.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n            </svg>';
             deleteEffect.onclick = function () {
                 delete state.effects[effectName];
-                for (var _i = 0, _a = Array.from(document.getElementsByClassName("effect-select")); _i < _a.length; _i++) {
+                for (
+                    var _i = 0,
+                        _a = Array.from(
+                            document.getElementsByClassName("effect-select")
+                        );
+                    _i < _a.length;
+                    _i++
+                ) {
                     var element = _a[_i];
                     var select = element;
-                    for (var _b = 0, _c = Array.from(select.options); _b < _c.length; _b++) {
+                    for (
+                        var _b = 0, _c = Array.from(select.options);
+                        _b < _c.length;
+                        _b++
+                    ) {
                         var option = _c[_b];
                         if (option.value === effectName) {
                             select.removeChild(option);
@@ -1427,8 +1898,12 @@ var UpdateFields = function () {
             newEffect.appendChild(deleteEffect);
             effectsDiv.appendChild(newEffect);
         };
-        for (var _v = 0, _w = Object.keys(state.effects); _v < _w.length; _v++) {
-            var effectName = _w[_v];
+        for (
+            var _u = 0, _v = Object.keys(state.effects);
+            _u < _v.length;
+            _u++
+        ) {
+            var effectName = _v[_u];
             _loop_8(effectName);
         }
     }
@@ -1443,8 +1918,7 @@ var main = function () {
             document.getElementById("serialize").click();
     };
     document.getElementById("new_stat").onkeydown = function (event) {
-        if (event.key === "Enter")
-            document.getElementById("add_stat").click();
+        if (event.key === "Enter") document.getElementById("add_stat").click();
     };
     document.getElementById("add_stat").onclick = function () {
         var statsDiv = document.getElementById("stats");
@@ -1459,7 +1933,12 @@ var main = function () {
             state.stats[state.stats.indexOf(newStat)] = inputElement.value;
         };
         newDiv.appendChild(inputElement);
-        for (var _i = 0, _a = Array.from(document.getElementsByClassName("stat-select")); _i < _a.length; _i++) {
+        for (
+            var _i = 0,
+                _a = Array.from(document.getElementsByClassName("stat-select"));
+            _i < _a.length;
+            _i++
+        ) {
             var element = _a[_i];
             var select = element;
             var option = document.createElement("option");
@@ -1467,12 +1946,24 @@ var main = function () {
             select.appendChild(option);
         }
         var deleteStat = document.createElement("button");
-        deleteStat.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n      </svg>";
+        deleteStat.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n      </svg>';
         deleteStat.onclick = function () {
-            for (var _i = 0, _a = Array.from(document.getElementsByClassName("stat-select")); _i < _a.length; _i++) {
+            for (
+                var _i = 0,
+                    _a = Array.from(
+                        document.getElementsByClassName("stat-select")
+                    );
+                _i < _a.length;
+                _i++
+            ) {
                 var element = _a[_i];
                 var select = element;
-                for (var _b = 0, _c = Array.from(select.options); _b < _c.length; _b++) {
+                for (
+                    var _b = 0, _c = Array.from(select.options);
+                    _b < _c.length;
+                    _b++
+                ) {
                     var option = _c[_b];
                     if (option.value === newStat) {
                         select.removeChild(option);
@@ -1487,8 +1978,7 @@ var main = function () {
         statsDiv.appendChild(newDiv);
     };
     document.getElementById("new_slot").onkeydown = function (event) {
-        if (event.key === "Enter")
-            document.getElementById("add_slot").click();
+        if (event.key === "Enter") document.getElementById("add_slot").click();
     };
     document.getElementById("add_slot").onclick = function () {
         var _a;
@@ -1504,14 +1994,26 @@ var main = function () {
             slots[slots.indexOf(inputElement.value)] = inputElement.value;
         };
         newDiv.appendChild(inputElement);
-        for (var _i = 0, _b = Array.from(document.getElementsByClassName("slot-select")); _i < _b.length; _i++) {
+        for (
+            var _i = 0,
+                _b = Array.from(document.getElementsByClassName("slot-select"));
+            _i < _b.length;
+            _i++
+        ) {
             var element = _b[_i];
             var select = element;
             var option = document.createElement("option");
             option.value = option.text = newSlot;
             select.appendChild(option);
         }
-        for (var _c = 0, _d = Array.from(document.getElementsByClassName("equipment-list")); _c < _d.length; _c++) {
+        for (
+            var _c = 0,
+                _d = Array.from(
+                    document.getElementsByClassName("equipment-list")
+                );
+            _c < _d.length;
+            _c++
+        ) {
             var element = _d[_c];
             var equipment = element;
             var slotElement = document.createElement("li");
@@ -1519,8 +2021,13 @@ var main = function () {
             slotName.innerText = newSlot;
             slotElement.appendChild(slotName);
             var equippedItem = document.createElement("select");
-            equippedItem.className = "item-".concat(newSlot, "-select item-slot-select");
-            (_a = itemsBySlot[newSlot]) !== null && _a !== void 0 ? _a : (itemsBySlot[newSlot] = []);
+            equippedItem.className = "item-".concat(
+                newSlot,
+                "-select item-slot-select"
+            );
+            (_a = itemsBySlot[newSlot]) !== null && _a !== void 0
+                ? _a
+                : (itemsBySlot[newSlot] = []);
             for (var _e = 0, _f = itemsBySlot[newSlot]; _e < _f.length; _e++) {
                 var itemName = _f[_e];
                 var option = document.createElement("option");
@@ -1531,13 +2038,25 @@ var main = function () {
             equipment.appendChild(slotElement);
         }
         var deleteSlot = document.createElement("button");
-        deleteSlot.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n      </svg>";
+        deleteSlot.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n      </svg>';
         deleteSlot.onclick = function () {
             var _a;
-            for (var _i = 0, _b = Array.from(document.getElementsByClassName("slot-select")); _i < _b.length; _i++) {
+            for (
+                var _i = 0,
+                    _b = Array.from(
+                        document.getElementsByClassName("slot-select")
+                    );
+                _i < _b.length;
+                _i++
+            ) {
                 var element = _b[_i];
                 var select = element;
-                for (var _c = 0, _d = Array.from(select.options); _c < _d.length; _c++) {
+                for (
+                    var _c = 0, _d = Array.from(select.options);
+                    _c < _d.length;
+                    _c++
+                ) {
                     var option = _d[_c];
                     if (option.value === newSlot) {
                         select.removeChild(option);
@@ -1545,9 +2064,20 @@ var main = function () {
                     }
                 }
             }
-            for (var _e = 0, _f = Array.from(document.getElementsByClassName("item-".concat(newSlot, "-select"))); _e < _f.length; _e++) {
+            for (
+                var _e = 0,
+                    _f = Array.from(
+                        document.getElementsByClassName(
+                            "item-".concat(newSlot, "-select")
+                        )
+                    );
+                _e < _f.length;
+                _e++
+            ) {
                 var element = _f[_e];
-                (_a = element.parentElement) === null || _a === void 0 ? void 0 : _a.remove();
+                (_a = element.parentElement) === null || _a === void 0
+                    ? void 0
+                    : _a.remove();
             }
             newDiv.remove();
             slots.splice(slots.indexOf(inputElement.value), 1);
@@ -1573,7 +2103,8 @@ var main = function () {
         state.inventory.push(newSelect.firstChild.value);
         newDiv.appendChild(newSelect);
         var deleteItem = document.createElement("button");
-        deleteItem.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n      </svg>";
+        deleteItem.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n      </svg>';
         deleteItem.onclick = function () {
             newDiv.remove();
             state.inventory.splice(state.inventory.indexOf(newSelect.value), 1);
@@ -1607,11 +2138,19 @@ var main = function () {
         characterParagraph.innerText = characterName;
         newDiv.appendChild(characterParagraph);
         var deleteCharacter = document.createElement("button");
-        deleteCharacter.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n      </svg>";
+        deleteCharacter.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n      </svg>';
         deleteCharacter.onclick = function () {
             var _a, _b;
             newDiv.remove();
-            (_a = state.side1) === null || _a === void 0 ? void 0 : _a.splice((_b = state.side1) === null || _b === void 0 ? void 0 : _b.indexOf(characterName), 1);
+            (_a = state.side1) === null || _a === void 0
+                ? void 0
+                : _a.splice(
+                      (_b = state.side1) === null || _b === void 0
+                          ? void 0
+                          : _b.indexOf(characterName),
+                      1
+                  );
             if (Object.keys(state.characters).includes(selectedOption.value))
                 characterSelect.appendChild(selectedOption);
         };
@@ -1638,11 +2177,19 @@ var main = function () {
         characterParagraph.innerText = characterName;
         newDiv.appendChild(characterParagraph);
         var deleteCharacter = document.createElement("button");
-        deleteCharacter.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n      </svg>";
+        deleteCharacter.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n      </svg>';
         deleteCharacter.onclick = function () {
             var _a, _b;
             newDiv.remove();
-            (_a = state.side2) === null || _a === void 0 ? void 0 : _a.splice((_b = state.side2) === null || _b === void 0 ? void 0 : _b.indexOf(characterName), 1);
+            (_a = state.side2) === null || _a === void 0
+                ? void 0
+                : _a.splice(
+                      (_b = state.side2) === null || _b === void 0
+                          ? void 0
+                          : _b.indexOf(characterName),
+                      1
+                  );
             if (Object.keys(state.characters).includes(selectedOption.value))
                 characterSelect.appendChild(selectedOption);
         };
@@ -1655,7 +2202,9 @@ var main = function () {
             alert("Error: There are no characters");
             return;
         }
-        (_a = state.active) !== null && _a !== void 0 ? _a : (state.active = []);
+        (_a = state.active) !== null && _a !== void 0
+            ? _a
+            : (state.active = []);
         state.inBattle = true;
         var activeDiv = document.getElementById("active");
         var index = activeDiv.childElementCount;
@@ -1670,11 +2219,19 @@ var main = function () {
         characterParagraph.innerText = characterName;
         newDiv.appendChild(characterParagraph);
         var deleteCharacter = document.createElement("button");
-        deleteCharacter.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n      </svg>";
+        deleteCharacter.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n      </svg>';
         deleteCharacter.onclick = function () {
             var _a, _b;
             newDiv.remove();
-            (_a = state.active) === null || _a === void 0 ? void 0 : _a.splice((_b = state.active) === null || _b === void 0 ? void 0 : _b.indexOf(characterName), 1);
+            (_a = state.active) === null || _a === void 0
+                ? void 0
+                : _a.splice(
+                      (_b = state.active) === null || _b === void 0
+                          ? void 0
+                          : _b.indexOf(characterName),
+                      1
+                  );
             if (Object.keys(state.characters).includes(selectedOption.value))
                 characterSelect.appendChild(selectedOption);
         };
@@ -1685,294 +2242,383 @@ var main = function () {
         if (event.key === "Enter")
             document.getElementById("add_character").click();
     };
-    document.getElementById("add_character").onclick =
-        function () {
-            var _a;
-            var charactersDiv = document.getElementById("characters");
-            var newCharacterName = document.getElementById("new_character").value;
-            if (Object.keys(state.characters).includes(newCharacterName)) {
-                alert("Two characters with the same name cannot coexist");
+    document.getElementById("add_character").onclick = function () {
+        var _a;
+        var charactersDiv = document.getElementById("characters");
+        var newCharacterName = document.getElementById("new_character").value;
+        if (Object.keys(state.characters).includes(newCharacterName)) {
+            alert("Two characters with the same name cannot coexist");
+            return;
+        }
+        document.getElementById("new_character").value = "";
+        state.characters[newCharacterName] = new Character();
+        var newCharacter = document.createElement("div");
+        newCharacter.className = "character";
+        var characterSheet = document.createElement("ul");
+        characterSheet.className = "character-sheet";
+        var nameElement = document.createElement("li");
+        var nameParagraph = document.createElement("p");
+        nameParagraph.innerText = newCharacterName;
+        nameElement.appendChild(nameParagraph);
+        characterSheet.appendChild(nameElement);
+        var levelElement = document.createElement("li");
+        var levelParagraph = document.createElement("p");
+        levelParagraph.innerText = "Level: ";
+        var levelInput = document.createElement("input");
+        levelInput.type = "number";
+        levelInput.value = String(state.characters[newCharacterName].level);
+        levelInput.onchange = function () {
+            state.characters[newCharacterName].level = levelInput.valueAsNumber;
+        };
+        levelElement.appendChild(levelParagraph);
+        levelElement.appendChild(levelInput);
+        characterSheet.appendChild(levelElement);
+        var experienceElement = document.createElement("li");
+        var experienceParagraph = document.createElement("p");
+        experienceParagraph.innerText = "Experience: ";
+        var experienceInput = document.createElement("input");
+        experienceInput.type = "number";
+        experienceInput.value = String(
+            state.characters[newCharacterName].experience
+        );
+        experienceInput.onchange = function () {
+            state.characters[newCharacterName].experience =
+                experienceInput.valueAsNumber;
+        };
+        experienceElement.appendChild(experienceParagraph);
+        experienceElement.appendChild(experienceInput);
+        characterSheet.appendChild(experienceElement);
+        var expToNextLvlElement = document.createElement("li");
+        var expToNextLvlParagraph = document.createElement("p");
+        expToNextLvlParagraph.innerText = "Experience to next level: ";
+        var expToNextLvlInput = document.createElement("input");
+        expToNextLvlInput.type = "number";
+        expToNextLvlInput.value = String(
+            state.characters[newCharacterName].expToNextLvl
+        );
+        expToNextLvlInput.onchange = function () {
+            state.characters[newCharacterName].expToNextLvl =
+                expToNextLvlInput.valueAsNumber;
+        };
+        expToNextLvlElement.appendChild(expToNextLvlParagraph);
+        expToNextLvlElement.appendChild(expToNextLvlInput);
+        characterSheet.appendChild(expToNextLvlElement);
+        var skillpointsElement = document.createElement("li");
+        var skillpointsParagraph = document.createElement("p");
+        skillpointsParagraph.innerText = "Skillpoints:";
+        var skillpointsInput = document.createElement("input");
+        skillpointsInput.type = "number";
+        skillpointsInput.value = String(
+            state.characters[newCharacterName].skillpoints
+        );
+        skillpointsInput.onchange = function () {
+            state.characters[newCharacterName].skillpoints =
+                skillpointsInput.valueAsNumber;
+        };
+        skillpointsElement.appendChild(skillpointsParagraph);
+        skillpointsElement.appendChild(skillpointsInput);
+        characterSheet.appendChild(skillpointsElement);
+        var modifiersParagraph = document.createElement("p");
+        modifiersParagraph.innerText = "Stats:";
+        characterSheet.appendChild(modifiersParagraph);
+        var modifierRefCount = {};
+        var modifiersElement = document.createElement("ul");
+        modifiersElement.style.listStyleType = "none";
+        var modifierAddElement = document.createElement("li");
+        var modifierAdd = document.createElement("button");
+        modifierAdd.innerText = "Add stat";
+        modifierAdd.onclick = function () {
+            var newModifier = document.createElement("li");
+            newModifier.className = "single_value";
+            var modifiedStat = document.createElement("select");
+            modifiedStat.className = "stat-select";
+            var selected = false;
+            var i = 0;
+            for (var _i = 0, _a = state.stats; _i < _a.length; _i++) {
+                var stat = _a[_i];
+                var statOption = document.createElement("option");
+                statOption.innerText = statOption.value = stat;
+                modifiedStat.appendChild(statOption);
+                if (
+                    !Object.keys(
+                        state.characters[newCharacterName].stats
+                    ).includes(stat) &&
+                    !selected
+                ) {
+                    selected = true;
+                    modifiedStat.selectedIndex = i;
+                    if (!state.characters[newCharacterName].stats[stat])
+                        state.characters[newCharacterName].stats[stat] =
+                            new Stat(stat, 0);
+                    modifierRefCount[stat] = isNaN(modifierRefCount[stat])
+                        ? 1
+                        : modifierRefCount[stat] + 1;
+                }
+                ++i;
+            }
+            if (!selected) {
+                alert(
+                    "All of the created stats have been used for this character, create a new stat or modify already existing modifier"
+                );
+                modifiedStat.remove();
+                newModifier.remove();
                 return;
             }
-            document.getElementById("new_character").value = "";
-            state.characters[newCharacterName] = new Character();
-            var newCharacter = document.createElement("div");
-            newCharacter.className = "character";
-            var characterSheet = document.createElement("ul");
-            characterSheet.className = "character-sheet";
-            var nameElement = document.createElement("li");
-            var nameParagraph = document.createElement("p");
-            nameParagraph.innerText = newCharacterName;
-            nameElement.appendChild(nameParagraph);
-            characterSheet.appendChild(nameElement);
-            var levelElement = document.createElement("li");
-            var levelParagraph = document.createElement("p");
-            levelParagraph.innerText = "Level: ";
-            var levelInput = document.createElement("input");
-            levelInput.type = "number";
-            levelInput.value = String(state.characters[newCharacterName].level);
-            levelInput.onchange = function () {
-                state.characters[newCharacterName].level =
-                    levelInput.valueAsNumber;
+            var previousStatName;
+            modifiedStat.onfocus = function () {
+                previousStatName = modifiedStat.value;
             };
-            levelElement.appendChild(levelParagraph);
-            levelElement.appendChild(levelInput);
-            characterSheet.appendChild(levelElement);
-            var experienceElement = document.createElement("li");
-            var experienceParagraph = document.createElement("p");
-            experienceParagraph.innerText = "Experience: ";
-            var experienceInput = document.createElement("input");
-            experienceInput.type = "number";
-            experienceInput.value = String(state.characters[newCharacterName].experience);
-            experienceInput.onchange = function () {
-                state.characters[newCharacterName].experience =
-                    experienceInput.valueAsNumber;
-            };
-            experienceElement.appendChild(experienceParagraph);
-            experienceElement.appendChild(experienceInput);
-            characterSheet.appendChild(experienceElement);
-            var expToNextLvlElement = document.createElement("li");
-            var expToNextLvlParagraph = document.createElement("p");
-            expToNextLvlParagraph.innerText = "Experience to next level: ";
-            var expToNextLvlInput = document.createElement("input");
-            expToNextLvlInput.type = "number";
-            expToNextLvlInput.value = String(state.characters[newCharacterName].expToNextLvl);
-            expToNextLvlInput.onchange = function () {
-                state.characters[newCharacterName].expToNextLvl =
-                    expToNextLvlInput.valueAsNumber;
-            };
-            expToNextLvlElement.appendChild(expToNextLvlParagraph);
-            expToNextLvlElement.appendChild(expToNextLvlInput);
-            characterSheet.appendChild(expToNextLvlElement);
-            var skillpointsElement = document.createElement("li");
-            var skillpointsParagraph = document.createElement("p");
-            skillpointsParagraph.innerText = "Skillpoints:";
-            var skillpointsInput = document.createElement("input");
-            skillpointsInput.type = "number";
-            skillpointsInput.value = String(state.characters[newCharacterName].skillpoints);
-            skillpointsInput.onchange = function () {
-                state.characters[newCharacterName].skillpoints =
-                    skillpointsInput.valueAsNumber;
-            };
-            skillpointsElement.appendChild(skillpointsParagraph);
-            skillpointsElement.appendChild(skillpointsInput);
-            characterSheet.appendChild(skillpointsElement);
-            var modifiersParagraph = document.createElement("p");
-            modifiersParagraph.innerText = "Stats:";
-            characterSheet.appendChild(modifiersParagraph);
-            var modifierRefCount = {};
-            var modifiersElement = document.createElement("ul");
-            modifiersElement.style.listStyleType = "none";
-            var modifierAddElement = document.createElement("li");
-            var modifierAdd = document.createElement("button");
-            modifierAdd.innerText = "Add stat";
-            modifierAdd.onclick = function () {
-                var newModifier = document.createElement("li");
-                newModifier.className = "single_value";
-                var modifiedStat = document.createElement("select");
-                modifiedStat.className = "stat-select";
-                var selected = false;
-                var i = 0;
-                for (var _i = 0, _a = state.stats; _i < _a.length; _i++) {
-                    var stat = _a[_i];
-                    var statOption = document.createElement("option");
-                    statOption.innerText = statOption.value = stat;
-                    modifiedStat.appendChild(statOption);
-                    if (!Object.keys(state.characters[newCharacterName].stats).includes(stat) &&
-                        !selected) {
-                        selected = true;
-                        modifiedStat.selectedIndex = i;
-                        if (!state.characters[newCharacterName].stats[stat])
-                            state.characters[newCharacterName].stats[stat] =
-                                new Stat(stat, 0);
-                        modifierRefCount[stat] = isNaN(modifierRefCount[stat])
-                            ? 1
-                            : modifierRefCount[stat] + 1;
-                    }
-                    ++i;
+            modifiedStat.onchange = function () {
+                if (
+                    state.characters[newCharacterName].stats[modifiedStat.value]
+                ) {
+                    state.characters[newCharacterName].stats[
+                        modifiedStat.value
+                    ].level += modifiedValue.valueAsNumber;
+                } else {
+                    state.characters[newCharacterName].stats[
+                        modifiedStat.value
+                    ] = new Stat(
+                        modifiedStat.value,
+                        modifiedValue.valueAsNumber
+                    );
                 }
-                if (!selected) {
-                    alert("All of the created stats have been used for this character, create a new stat or modify already existing modifier");
-                    modifiedStat.remove();
-                    newModifier.remove();
+                modifierRefCount[modifiedStat.value] = isNaN(
+                    modifierRefCount[modifiedStat.value]
+                )
+                    ? 1
+                    : modifierRefCount[modifiedStat.value] + 1;
+                if (
+                    state.characters[newCharacterName].stats[previousStatName]
+                ) {
+                    state.characters[newCharacterName].stats[
+                        previousStatName
+                    ].level -= modifiedValue.valueAsNumber;
+                } else {
+                    state.characters[newCharacterName].stats[previousStatName] =
+                        new Stat(previousStatName, 0);
+                }
+                --modifierRefCount[previousStatName];
+                if (
+                    modifierRefCount[previousStatName] === 0 ||
+                    isNaN(modifierRefCount[previousStatName])
+                ) {
+                    delete state.characters[newCharacterName].stats[
+                        previousStatName
+                    ];
+                }
+                previousStatName = modifiedStat.value;
+            };
+            newModifier.appendChild(modifiedStat);
+            var modifiedValue = document.createElement("input");
+            modifiedValue.type = "number";
+            modifiedValue.value = "0";
+            var previousValue = modifiedValue.valueAsNumber;
+            modifiedValue.onfocus = function () {
+                previousValue = modifiedValue.valueAsNumber;
+            };
+            modifiedValue.onchange = function () {
+                if (isNaN(modifiedValue.valueAsNumber)) return;
+                if (
+                    !state.characters[newCharacterName].stats[
+                        modifiedStat.value
+                    ]
+                ) {
+                    state.characters[newCharacterName].stats[
+                        modifiedStat.value
+                    ] = new Stat(
+                        modifiedStat.value,
+                        modifiedValue.valueAsNumber
+                    );
+                } else {
+                    state.characters[newCharacterName].stats[
+                        modifiedStat.value
+                    ].level += modifiedValue.valueAsNumber - previousValue;
+                }
+                previousValue = modifiedValue.valueAsNumber;
+            };
+            newModifier.appendChild(modifiedValue);
+            var deleteModifier = document.createElement("button");
+            deleteModifier.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n                </svg>';
+            deleteModifier.onclick = function () {
+                state.characters[newCharacterName].stats[
+                    modifiedStat.value
+                ].level -= modifiedValue.valueAsNumber;
+                newModifier.remove();
+            };
+            newModifier.appendChild(deleteModifier);
+            modifiersElement.appendChild(newModifier);
+        };
+        modifierAddElement.appendChild(modifierAdd);
+        modifiersElement.appendChild(modifierAddElement);
+        characterSheet.appendChild(modifiersElement);
+        var equipmentElement = document.createElement("li");
+        var equipmentParagraph = document.createElement("p");
+        equipmentParagraph.innerText = "Equipment:";
+        equipmentElement.appendChild(equipmentParagraph);
+        var equipment = document.createElement("ul");
+        equipment.className = "equipment-list";
+        var _loop_15 = function (slot) {
+            var slotElement = document.createElement("li");
+            var slotName = document.createElement("p");
+            slotName.innerText = slot;
+            slotElement.appendChild(slotName);
+            var equippedItem = document.createElement("select");
+            equippedItem.className = "item-".concat(
+                slot,
+                "-select item-slot-select"
+            );
+            (_a = itemsBySlot[slot]) !== null && _a !== void 0
+                ? _a
+                : (itemsBySlot[slot] = []);
+            for (var _d = 0, _e = itemsBySlot[slot]; _d < _e.length; _d++) {
+                var itemName = _e[_d];
+                var option = document.createElement("option");
+                option.text = option.value = itemName;
+                equippedItem.appendChild(option);
+            }
+            equippedItem.onchange = function () {
+                state.characters[newCharacterName].items[slot] =
+                    state.items[equippedItem.value];
+            };
+            slotElement.appendChild(equippedItem);
+            equipment.appendChild(slotElement);
+        };
+        for (var _i = 0, slots_3 = slots; _i < slots_3.length; _i++) {
+            var slot = slots_3[_i];
+            _loop_15(slot);
+        }
+        equipmentElement.appendChild(equipment);
+        characterSheet.appendChild(equipmentElement);
+        var effectsElement = document.createElement("li");
+        var effectsParagraph = document.createElement("p");
+        effectsParagraph.innerText = "Effects:";
+        effectsElement.appendChild(effectsParagraph);
+        var effects = document.createElement("div");
+        effects.className = "list";
+        effectsElement.appendChild(effects);
+        var effectAddInput = document.createElement("select");
+        effectAddInput.className = "effect-select";
+        for (var effectName in state.effects) {
+            var option = document.createElement("option");
+            option.value = option.innerText = effectName;
+            effectAddInput.appendChild(option);
+        }
+        var effectAddButton = document.createElement("button");
+        effectAddButton.innerText = "+";
+        effectAddButton.onclick = function () {
+            var _a, _b;
+            if (!state.characters[newCharacterName].activeEffects) {
+                state.characters[newCharacterName].activeEffects = [];
+            }
+            var selectedOption = effectAddInput.selectedOptions[0];
+            (_a = state.characters[newCharacterName].activeEffects) === null ||
+            _a === void 0
+                ? void 0
+                : _a.push(state.effects[selectedOption.value]);
+            var newElement = document.createElement("div");
+            var newEffect = document.createElement("p");
+            newEffect.innerText = selectedOption.value;
+            newElement.appendChild(newEffect);
+            (_b = state.characters[newCharacterName].activeEffects) === null ||
+            _b === void 0
+                ? void 0
+                : _b.push(state.effects[effectAddInput.value]);
+            var deleteElement = document.createElement("button");
+            deleteElement.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n            </svg>';
+            deleteElement.onclick = function () {
+                var _a, _b, _c, _d;
+                var _e;
+                if (!state.characters[newCharacterName].activeEffects) {
+                    console.error("Effects disappeared?!");
                     return;
                 }
-                var previousStatName;
-                modifiedStat.onfocus = function () {
-                    previousStatName = modifiedStat.value;
-                };
-                modifiedStat.onchange = function () {
-                    if (state.characters[newCharacterName].stats[modifiedStat.value]) {
-                        state.characters[newCharacterName].stats[modifiedStat.value].level += modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.characters[newCharacterName].stats[modifiedStat.value] = new Stat(modifiedStat.value, modifiedValue.valueAsNumber);
-                    }
-                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
-                        ? 1
-                        : modifierRefCount[modifiedStat.value] + 1;
-                    if (state.characters[newCharacterName].stats[previousStatName]) {
-                        state.characters[newCharacterName].stats[previousStatName].level -= modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.characters[newCharacterName].stats[previousStatName] = new Stat(previousStatName, 0);
-                    }
-                    --modifierRefCount[previousStatName];
-                    if (modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])) {
-                        delete state.characters[newCharacterName].stats[previousStatName];
-                    }
-                    previousStatName = modifiedStat.value;
-                };
-                newModifier.appendChild(modifiedStat);
-                var modifiedValue = document.createElement("input");
-                modifiedValue.type = "number";
-                modifiedValue.value = "0";
-                var previousValue = modifiedValue.valueAsNumber;
-                modifiedValue.onfocus = function () {
-                    previousValue = modifiedValue.valueAsNumber;
-                };
-                modifiedValue.onchange = function () {
-                    if (isNaN(modifiedValue.valueAsNumber))
-                        return;
-                    if (!state.characters[newCharacterName].stats[modifiedStat.value]) {
-                        state.characters[newCharacterName].stats[modifiedStat.value] = new Stat(modifiedStat.value, modifiedValue.valueAsNumber);
-                    }
-                    else {
-                        state.characters[newCharacterName].stats[modifiedStat.value].level += modifiedValue.valueAsNumber - previousValue;
-                    }
-                    previousValue = modifiedValue.valueAsNumber;
-                };
-                newModifier.appendChild(modifiedValue);
-                var deleteModifier = document.createElement("button");
-                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n                <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n                <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n                </svg>";
-                deleteModifier.onclick = function () {
-                    state.characters[newCharacterName].stats[modifiedStat.value].level -= modifiedValue.valueAsNumber;
-                    newModifier.remove();
-                };
-                newModifier.appendChild(deleteModifier);
-                modifiersElement.appendChild(newModifier);
+                (_a = (_e = state.characters[newCharacterName])
+                    .activeEffects) !== null && _a !== void 0
+                    ? _a
+                    : (_e.activeEffects = []);
+                (_b = state.characters[newCharacterName].activeEffects) ===
+                    null || _b === void 0
+                    ? void 0
+                    : _b.splice(
+                          (_d =
+                              (_c =
+                                  state.characters[newCharacterName]
+                                      .activeEffects) === null || _c === void 0
+                                  ? void 0
+                                  : _c.indexOf(
+                                        state.effects[selectedOption.value]
+                                    )) !== null && _d !== void 0
+                              ? _d
+                              : 0,
+                          1
+                      );
+                effectAddInput.appendChild(selectedOption);
+                newElement.remove();
             };
-            modifierAddElement.appendChild(modifierAdd);
-            modifiersElement.appendChild(modifierAddElement);
-            characterSheet.appendChild(modifiersElement);
-            var equipmentElement = document.createElement("li");
-            var equipmentParagraph = document.createElement("p");
-            equipmentParagraph.innerText = "Equipment:";
-            equipmentElement.appendChild(equipmentParagraph);
-            var equipment = document.createElement("ul");
-            equipment.className = "equipment-list";
-            var _loop_15 = function (slot) {
-                var slotElement = document.createElement("li");
-                var slotName = document.createElement("p");
-                slotName.innerText = slot;
-                slotElement.appendChild(slotName);
-                var equippedItem = document.createElement("select");
-                equippedItem.className = "item-".concat(slot, "-select item-slot-select");
-                (_a = itemsBySlot[slot]) !== null && _a !== void 0 ? _a : (itemsBySlot[slot] = []);
-                for (var _d = 0, _e = itemsBySlot[slot]; _d < _e.length; _d++) {
-                    var itemName = _e[_d];
-                    var option = document.createElement("option");
-                    option.text = option.value = itemName;
-                    equippedItem.appendChild(option);
-                }
-                equippedItem.onchange = function () {
-                    state.characters[newCharacterName].items[slot] =
-                        state.items[equippedItem.value];
-                };
-                slotElement.appendChild(equippedItem);
-                equipment.appendChild(slotElement);
-            };
-            for (var _i = 0, slots_3 = slots; _i < slots_3.length; _i++) {
-                var slot = slots_3[_i];
-                _loop_15(slot);
-            }
-            equipmentElement.appendChild(equipment);
-            characterSheet.appendChild(equipmentElement);
-            var effectsElement = document.createElement("li");
-            var effectsParagraph = document.createElement("p");
-            effectsParagraph.innerText = "Effects:";
-            effectsElement.appendChild(effectsParagraph);
-            var effects = document.createElement("div");
-            effects.className = "list";
-            effectsElement.appendChild(effects);
-            var effectAddInput = document.createElement("select");
-            effectAddInput.className = "effect-select";
-            for (var effectName in state.effects) {
-                var option = document.createElement("option");
-                option.value = option.innerText = effectName;
-                effectAddInput.appendChild(option);
-            }
-            var effectAddButton = document.createElement("button");
-            effectAddButton.innerText = "+";
-            effectAddButton.onclick = function () {
-                var _a, _b;
-                if (!state.characters[newCharacterName].activeEffects) {
-                    state.characters[newCharacterName].activeEffects = [];
-                }
-                var selectedOption = effectAddInput.selectedOptions[0];
-                (_a = state.characters[newCharacterName].activeEffects) === null || _a === void 0 ? void 0 : _a.push(state.effects[selectedOption.value]);
-                var newElement = document.createElement("div");
-                var newEffect = document.createElement("p");
-                newEffect.innerText = selectedOption.value;
-                newElement.appendChild(newEffect);
-                (_b = state.characters[newCharacterName].activeEffects) === null || _b === void 0 ? void 0 : _b.push(state.effects[effectAddInput.value]);
-                var deleteElement = document.createElement("button");
-                deleteElement.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
-                deleteElement.onclick = function () {
-                    var _a, _b, _c, _d;
-                    var _e;
-                    if (!state.characters[newCharacterName].activeEffects) {
-                        console.error("Effects disappeared?!");
-                        return;
-                    }
-                    (_a = (_e = state.characters[newCharacterName]).activeEffects) !== null && _a !== void 0 ? _a : (_e.activeEffects = []);
-                    (_b = state.characters[newCharacterName].activeEffects) === null || _b === void 0 ? void 0 : _b.splice((_d = (_c = state.characters[newCharacterName].activeEffects) === null || _c === void 0 ? void 0 : _c.indexOf(state.effects[selectedOption.value])) !== null && _d !== void 0 ? _d : 0, 1);
-                    effectAddInput.appendChild(selectedOption);
-                    newElement.remove();
-                };
-                newElement.appendChild(deleteElement);
-                effects.appendChild(newElement);
-                effectAddInput.removeChild(selectedOption);
-            };
-            effectsElement.appendChild(effectAddInput);
-            effectsElement.appendChild(effectAddButton);
-            characterSheet.appendChild(effectsElement);
-            newCharacter.appendChild(characterSheet);
-            for (var _b = 0, _c = Array.from(document.getElementsByClassName("character-select")); _b < _c.length; _b++) {
-                var element = _c[_b];
-                var select = element;
-                var option = document.createElement("option");
-                option.text = option.value = newCharacterName;
-                select.appendChild(option);
-            }
-            var deleteCharacter = document.createElement("button");
-            deleteCharacter.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n                <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n                <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n                </svg>";
-            deleteCharacter.onclick = function () {
-                for (var _i = 0, _a = Array.from(document.getElementsByClassName("character-select")); _i < _a.length; _i++) {
-                    var element = _a[_i];
-                    var select = element;
-                    for (var _b = 0, _c = Array.from(select.options); _b < _c.length; _b++) {
-                        var option = _c[_b];
-                        if (option.value === newCharacterName) {
-                            select.removeChild(option);
-                            break;
-                        }
-                    }
-                }
-                delete state.characters[newCharacterName];
-                newCharacter.remove();
-            };
-            newCharacter.appendChild(deleteCharacter);
-            charactersDiv.appendChild(newCharacter);
+            newElement.appendChild(deleteElement);
+            effects.appendChild(newElement);
+            effectAddInput.removeChild(selectedOption);
         };
+        effectsElement.appendChild(effectAddInput);
+        effectsElement.appendChild(effectAddButton);
+        characterSheet.appendChild(effectsElement);
+        newCharacter.appendChild(characterSheet);
+        for (
+            var _b = 0,
+                _c = Array.from(
+                    document.getElementsByClassName("character-select")
+                );
+            _b < _c.length;
+            _b++
+        ) {
+            var element = _c[_b];
+            var select = element;
+            var option = document.createElement("option");
+            option.text = option.value = newCharacterName;
+            select.appendChild(option);
+        }
+        var deleteCharacter = document.createElement("button");
+        deleteCharacter.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n                </svg>';
+        deleteCharacter.onclick = function () {
+            for (
+                var _i = 0,
+                    _a = Array.from(
+                        document.getElementsByClassName("character-select")
+                    );
+                _i < _a.length;
+                _i++
+            ) {
+                var element = _a[_i];
+                var select = element;
+                for (
+                    var _b = 0, _c = Array.from(select.options);
+                    _b < _c.length;
+                    _b++
+                ) {
+                    var option = _c[_b];
+                    if (option.value === newCharacterName) {
+                        select.removeChild(option);
+                        break;
+                    }
+                }
+            }
+            delete state.characters[newCharacterName];
+            newCharacter.remove();
+        };
+        newCharacter.appendChild(deleteCharacter);
+        charactersDiv.appendChild(newCharacter);
+    };
     document.getElementById("new_item").onkeydown = function (event) {
-        if (event.key === "Enter")
-            document.getElementById("add_item").click();
+        if (event.key === "Enter") document.getElementById("add_item").click();
     };
     document.getElementById("add_item").onclick = function () {
         if (slots.length === 0) {
-            document.getElementById("errors").innerText = "Create a slot for the items.";
+            document.getElementById("errors").innerText =
+                "Create a slot for the items.";
             return;
         }
         var itemsDiv = document.getElementById("items");
@@ -2004,11 +2650,19 @@ var main = function () {
         slotSelect.value = slots[0];
         if (!itemsBySlot[slotSelect.value]) {
             itemsBySlot[slotSelect.value] = [newItemName];
-        }
-        else {
+        } else {
             itemsBySlot[slotSelect.value].push(newItemName);
         }
-        for (var _a = 0, _b = Array.from(document.getElementsByClassName("item-".concat(slotSelect.value, "-select"))); _a < _b.length; _a++) {
+        for (
+            var _a = 0,
+                _b = Array.from(
+                    document.getElementsByClassName(
+                        "item-".concat(slotSelect.value, "-select")
+                    )
+                );
+            _a < _b.length;
+            _a++
+        ) {
             var element = _b[_a];
             var select = element;
             var option = document.createElement("option");
@@ -2020,22 +2674,46 @@ var main = function () {
             state.items[newItemName].slot = slotSelect.value;
             if (!itemsBySlot[slotSelect.value]) {
                 itemsBySlot[slotSelect.value] = [newItemName];
-            }
-            else {
+            } else {
                 itemsBySlot[slotSelect.value].push(newItemName);
             }
-            for (var _i = 0, _a = Array.from(document.getElementsByClassName("item-".concat(slotSelect.value, "-select"))); _i < _a.length; _i++) {
+            for (
+                var _i = 0,
+                    _a = Array.from(
+                        document.getElementsByClassName(
+                            "item-".concat(slotSelect.value, "-select")
+                        )
+                    );
+                _i < _a.length;
+                _i++
+            ) {
                 var element = _a[_i];
                 var select = element;
                 var option = document.createElement("option");
                 option.text = option.value = newItemName;
                 select.appendChild(option);
             }
-            itemsBySlot[previousValue].splice(itemsBySlot[previousValue].indexOf(newItemName), 1);
-            for (var _b = 0, _c = Array.from(document.getElementsByClassName("item-".concat(previousValue, "-select"))); _b < _c.length; _b++) {
+            itemsBySlot[previousValue].splice(
+                itemsBySlot[previousValue].indexOf(newItemName),
+                1
+            );
+            for (
+                var _b = 0,
+                    _c = Array.from(
+                        document.getElementsByClassName(
+                            "item-".concat(previousValue, "-select")
+                        )
+                    );
+                _b < _c.length;
+                _b++
+            ) {
                 var element = _c[_b];
                 var select = element;
-                for (var _d = 0, _e = Array.from(select.options); _d < _e.length; _d++) {
+                for (
+                    var _d = 0, _e = Array.from(select.options);
+                    _d < _e.length;
+                    _d++
+                ) {
                     var option = _e[_d];
                     if (option.value === newItemName) {
                         select.removeChild(option);
@@ -2068,9 +2746,15 @@ var main = function () {
             newEffect.innerText = selectedOption.value;
             newElement.appendChild(newEffect);
             var deleteElement = document.createElement("button");
-            deleteElement.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+            deleteElement.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n            </svg>';
             deleteElement.onclick = function () {
-                state.items[newItemName].effects.splice(state.items[newItemName].effects.indexOf(selectedOption.value), 1);
+                state.items[newItemName].effects.splice(
+                    state.items[newItemName].effects.indexOf(
+                        selectedOption.value
+                    ),
+                    1
+                );
                 effectAddInput.appendChild(selectedOption);
                 newElement.remove();
             };
@@ -2102,8 +2786,12 @@ var main = function () {
                 var statOption = document.createElement("option");
                 statOption.innerText = statOption.value = stat;
                 modifiedStat.appendChild(statOption);
-                if (!Object.keys(state.items[newItemName].modifiers).includes(stat) &&
-                    !selected) {
+                if (
+                    !Object.keys(state.items[newItemName].modifiers).includes(
+                        stat
+                    ) &&
+                    !selected
+                ) {
                     selected = true;
                     modifiedStat.selectedIndex = i;
                     if (isNaN(state.items[newItemName].modifiers[stat]))
@@ -2115,7 +2803,9 @@ var main = function () {
                 ++i;
             }
             if (!selected) {
-                alert("All of the created stats have been used for this item, create a new stat or modify already existing modifier");
+                alert(
+                    "All of the created stats have been used for this item, create a new stat or modify already existing modifier"
+                );
                 modifiedStat.remove();
                 newModifier.remove();
                 return;
@@ -2125,27 +2815,35 @@ var main = function () {
                 previousStatName = modifiedStat.value;
             };
             modifiedStat.onchange = function () {
-                if (!isNaN(state.items[newItemName].modifiers[modifiedStat.value])) {
+                if (
+                    !isNaN(
+                        state.items[newItemName].modifiers[modifiedStat.value]
+                    )
+                ) {
                     state.items[newItemName].modifiers[modifiedStat.value] +=
                         modifiedValue.valueAsNumber;
-                }
-                else {
+                } else {
                     state.items[newItemName].modifiers[modifiedStat.value] =
                         modifiedValue.valueAsNumber;
                 }
-                modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
+                modifierRefCount[modifiedStat.value] = isNaN(
+                    modifierRefCount[modifiedStat.value]
+                )
                     ? 1
                     : modifierRefCount[modifiedStat.value] + 1;
-                if (!isNaN(state.items[newItemName].modifiers[previousStatName])) {
+                if (
+                    !isNaN(state.items[newItemName].modifiers[previousStatName])
+                ) {
                     state.items[newItemName].modifiers[previousStatName] -=
                         modifiedValue.valueAsNumber;
-                }
-                else {
+                } else {
                     state.items[newItemName].modifiers[previousStatName] = 0;
                 }
                 --modifierRefCount[previousStatName];
-                if (modifierRefCount[previousStatName] === 0 ||
-                    isNaN(modifierRefCount[previousStatName])) {
+                if (
+                    modifierRefCount[previousStatName] === 0 ||
+                    isNaN(modifierRefCount[previousStatName])
+                ) {
                     delete state.items[newItemName].modifiers[previousStatName];
                 }
                 previousStatName = modifiedStat.value;
@@ -2159,13 +2857,15 @@ var main = function () {
                 previousValue = modifiedValue.valueAsNumber;
             };
             modifiedValue.onchange = function () {
-                if (isNaN(modifiedValue.valueAsNumber))
-                    return;
-                if (isNaN(state.items[newItemName].modifiers[modifiedStat.value])) {
+                if (isNaN(modifiedValue.valueAsNumber)) return;
+                if (
+                    isNaN(
+                        state.items[newItemName].modifiers[modifiedStat.value]
+                    )
+                ) {
                     state.items[newItemName].modifiers[modifiedStat.value] =
                         modifiedValue.valueAsNumber;
-                }
-                else {
+                } else {
                     state.items[newItemName].modifiers[modifiedStat.value] +=
                         modifiedValue.valueAsNumber - previousValue;
                 }
@@ -2173,13 +2873,16 @@ var main = function () {
             };
             newModifier.appendChild(modifiedValue);
             var deleteModifier = document.createElement("button");
-            deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n                <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n                <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n                </svg>";
+            deleteModifier.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n                </svg>';
             deleteModifier.onclick = function () {
                 state.items[newItemName].modifiers[modifiedStat.value] -=
                     modifiedValue.valueAsNumber;
                 --modifierRefCount[previousStatName];
-                if (modifierRefCount[previousStatName] === 0 ||
-                    isNaN(modifierRefCount[previousStatName])) {
+                if (
+                    modifierRefCount[previousStatName] === 0 ||
+                    isNaN(modifierRefCount[previousStatName])
+                ) {
                     delete state.items[newItemName].modifiers[previousStatName];
                 }
                 newModifier.remove();
@@ -2191,7 +2894,12 @@ var main = function () {
         modifiersElement.appendChild(modifierAddElement);
         itemSheet.appendChild(modifiersElement);
         newItem.appendChild(itemSheet);
-        for (var _c = 0, _d = Array.from(document.getElementsByClassName("item-select")); _c < _d.length; _c++) {
+        for (
+            var _c = 0,
+                _d = Array.from(document.getElementsByClassName("item-select"));
+            _c < _d.length;
+            _c++
+        ) {
             var element = _d[_c];
             var select = element;
             var option = document.createElement("option");
@@ -2199,12 +2907,24 @@ var main = function () {
             select.appendChild(option);
         }
         var deleteItem = document.createElement("button");
-        deleteItem.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n                <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n                <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n                </svg>";
+        deleteItem.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n                </svg>';
         deleteItem.onclick = function () {
-            for (var _i = 0, _a = Array.from(document.getElementsByClassName("item-select")); _i < _a.length; _i++) {
+            for (
+                var _i = 0,
+                    _a = Array.from(
+                        document.getElementsByClassName("item-select")
+                    );
+                _i < _a.length;
+                _i++
+            ) {
                 var element = _a[_i];
                 var select = element;
-                for (var _b = 0, _c = Array.from(select.options); _b < _c.length; _b++) {
+                for (
+                    var _b = 0, _c = Array.from(select.options);
+                    _b < _c.length;
+                    _b++
+                ) {
                     var option = _c[_b];
                     if (option.value === newItemName) {
                         select.removeChild(option);
@@ -2222,276 +2942,348 @@ var main = function () {
         if (event.key === "Enter")
             document.getElementById("add_effect").click();
     };
-    document.getElementById("add_effect").onclick =
-        function () {
-            var effectsDiv = document.getElementById("effects");
-            var newEffectName = document.getElementById("new_effect").value;
-            if (Object.keys(state.effects).includes(newEffectName)) {
-                alert("Two effects with the same name cannot coexist");
+    document.getElementById("add_effect").onclick = function () {
+        var effectsDiv = document.getElementById("effects");
+        var newEffectName = document.getElementById("new_effect").value;
+        if (Object.keys(state.effects).includes(newEffectName)) {
+            alert("Two effects with the same name cannot coexist");
+            return;
+        }
+        document.getElementById("new_effect").value = "";
+        state.effects[newEffectName] = new Effect(
+            newEffectName,
+            [],
+            5,
+            "attack",
+            "enemy",
+            "on end",
+            false
+        );
+        var newEffect = document.createElement("div");
+        var effectSheet = document.createElement("ul");
+        effectSheet.className = "effect-sheet";
+        var nameElement = document.createElement("li");
+        var nameParagraph = document.createElement("p");
+        nameParagraph.innerText = newEffectName;
+        nameElement.appendChild(nameParagraph);
+        newEffect.appendChild(nameElement);
+        var baseDurationElement = document.createElement("li");
+        var baseDurationParagraph = document.createElement("p");
+        baseDurationParagraph.innerText = "Base duration: ";
+        baseDurationElement.appendChild(baseDurationParagraph);
+        var baseDurationInput = document.createElement("input");
+        baseDurationInput.type = "number";
+        baseDurationInput.value = "5";
+        baseDurationInput.onchange = function () {
+            state.effects[newEffectName].baseDuration = state.effects[
+                newEffectName
+            ].durationLeft = baseDurationInput.valueAsNumber;
+        };
+        baseDurationElement.appendChild(baseDurationInput);
+        effectSheet.appendChild(baseDurationElement);
+        var applyUniqueElement = document.createElement("li");
+        var applyUniqueParagraph = document.createElement("p");
+        applyUniqueParagraph.innerText = "Apply unique: ";
+        applyUniqueElement.appendChild(applyUniqueParagraph);
+        var applyUniqueInput = document.createElement("input");
+        applyUniqueInput.type = "checkbox";
+        applyUniqueInput.checked = false;
+        applyUniqueInput.onchange = function () {
+            state.effects[newEffectName].applyUnique = applyUniqueInput.checked;
+        };
+        applyUniqueElement.appendChild(applyUniqueInput);
+        effectSheet.appendChild(applyUniqueElement);
+        var appliedOnElement = document.createElement("li");
+        var appliedOnParagraph = document.createElement("p");
+        appliedOnParagraph.innerText = "Applied on: ";
+        appliedOnElement.appendChild(appliedOnParagraph);
+        var appliedOnInput = document.createElement("select");
+        for (
+            var _i = 0,
+                _a = ["attack", "defense", "battle start", "not applied"];
+            _i < _a.length;
+            _i++
+        ) {
+            var option = _a[_i];
+            var appliedOnOption = document.createElement("option");
+            appliedOnOption.innerText = appliedOnOption.value = option;
+            appliedOnInput.appendChild(appliedOnOption);
+        }
+        appliedOnInput.selectedIndex = 0;
+        appliedOnInput.onchange = function () {
+            switch (appliedOnInput.value) {
+                case "attack":
+                case "defense":
+                case "battle start":
+                case "not applied":
+                    state.effects[newEffectName].appliedOn =
+                        appliedOnInput.value;
+                    break;
+                default:
+                    document.getElementById("errors").innerHTML =
+                        "appliedOn invalid";
+            }
+        };
+        appliedOnElement.appendChild(appliedOnInput);
+        effectSheet.appendChild(appliedOnElement);
+        var appliedToElement = document.createElement("li");
+        var appliedToParagraph = document.createElement("p");
+        appliedToParagraph.innerText = "Applied to: ";
+        appliedToElement.appendChild(appliedToParagraph);
+        var appliedToInput = document.createElement("select");
+        for (var _b = 0, _c = ["enemy", "self"]; _b < _c.length; _b++) {
+            var option = _c[_b];
+            var appliedToOption = document.createElement("option");
+            appliedToOption.innerText = appliedToOption.value = option;
+            appliedToInput.appendChild(appliedToOption);
+        }
+        appliedToInput.selectedIndex = 0;
+        appliedToInput.onchange = function () {
+            switch (appliedToInput.value) {
+                case "self":
+                case "enemy":
+                    state.effects[newEffectName].appliedTo =
+                        appliedToInput.value;
+                    break;
+                default:
+                    document.getElementById("errors").innerHTML =
+                        "appliedTo invalid";
+            }
+        };
+        appliedToElement.appendChild(appliedToInput);
+        effectSheet.appendChild(appliedToElement);
+        var impactElement = document.createElement("li");
+        var impactParagraph = document.createElement("p");
+        impactParagraph.innerText = "Impact: ";
+        impactElement.appendChild(impactParagraph);
+        var impactInput = document.createElement("select");
+        for (
+            var _d = 0, _e = ["on end", "continuous", "every turn"];
+            _d < _e.length;
+            _d++
+        ) {
+            var option = _e[_d];
+            var impactOption = document.createElement("option");
+            impactOption.innerText = impactOption.value = option;
+            impactInput.appendChild(impactOption);
+        }
+        impactInput.selectedIndex = 0;
+        impactInput.onchange = function () {
+            switch (impactInput.value) {
+                case "on end":
+                case "continuous":
+                case "every turn":
+                    state.effects[newEffectName].impact = impactInput.value;
+                    break;
+                default:
+                    document.getElementById("errors").innerHTML =
+                        "impact invalid";
+            }
+        };
+        impactElement.appendChild(impactInput);
+        effectSheet.appendChild(impactElement);
+        var modifiersParagraph = document.createElement("p");
+        modifiersParagraph.innerText = "Modifiers:";
+        effectSheet.appendChild(modifiersParagraph);
+        var modifierRefCount = {};
+        var modifiersElement = document.createElement("ul");
+        modifiersElement.style.listStyleType = "none";
+        var modifierAddElement = document.createElement("li");
+        var modifierAdd = document.createElement("button");
+        modifierAdd.innerText = "Add modifier";
+        modifierAdd.onclick = function () {
+            var newModifier = document.createElement("li");
+            newModifier.className = "single_value";
+            var modifiedStat = document.createElement("select");
+            modifiedStat.className = "stat-select";
+            var selected = false;
+            var i = 0;
+            for (
+                var _i = 0, _a = state.stats.concat(["hp"]);
+                _i < _a.length;
+                _i++
+            ) {
+                var stat = _a[_i];
+                var statOption = document.createElement("option");
+                statOption.innerText = statOption.value = stat;
+                modifiedStat.appendChild(statOption);
+                if (
+                    !Object.keys(
+                        state.effects[newEffectName].modifiers
+                    ).includes(stat) &&
+                    !selected
+                ) {
+                    selected = true;
+                    modifiedStat.selectedIndex = i;
+                    if (isNaN(state.effects[newEffectName].modifiers[stat]))
+                        state.effects[newEffectName].modifiers[stat] = 0;
+                    modifierRefCount[stat] = isNaN(modifierRefCount[stat])
+                        ? 1
+                        : modifierRefCount[stat] + 1;
+                }
+                ++i;
+            }
+            if (!selected) {
+                alert(
+                    "All of the created stats have been used for this effect, create a new stat or modify already existing modifier"
+                );
+                modifiedStat.remove();
+                newModifier.remove();
                 return;
             }
-            document.getElementById("new_effect").value =
-                "";
-            state.effects[newEffectName] = new Effect(newEffectName, [], 5, "attack", "enemy", "on end", false);
-            var newEffect = document.createElement("div");
-            var effectSheet = document.createElement("ul");
-            effectSheet.className = "effect-sheet";
-            var nameElement = document.createElement("li");
-            var nameParagraph = document.createElement("p");
-            nameParagraph.innerText = newEffectName;
-            nameElement.appendChild(nameParagraph);
-            newEffect.appendChild(nameElement);
-            var baseDurationElement = document.createElement("li");
-            var baseDurationParagraph = document.createElement("p");
-            baseDurationParagraph.innerText = "Base duration: ";
-            baseDurationElement.appendChild(baseDurationParagraph);
-            var baseDurationInput = document.createElement("input");
-            baseDurationInput.type = "number";
-            baseDurationInput.value = "5";
-            baseDurationInput.onchange = function () {
-                state.effects[newEffectName].baseDuration = state.effects[newEffectName].durationLeft = baseDurationInput.valueAsNumber;
+            var previousStatName;
+            modifiedStat.onfocus = function () {
+                previousStatName = modifiedStat.value;
             };
-            baseDurationElement.appendChild(baseDurationInput);
-            effectSheet.appendChild(baseDurationElement);
-            var applyUniqueElement = document.createElement("li");
-            var applyUniqueParagraph = document.createElement("p");
-            applyUniqueParagraph.innerText = "Apply unique: ";
-            applyUniqueElement.appendChild(applyUniqueParagraph);
-            var applyUniqueInput = document.createElement("input");
-            applyUniqueInput.type = "checkbox";
-            applyUniqueInput.checked = false;
-            applyUniqueInput.onchange = function () {
-                state.effects[newEffectName].applyUnique =
-                    applyUniqueInput.checked;
-            };
-            applyUniqueElement.appendChild(applyUniqueInput);
-            effectSheet.appendChild(applyUniqueElement);
-            var appliedOnElement = document.createElement("li");
-            var appliedOnParagraph = document.createElement("p");
-            appliedOnParagraph.innerText = "Applied on: ";
-            appliedOnElement.appendChild(appliedOnParagraph);
-            var appliedOnInput = document.createElement("select");
-            for (var _i = 0, _a = [
-                "attack",
-                "defense",
-                "battle start",
-                "not applied",
-            ]; _i < _a.length; _i++) {
-                var option = _a[_i];
-                var appliedOnOption = document.createElement("option");
-                appliedOnOption.innerText = appliedOnOption.value = option;
-                appliedOnInput.appendChild(appliedOnOption);
-            }
-            appliedOnInput.selectedIndex = 0;
-            appliedOnInput.onchange = function () {
-                switch (appliedOnInput.value) {
-                    case "attack":
-                    case "defense":
-                    case "battle start":
-                    case "not applied":
-                        state.effects[newEffectName].appliedOn =
-                            appliedOnInput.value;
-                        break;
-                    default:
-                        document.getElementById("errors").innerHTML = "appliedOn invalid";
+            modifiedStat.onchange = function () {
+                if (
+                    !isNaN(
+                        state.effects[newEffectName].modifiers[
+                            modifiedStat.value
+                        ]
+                    )
+                ) {
+                    state.effects[newEffectName].modifiers[
+                        modifiedStat.value
+                    ] += modifiedValue.valueAsNumber;
+                } else {
+                    state.effects[newEffectName].modifiers[modifiedStat.value] =
+                        modifiedValue.valueAsNumber;
                 }
-            };
-            appliedOnElement.appendChild(appliedOnInput);
-            effectSheet.appendChild(appliedOnElement);
-            var appliedToElement = document.createElement("li");
-            var appliedToParagraph = document.createElement("p");
-            appliedToParagraph.innerText = "Applied to: ";
-            appliedToElement.appendChild(appliedToParagraph);
-            var appliedToInput = document.createElement("select");
-            for (var _b = 0, _c = ["enemy", "self"]; _b < _c.length; _b++) {
-                var option = _c[_b];
-                var appliedToOption = document.createElement("option");
-                appliedToOption.innerText = appliedToOption.value = option;
-                appliedToInput.appendChild(appliedToOption);
-            }
-            appliedToInput.selectedIndex = 0;
-            appliedToInput.onchange = function () {
-                switch (appliedToInput.value) {
-                    case "self":
-                    case "enemy":
-                        state.effects[newEffectName].appliedTo =
-                            appliedToInput.value;
-                        break;
-                    default:
-                        document.getElementById("errors").innerHTML = "appliedTo invalid";
+                modifierRefCount[modifiedStat.value] = isNaN(
+                    modifierRefCount[modifiedStat.value]
+                )
+                    ? 1
+                    : modifierRefCount[modifiedStat.value] + 1;
+                if (
+                    !isNaN(
+                        state.effects[newEffectName].modifiers[previousStatName]
+                    )
+                ) {
+                    state.effects[newEffectName].modifiers[previousStatName] -=
+                        modifiedValue.valueAsNumber;
+                } else {
+                    state.effects[newEffectName].modifiers[
+                        previousStatName
+                    ] = 0;
                 }
-            };
-            appliedToElement.appendChild(appliedToInput);
-            effectSheet.appendChild(appliedToElement);
-            var impactElement = document.createElement("li");
-            var impactParagraph = document.createElement("p");
-            impactParagraph.innerText = "Impact: ";
-            impactElement.appendChild(impactParagraph);
-            var impactInput = document.createElement("select");
-            for (var _d = 0, _e = ["on end", "continuous", "every turn"]; _d < _e.length; _d++) {
-                var option = _e[_d];
-                var impactOption = document.createElement("option");
-                impactOption.innerText = impactOption.value = option;
-                impactInput.appendChild(impactOption);
-            }
-            impactInput.selectedIndex = 0;
-            impactInput.onchange = function () {
-                switch (impactInput.value) {
-                    case "on end":
-                    case "continuous":
-                    case "every turn":
-                        state.effects[newEffectName].impact = impactInput.value;
-                        break;
-                    default:
-                        document.getElementById("errors").innerHTML = "impact invalid";
+                --modifierRefCount[previousStatName];
+                if (
+                    modifierRefCount[previousStatName] === 0 ||
+                    isNaN(modifierRefCount[previousStatName])
+                ) {
+                    delete state.effects[newEffectName].modifiers[
+                        previousStatName
+                    ];
                 }
+                previousStatName = modifiedStat.value;
             };
-            impactElement.appendChild(impactInput);
-            effectSheet.appendChild(impactElement);
-            var modifiersParagraph = document.createElement("p");
-            modifiersParagraph.innerText = "Modifiers:";
-            effectSheet.appendChild(modifiersParagraph);
-            var modifierRefCount = {};
-            var modifiersElement = document.createElement("ul");
-            modifiersElement.style.listStyleType = "none";
-            var modifierAddElement = document.createElement("li");
-            var modifierAdd = document.createElement("button");
-            modifierAdd.innerText = "Add modifier";
-            modifierAdd.onclick = function () {
-                var newModifier = document.createElement("li");
-                newModifier.className = "single_value";
-                var modifiedStat = document.createElement("select");
-                modifiedStat.className = "stat-select";
-                var selected = false;
-                var i = 0;
-                for (var _i = 0, _a = state.stats.concat(["hp"]); _i < _a.length; _i++) {
-                    var stat = _a[_i];
-                    var statOption = document.createElement("option");
-                    statOption.innerText = statOption.value = stat;
-                    modifiedStat.appendChild(statOption);
-                    if (!Object.keys(state.effects[newEffectName].modifiers).includes(stat) &&
-                        !selected) {
-                        selected = true;
-                        modifiedStat.selectedIndex = i;
-                        if (isNaN(state.effects[newEffectName].modifiers[stat]))
-                            state.effects[newEffectName].modifiers[stat] = 0;
-                        modifierRefCount[stat] = isNaN(modifierRefCount[stat])
-                            ? 1
-                            : modifierRefCount[stat] + 1;
-                    }
-                    ++i;
-                }
-                if (!selected) {
-                    alert("All of the created stats have been used for this effect, create a new stat or modify already existing modifier");
-                    modifiedStat.remove();
-                    newModifier.remove();
-                    return;
-                }
-                var previousStatName;
-                modifiedStat.onfocus = function () {
-                    previousStatName = modifiedStat.value;
-                };
-                modifiedStat.onchange = function () {
-                    if (!isNaN(state.effects[newEffectName].modifiers[modifiedStat.value])) {
-                        state.effects[newEffectName].modifiers[modifiedStat.value] += modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.effects[newEffectName].modifiers[modifiedStat.value] = modifiedValue.valueAsNumber;
-                    }
-                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
-                        ? 1
-                        : modifierRefCount[modifiedStat.value] + 1;
-                    if (!isNaN(state.effects[newEffectName].modifiers[previousStatName])) {
-                        state.effects[newEffectName].modifiers[previousStatName] -= modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.effects[newEffectName].modifiers[previousStatName] = 0;
-                    }
-                    --modifierRefCount[previousStatName];
-                    if (modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])) {
-                        delete state.effects[newEffectName].modifiers[previousStatName];
-                    }
-                    previousStatName = modifiedStat.value;
-                };
-                newModifier.appendChild(modifiedStat);
-                var modifiedValue = document.createElement("input");
-                modifiedValue.type = "number";
-                modifiedValue.value = "0";
-                var previousValue;
-                modifiedValue.onfocus = function () {
-                    previousValue = modifiedValue.valueAsNumber;
-                };
-                modifiedValue.onchange = function () {
-                    if (isNaN(modifiedValue.valueAsNumber))
-                        return;
-                    if (isNaN(state.effects[newEffectName].modifiers[modifiedStat.value])) {
-                        state.effects[newEffectName].modifiers[modifiedStat.value] = modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.effects[newEffectName].modifiers[modifiedStat.value] += modifiedValue.valueAsNumber - previousValue;
-                    }
-                    previousValue = modifiedValue.valueAsNumber;
-                };
-                newModifier.appendChild(modifiedValue);
-                var deleteModifier = document.createElement("button");
-                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n                <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n                <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n                </svg>";
-                deleteModifier.onclick = function () {
-                    state.effects[newEffectName].modifiers[modifiedStat.value] -= modifiedValue.valueAsNumber;
-                    newModifier.remove();
-                };
-                newModifier.appendChild(deleteModifier);
-                modifiersElement.appendChild(newModifier);
+            newModifier.appendChild(modifiedStat);
+            var modifiedValue = document.createElement("input");
+            modifiedValue.type = "number";
+            modifiedValue.value = "0";
+            var previousValue;
+            modifiedValue.onfocus = function () {
+                previousValue = modifiedValue.valueAsNumber;
             };
-            modifierAddElement.appendChild(modifierAdd);
-            modifiersElement.appendChild(modifierAddElement);
-            effectSheet.appendChild(modifiersElement);
-            newEffect.appendChild(effectSheet);
-            for (var _f = 0, _g = Array.from(document.getElementsByClassName("effect-select")); _f < _g.length; _f++) {
-                var element = _g[_f];
+            modifiedValue.onchange = function () {
+                if (isNaN(modifiedValue.valueAsNumber)) return;
+                if (
+                    isNaN(
+                        state.effects[newEffectName].modifiers[
+                            modifiedStat.value
+                        ]
+                    )
+                ) {
+                    state.effects[newEffectName].modifiers[modifiedStat.value] =
+                        modifiedValue.valueAsNumber;
+                } else {
+                    state.effects[newEffectName].modifiers[
+                        modifiedStat.value
+                    ] += modifiedValue.valueAsNumber - previousValue;
+                }
+                previousValue = modifiedValue.valueAsNumber;
+            };
+            newModifier.appendChild(modifiedValue);
+            var deleteModifier = document.createElement("button");
+            deleteModifier.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n                </svg>';
+            deleteModifier.onclick = function () {
+                state.effects[newEffectName].modifiers[modifiedStat.value] -=
+                    modifiedValue.valueAsNumber;
+                newModifier.remove();
+            };
+            newModifier.appendChild(deleteModifier);
+            modifiersElement.appendChild(newModifier);
+        };
+        modifierAddElement.appendChild(modifierAdd);
+        modifiersElement.appendChild(modifierAddElement);
+        effectSheet.appendChild(modifiersElement);
+        newEffect.appendChild(effectSheet);
+        for (
+            var _f = 0,
+                _g = Array.from(
+                    document.getElementsByClassName("effect-select")
+                );
+            _f < _g.length;
+            _f++
+        ) {
+            var element = _g[_f];
+            var select = element;
+            var option = document.createElement("option");
+            option.text = option.value = newEffectName;
+            select.appendChild(option);
+        }
+        var deleteEffect = document.createElement("button");
+        deleteEffect.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\n                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>\n                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>\n                </svg>';
+        deleteEffect.onclick = function () {
+            delete state.effects[newEffectName];
+            for (
+                var _i = 0,
+                    _a = Array.from(
+                        document.getElementsByClassName("effect-select")
+                    );
+                _i < _a.length;
+                _i++
+            ) {
+                var element = _a[_i];
                 var select = element;
-                var option = document.createElement("option");
-                option.text = option.value = newEffectName;
-                select.appendChild(option);
-            }
-            var deleteEffect = document.createElement("button");
-            deleteEffect.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n                <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n                <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n                </svg>";
-            deleteEffect.onclick = function () {
-                delete state.effects[newEffectName];
-                for (var _i = 0, _a = Array.from(document.getElementsByClassName("effect-select")); _i < _a.length; _i++) {
-                    var element = _a[_i];
-                    var select = element;
-                    for (var _b = 0, _c = Array.from(select.options); _b < _c.length; _b++) {
-                        var option = _c[_b];
-                        if (option.value === newEffectName) {
-                            select.removeChild(option);
-                            break;
-                        }
+                for (
+                    var _b = 0, _c = Array.from(select.options);
+                    _b < _c.length;
+                    _b++
+                ) {
+                    var option = _c[_b];
+                    if (option.value === newEffectName) {
+                        select.removeChild(option);
+                        break;
                     }
                 }
-                newEffect.remove();
-            };
-            newEffect.appendChild(deleteEffect);
-            effectsDiv.appendChild(newEffect);
+            }
+            newEffect.remove();
         };
-    document.getElementById("state_default").onclick =
-        function () {
-            state = copy(defaultState);
-            state_text.value = JSON.stringify(state);
-            UpdateFields();
-        };
+        newEffect.appendChild(deleteEffect);
+        effectsDiv.appendChild(newEffect);
+    };
+    document.getElementById("state_default").onclick = function () {
+        state = copy(defaultState);
+        state_text.value = JSON.stringify(state);
+        UpdateFields();
+    };
     document.getElementById("serialize").onclick = function () {
         return (state_text.value = JSON.stringify(state));
     };
-    document.getElementById("deserialize").onclick =
-        function () { return ParseState(state_text.value); };
+    document.getElementById("deserialize").onclick = function () {
+        return ParseState(state_text.value);
+    };
     UpdateFields();
 };
 try {
     main();
-}
-catch (error) {
-    var message = error instanceof Error ? error.message : JSON.stringify(error);
-    document.getElementById("errors").innerHTML =
-        message;
+} catch (error) {
+    var message =
+        error instanceof Error ? error.message : JSON.stringify(error);
+    document.getElementById("errors").innerHTML = message;
+    console.error(error);
 }

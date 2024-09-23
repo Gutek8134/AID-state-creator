@@ -263,35 +263,70 @@ const ParseState = (state_text: string): void | string[] => {
     } else return errors;
 };
 
+let t = false;
+
 const UpdateFields = (): void => {
+    console.log("updating fields");
+
+    console.log("dice");
+
     (document.getElementById("dice") as HTMLInputElement).value = String(
         state.dice
     );
+
+    console.log("starting level");
+
     (document.getElementById("startingLevel") as HTMLInputElement).value =
         String(state.startingLevel);
+
+    console.log("starting hp");
+
     (document.getElementById("startingHP") as HTMLInputElement).value = String(
         state.startingHP
     );
+
+    console.log("skillpoints on lvl up");
+
     (
         document.getElementById("skillpointsOnLevelUp") as HTMLInputElement
     ).value = String(state.skillpointsOnLevelUp);
+
+    console.log("punishment");
+
     (document.getElementById("punishment") as HTMLInputElement).value = String(
         state.punishment
     );
+
+    console.log("in battle");
+
     (document.getElementById("inBattle") as HTMLInputElement).checked =
         state.inBattle;
+
+    console.log("effects outside battle");
+
     (
         document.getElementById("effectsOutsideBattle") as HTMLInputElement
     ).checked = state.runEffectsOutsideBattle;
+
+    console.log("in");
+
     (document.getElementById("in") as HTMLTextAreaElement).value = String(
         state.in
     );
+
+    console.log("ctxt");
+
     (document.getElementById("ctxt") as HTMLTextAreaElement).value = String(
         state.ctxt
     );
+
+    console.log("out");
+
     (document.getElementById("out") as HTMLTextAreaElement).value = String(
         state.out
     );
+
+    console.log("stats");
 
     (document.getElementById("stats") as HTMLDivElement).innerHTML = "";
     {
@@ -346,6 +381,8 @@ const UpdateFields = (): void => {
         }
     }
 
+    console.log("inventory");
+
     (document.getElementById("inventory") as HTMLDivElement).innerHTML = "";
     {
         const inventoryDiv = document.getElementById(
@@ -363,8 +400,7 @@ const UpdateFields = (): void => {
                 option.value = option.innerText = itemName;
                 newSelect.appendChild(option);
             }
-
-            state.inventory.push(inventoryItemName);
+            newSelect.value = inventoryItemName;
 
             newDiv.appendChild(newSelect);
 
@@ -391,6 +427,8 @@ const UpdateFields = (): void => {
             };
         }
     }
+
+    console.log("side1");
 
     (document.getElementById("side1") as HTMLDivElement).innerHTML = "";
     {
@@ -439,6 +477,8 @@ const UpdateFields = (): void => {
         }
     }
 
+    console.log("side2");
+
     (document.getElementById("side2") as HTMLDivElement).innerHTML = "";
     {
         state.side2 ??= [];
@@ -486,6 +526,8 @@ const UpdateFields = (): void => {
         }
     }
 
+    console.log("active");
+
     (document.getElementById("active") as HTMLDivElement).innerHTML = "";
     {
         state.active ??= [];
@@ -531,6 +573,8 @@ const UpdateFields = (): void => {
             activeDiv.appendChild(newDiv);
         }
     }
+
+    console.log("characters");
 
     (document.getElementById("characters") as HTMLDivElement).innerHTML = "";
     {
@@ -631,14 +675,6 @@ const UpdateFields = (): void => {
                     const statOption = document.createElement("option");
                     statOption.innerText = statOption.value = stat;
                     modifiedStat.appendChild(statOption);
-                    if (!state.characters[characterName].stats[stat])
-                        state.characters[characterName].stats[stat] = new Stat(
-                            stat,
-                            0
-                        );
-                    modifierRefCount[stat] = isNaN(modifierRefCount[stat])
-                        ? 1
-                        : modifierRefCount[stat] + 1;
                 }
 
                 modifiedStat.value = statName;
@@ -940,8 +976,6 @@ const UpdateFields = (): void => {
 
             character.activeEffects ??= [];
             for (const effect of character.activeEffects) {
-                character.activeEffects?.push(effect);
-
                 const newElement = document.createElement("div");
 
                 const newEffect = document.createElement("p");
@@ -972,14 +1006,13 @@ const UpdateFields = (): void => {
                         character.activeEffects?.indexOf(effect),
                         1
                     );
-                    effectAddInput.appendChild(effectOption);
+                    if (effectOption) effectAddInput.appendChild(effectOption);
                     newElement.remove();
                 };
 
                 newElement.appendChild(deleteElement);
                 effects.appendChild(newElement);
-
-                effectAddInput.removeChild(effectOption);
+                if (effectOption) effectAddInput.removeChild(effectOption);
             }
 
             const effectAddButton = document.createElement("button");
@@ -1075,13 +1108,13 @@ const UpdateFields = (): void => {
         }
     }
 
+    //Infinite loop somewhere here
     (document.getElementById("items") as HTMLDivElement).innerHTML = "";
     {
         const itemsDiv = document.getElementById("items") as HTMLDivElement;
         for (const itemName of Object.keys(state.items)) {
+            console.log(itemName);
             const item = state.items[itemName];
-
-            state.items[itemName] = new Item(itemName, []);
 
             const newItem = document.createElement("div");
             newItem.className = "item";
@@ -1089,12 +1122,15 @@ const UpdateFields = (): void => {
             const itemSheet = document.createElement("ul");
             itemSheet.className = "item-sheet";
 
+            console.log("name");
+
             const nameElement = document.createElement("li");
             const nameParagraph = document.createElement("p");
             nameParagraph.innerText = itemName;
             nameElement.appendChild(nameParagraph);
             itemSheet.appendChild(nameElement);
 
+            console.log("slot");
             const slotElement = document.createElement("li");
             const slotSelect = document.createElement("select");
             slotSelect.className = "slot-select";
@@ -1174,8 +1210,6 @@ const UpdateFields = (): void => {
             const effects = document.createElement("div");
             effects.className = "list";
             for (const effectName of item.effects) {
-                state.items[itemName].effects.push(effectName);
-
                 const newElement = document.createElement("div");
 
                 const newEffect = document.createElement("p");
@@ -1251,6 +1285,8 @@ const UpdateFields = (): void => {
             effectsElement.appendChild(effectAddInput);
             effectsElement.appendChild(effectAddButton);
             itemSheet.appendChild(effectsElement);
+
+            console.log("modifiers");
 
             const modifiersParagraph = document.createElement("p");
             modifiersParagraph.innerText = "Modifiers:";
@@ -1512,6 +1548,13 @@ const UpdateFields = (): void => {
             itemsDiv.appendChild(newItem);
         }
     }
+
+    if (t) {
+        console.log(state);
+        return;
+    }
+
+    console.log("effects");
 
     (document.getElementById("effects") as HTMLDivElement).innerHTML = "";
     {
@@ -3441,4 +3484,5 @@ try {
         error instanceof Error ? error.message : JSON.stringify(error);
     (document.getElementById("errors") as HTMLParagraphElement).innerHTML =
         message;
+    console.error(error);
 }
