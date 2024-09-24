@@ -1,3 +1,4 @@
+.gitignore
 .gitattributes
 source code/dist
 source code/build
@@ -5,7 +6,5 @@ source code/__pycache__
 source code/main.spec
 source code/state manager.spec
 source code/state.txt
-state.txt
 .vscode
 .vscode/settings.json
-script.js
