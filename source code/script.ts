@@ -267,6 +267,7 @@ let t = false;
 
 const UpdateFields = (): void => {
     console.log("updating fields");
+    slots = [];
 
     console.log("dice");
 
@@ -325,6 +326,86 @@ const UpdateFields = (): void => {
     (document.getElementById("out") as HTMLTextAreaElement).value = String(
         state.out
     );
+
+    console.log("slots");
+
+    (document.getElementById("slots") as HTMLDivElement).innerHTML = "";
+    {
+        const slotsDiv = document.getElementById("slots") as HTMLDivElement;
+        for (const item of Object.values(state.items)) {
+            if (!slots.includes(item.slot)) {
+                slots.push(item.slot);
+
+                const newDiv = document.createElement("div");
+                newDiv.className = "single_value";
+
+                const inputElement = document.createElement("input");
+                inputElement.value = item.slot;
+                inputElement.onchange = () => {
+                    slots[slots.indexOf(inputElement.value)] =
+                        inputElement.value;
+                };
+                newDiv.appendChild(inputElement);
+
+                for (const element of Array.from(
+                    document.getElementsByClassName("equipment-list")
+                )) {
+                    const equipment = element as HTMLUListElement;
+                    const slotElement = document.createElement("li");
+
+                    const slotName = document.createElement("p");
+                    slotName.innerText = item.slot;
+                    slotElement.appendChild(slotName);
+
+                    const equippedItem = document.createElement("select");
+                    equippedItem.className = `item-${item.slot}-select item-slot-select`;
+                    itemsBySlot[item.slot] ??= [];
+                    for (const itemName of itemsBySlot[item.slot]) {
+                        const option = document.createElement("option");
+                        option.text = option.value = itemName;
+                        equippedItem.appendChild(option);
+                    }
+                    slotElement.appendChild(equippedItem);
+
+                    equipment.appendChild(slotElement);
+                }
+
+                const deleteSlot = document.createElement("button");
+                deleteSlot.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+          </svg>`;
+                deleteSlot.onclick = () => {
+                    for (const element of Array.from(
+                        document.getElementsByClassName("slot-select")
+                    )) {
+                        const select = element as HTMLSelectElement;
+
+                        for (const option of Array.from(select.options)) {
+                            if (option.value === item.slot) {
+                                select.removeChild(option);
+                                break;
+                            }
+                        }
+                    }
+
+                    for (const element of Array.from(
+                        document.getElementsByClassName(
+                            `item-${item.slot}-select`
+                        )
+                    )) {
+                        element.parentElement?.remove();
+                    }
+
+                    newDiv.remove();
+                    slots.splice(slots.indexOf(inputElement.value), 1);
+                };
+                newDiv.appendChild(deleteSlot);
+
+                slotsDiv.appendChild(newDiv);
+            }
+        }
+    }
 
     console.log("stats");
 
@@ -1108,7 +1189,6 @@ const UpdateFields = (): void => {
         }
     }
 
-    //Infinite loop somewhere here
     (document.getElementById("items") as HTMLDivElement).innerHTML = "";
     {
         const itemsDiv = document.getElementById("items") as HTMLDivElement;
@@ -1122,15 +1202,12 @@ const UpdateFields = (): void => {
             const itemSheet = document.createElement("ul");
             itemSheet.className = "item-sheet";
 
-            console.log("name");
-
             const nameElement = document.createElement("li");
             const nameParagraph = document.createElement("p");
             nameParagraph.innerText = itemName;
             nameElement.appendChild(nameParagraph);
             itemSheet.appendChild(nameElement);
 
-            console.log("slot");
             const slotElement = document.createElement("li");
             const slotSelect = document.createElement("select");
             slotSelect.className = "slot-select";
@@ -1285,8 +1362,6 @@ const UpdateFields = (): void => {
             effectsElement.appendChild(effectAddInput);
             effectsElement.appendChild(effectAddButton);
             itemSheet.appendChild(effectsElement);
-
-            console.log("modifiers");
 
             const modifiersParagraph = document.createElement("p");
             modifiersParagraph.innerText = "Modifiers:";
