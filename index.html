@@ -12,7 +12,8 @@
                 name="levelling_to_oblivion" id="levelling_to_oblivion">
         </div>
         <div class="single_value">
-            Dice: <input type="number" name="dice" id="dice">
+            Dice added to skill checks: <input type="number" name="dice"
+                id="dice">
         </div>
         <div class="single_value">
             Starting level: <input type="number" name="startingLevel"
@@ -37,23 +38,23 @@
             Run effects when not in battle: <input type="checkbox"
                 name="effectsOutsideBattle" id="effectsOutsideBattle">
         </div>
-        <div class="single_value">
-            Last input: <br>
-            <textarea name="in" id="in" cols="30"
-                rows="10"></textarea>
+        <div id="textareas">
+            <div class="single_value">
+                Last input: <br>
+                <textarea name="in" id="in" cols="30"
+                    rows="10"></textarea>
+            </div>
+            <div class="single_value">
+                Last input context override: <br>
+                <textarea name="ctxt" id="ctxt" cols="30"
+                    rows="10"></textarea>
+            </div>
+            <div class="single_value">
+                Output override: <br>
+                <textarea name="out" id="out" cols="30"
+                    rows="10"></textarea>
+            </div>
         </div>
-        <div class="single_value">
-            Last input context override: <br>
-            <textarea name="ctxt" id="ctxt" cols="30"
-                rows="10"></textarea>
-        </div>
-        <div class="single_value">
-            Output override: <br>
-            <textarea name="out" id="out" cols="30"
-                rows="10"></textarea>
-        </div>
-        <br>
-
         <div class="list">Slots: <div id="slots">
             </div><br>
             <input type="text" name="new_slot"
@@ -89,18 +90,22 @@
         <br>
 
         <div class="list">Characters: <div id="characters"></div><br>
-            <input type="text" name="new_character"
-                id="new_character"><button id="add_character">+</button></div>
+            <div id="new_character_wrapper"><input type="text"
+                    name="new_character"
+                    id="new_character"><button
+                    id="add_character">+</button></div>
+        </div>
         <br>
 
         <div class="list">Items: <div id="items"></div><br>
-            <input type="text" name="new_item"
-                id="new_item"><button id="add_item">+</button></div>
+            <div id="new_item_wrapper"><input type="text" name="new_item"
+                    id="new_item"><button id="add_item">+</button></div></div>
         <br>
 
         <div class="list">Effects: <div id="effects"></div><br>
-            <input type="text" name="new_effect"
-                id="new_effect"><button id="add_effect">+</button></div>
+            <div id="new_effect_wrapper"><input type="text" name="new_effect"
+                    id="new_effect"><button
+                    id="add_effect">+</button></div></div>
         <br>
 
         <div class="single_value" id="state">

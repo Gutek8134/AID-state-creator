@@ -1,19 +1,88 @@
+body {
+    background-color: #424344;
+    color: whitesmoke;
+    font-size: large;
+    margin: auto;
+}
+
+ul {
+    list-style: none;
+}
+
+p {
+    width: fit-content;
+    margin: 0px 10px;
+}
+
+button {
+    display: inline;
+}
+
+div.single_value {
+    padding: 1.2em 0 0 1.2em;
+}
+
+div.list {
+    padding: 0 0 0 1.2em;
+}
+
+div.list div {
+    display: flex;
+}
+
+div#stats,
+div#slots,
+div#inventory {
+    display: block;
+}
+
 #errors {
     color: red;
 }
 
-.character-sheet {
+div#textareas {
+    height: auto;
+    width: 96vw;
+    overflow: hidden;
+    text-align: center;
+    justify-content: space-between;
+    padding: 0 2vw;
+    display: flex;
+}
+
+div#textareas div.single_value {
+    display: block;
+    padding: 0;
+}
+
+ul.character-sheet,
+ul.item-sheet,
+ul.effect-sheet,
+ul.equipment-list {
     list-style-type: none;
 }
 
-.item-sheet {
-    list-style-type: none;
+div.equipment-list div.single_value,
+div.list div.single_value {
+    margin: 0.3em 0 0 0.8em;
+    padding: 0;
 }
 
-.effect-sheet {
-    list-style-type: none;
+div.characters,
+div.items,
+div.effects {
+    width: 96vw;
+    padding: 0 2vw;
 }
 
-.equipment-list {
-    list-style-type: none;
+div.character,
+div.item,
+div.effect {
+    float: left;
+}
+
+div#new_character_wrapper,
+div#new_item_wrapper,
+div#new_effect_wrapper {
+    clear: both;
 }

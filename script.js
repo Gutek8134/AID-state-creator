@@ -1201,7 +1201,7 @@ var UpdateFields = function () {
             var nameParagraph = document.createElement("p");
             nameParagraph.innerText = effectName;
             nameElement.appendChild(nameParagraph);
-            newEffect.appendChild(nameElement);
+            effectSheet.appendChild(nameElement);
             var baseDurationElement = document.createElement("li");
             var baseDurationParagraph = document.createElement("p");
             baseDurationParagraph.innerText = "Base duration: ";
@@ -2326,7 +2326,7 @@ var main = function () {
             var nameParagraph = document.createElement("p");
             nameParagraph.innerText = newEffectName;
             nameElement.appendChild(nameParagraph);
-            newEffect.appendChild(nameElement);
+            effectSheet.appendChild(nameElement);
             var baseDurationElement = document.createElement("li");
             var baseDurationParagraph = document.createElement("p");
             baseDurationParagraph.innerText = "Base duration: ";

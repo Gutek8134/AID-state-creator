@@ -1644,7 +1644,7 @@ const UpdateFields = (): void => {
             const nameParagraph = document.createElement("p");
             nameParagraph.innerText = effectName;
             nameElement.appendChild(nameParagraph);
-            newEffect.appendChild(nameElement);
+            effectSheet.appendChild(nameElement);
 
             const baseDurationElement = document.createElement("li");
             const baseDurationParagraph = document.createElement("p");
@@ -3222,7 +3222,7 @@ const main = () => {
             const nameParagraph = document.createElement("p");
             nameParagraph.innerText = newEffectName;
             nameElement.appendChild(nameParagraph);
-            newEffect.appendChild(nameElement);
+            effectSheet.appendChild(nameElement);
 
             const baseDurationElement = document.createElement("li");
             const baseDurationParagraph = document.createElement("p");
