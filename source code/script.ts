@@ -3561,3 +3561,8 @@ try {
         message;
     console.error(error);
 }
+
+window.addEventListener('beforeunload', function(event) {
+    event.preventDefault();
+    event.returnValue = '';
+});

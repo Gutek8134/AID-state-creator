@@ -1,4 +1,9 @@
 "use strict";
+window.addEventListener('beforeunload', function(event) {
+    event.preventDefault();
+    event.returnValue = '';
+});
+
 function copy(aObject) {
     // Prevent undefined objects
     // if (!aObject) return aObject;
