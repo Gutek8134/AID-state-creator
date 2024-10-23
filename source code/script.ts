@@ -205,7 +205,6 @@ let state: {
 };
 const defaultState = copy(state);
 
-let levellingToOblivion = true;
 const stateKeys = Object.keys(state);
 
 const RecursiveTypeCheck = (
@@ -3562,7 +3561,11 @@ try {
     console.error(error);
 }
 
-window.addEventListener('beforeunload', function(event) {
+window.addEventListener("beforeunload", function (event) {
     event.preventDefault();
-    event.returnValue = '';
+    event.returnValue = "";
 });
+
+let levellingToOblivion = confirm(
+    "Are you levelling to oblivion?\n(No by default; if in doubt, check Input Modifier on your scenario.)"
+);
