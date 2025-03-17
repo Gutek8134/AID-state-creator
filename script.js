@@ -1,9 +1,4 @@
 "use strict";
-window.addEventListener('beforeunload', function(event) {
-    event.preventDefault();
-    event.returnValue = '';
-});
-
 function copy(aObject) {
     // Prevent undefined objects
     // if (!aObject) return aObject;
@@ -123,7 +118,6 @@ var state = {
     inBattle: false,
 };
 var defaultState = copy(state);
-var levellingToOblivion = true;
 var stateKeys = Object.keys(state);
 var RecursiveTypeCheck = function (originalObject, comparedObject, comparedObjectName) {
     if (typeof comparedObject !== typeof originalObject)
@@ -169,8 +163,8 @@ var ParseState = function (state_text) {
 };
 var t = false;
 var UpdateFields = function () {
-    var _a, _b, _c, _d, _e, _f;
-    var _g;
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    var _j;
     console.log("updating fields");
     slots = [];
     console.log("dice");
@@ -211,8 +205,7 @@ var UpdateFields = function () {
                         inputElement_1.value;
                 };
                 newDiv_1.appendChild(inputElement_1);
-                for (var _0 = 0, _1 = Array.from(document.getElementsByClassName("equipment-list")); _0 < _1.length; _0++) {
-                    var element = _1[_0];
+                var _loop_10 = function (element) {
                     var equipment = element;
                     var slotElement = document.createElement("li");
                     var slotName = document.createElement("p");
@@ -220,15 +213,31 @@ var UpdateFields = function () {
                     slotElement.appendChild(slotName);
                     var equippedItem = document.createElement("select");
                     equippedItem.className = "item-".concat(item.slot, "-select item-slot-select");
-                    (_a = itemsBySlot[_g = item.slot]) !== null && _a !== void 0 ? _a : (itemsBySlot[_g] = []);
-                    for (var _2 = 0, _3 = itemsBySlot[item.slot]; _2 < _3.length; _2++) {
-                        var itemName = _3[_2];
+                    (_a = itemsBySlot[_j = item.slot]) !== null && _a !== void 0 ? _a : (itemsBySlot[_j] = []);
+                    for (var _4 = 0, _5 = itemsBySlot[item.slot]; _4 < _5.length; _4++) {
+                        var itemName = _5[_4];
                         var option = document.createElement("option");
                         option.text = option.value = itemName;
                         equippedItem.appendChild(option);
                     }
+                    var characterName = (_c = (_b = element.id.match(/([\w\s'])+-equipment/)) === null || _b === void 0 ? void 0 : _b.groups) === null || _c === void 0 ? void 0 : _c[0];
+                    if (!characterName) {
+                        console.error("slot parse: character's name could not be found");
+                        return "continue";
+                    }
+                    equippedItem.onchange = function () {
+                        if (equippedItem.value === "None")
+                            delete state.characters[characterName].items[item.slot];
+                        else
+                            state.characters[characterName].items[item.slot] =
+                                state.items[equippedItem.value];
+                    };
                     slotElement.appendChild(equippedItem);
                     equipment.appendChild(slotElement);
+                };
+                for (var _2 = 0, _3 = Array.from(document.getElementsByClassName("equipment-list")); _2 < _3.length; _2++) {
+                    var element = _3[_2];
+                    _loop_10(element);
                 }
                 var deleteSlot = document.createElement("button");
                 deleteSlot.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n          </svg>";
@@ -256,8 +265,8 @@ var UpdateFields = function () {
                 slotsDiv.appendChild(newDiv_1);
             }
         };
-        for (var _i = 0, _h = Object.values(state.items); _i < _h.length; _i++) {
-            var item = _h[_i];
+        for (var _i = 0, _k = Object.values(state.items); _i < _k.length; _i++) {
+            var item = _k[_i];
             _loop_1(item);
         }
     }
@@ -275,8 +284,8 @@ var UpdateFields = function () {
                 state.stats[state.stats.indexOf(stat)] = inputElement.value;
             };
             newDiv.appendChild(inputElement);
-            for (var _4 = 0, _5 = Array.from(document.getElementsByClassName("stat-select")); _4 < _5.length; _4++) {
-                var element = _5[_4];
+            for (var _6 = 0, _7 = Array.from(document.getElementsByClassName("stat-select")); _6 < _7.length; _6++) {
+                var element = _7[_6];
                 var select = element;
                 var option = document.createElement("option");
                 option.text = option.value = newStat;
@@ -302,8 +311,8 @@ var UpdateFields = function () {
             newDiv.appendChild(deleteStat);
             statsDiv.appendChild(newDiv);
         };
-        for (var _j = 0, _k = state.stats; _j < _k.length; _j++) {
-            var stat = _k[_j];
+        for (var _l = 0, _m = state.stats; _l < _m.length; _l++) {
+            var stat = _m[_l];
             _loop_2(stat);
         }
     }
@@ -338,23 +347,23 @@ var UpdateFields = function () {
                 previousValue = newSelect.value;
             };
         };
-        for (var _l = 0, _m = state.inventory; _l < _m.length; _l++) {
-            var inventoryItemName = _m[_l];
+        for (var _o = 0, _p = state.inventory; _o < _p.length; _o++) {
+            var inventoryItemName = _p[_o];
             _loop_3(inventoryItemName);
         }
     }
     console.log("side1");
     document.getElementById("side1").innerHTML = "";
     {
-        (_b = state.side1) !== null && _b !== void 0 ? _b : (state.side1 = []);
+        (_d = state.side1) !== null && _d !== void 0 ? _d : (state.side1 = []);
         var side1Div = document.getElementById("side1");
         var _loop_4 = function (characterName) {
             var newDiv = document.createElement("div");
             newDiv.className = "single_value";
             var characterSelect = document.getElementById("new_character_side1");
             var selectedOption = characterSelect.selectedOptions[0];
-            for (var _6 = 0, _7 = Array.from(characterSelect.options); _6 < _7.length; _6++) {
-                var option = _7[_6];
+            for (var _8 = 0, _9 = Array.from(characterSelect.options); _8 < _9.length; _8++) {
+                var option = _9[_8];
                 if (option.value === characterName) {
                     selectedOption = option;
                     characterSelect.removeChild(selectedOption);
@@ -377,23 +386,23 @@ var UpdateFields = function () {
             newDiv.appendChild(deleteCharacter);
             side1Div.appendChild(newDiv);
         };
-        for (var _o = 0, _p = state.side1; _o < _p.length; _o++) {
-            var characterName = _p[_o];
+        for (var _q = 0, _r = state.side1; _q < _r.length; _q++) {
+            var characterName = _r[_q];
             _loop_4(characterName);
         }
     }
     console.log("side2");
     document.getElementById("side2").innerHTML = "";
     {
-        (_c = state.side2) !== null && _c !== void 0 ? _c : (state.side2 = []);
+        (_e = state.side2) !== null && _e !== void 0 ? _e : (state.side2 = []);
         var side2Div = document.getElementById("side2");
         var _loop_5 = function (characterName) {
             var newDiv = document.createElement("div");
             newDiv.className = "single_value";
             var characterSelect = document.getElementById("new_character_side2");
             var selectedOption = characterSelect.selectedOptions[0];
-            for (var _8 = 0, _9 = Array.from(characterSelect.options); _8 < _9.length; _8++) {
-                var option = _9[_8];
+            for (var _10 = 0, _11 = Array.from(characterSelect.options); _10 < _11.length; _10++) {
+                var option = _11[_10];
                 if (option.value === characterName) {
                     selectedOption = option;
                     characterSelect.removeChild(selectedOption);
@@ -416,23 +425,23 @@ var UpdateFields = function () {
             newDiv.appendChild(deleteCharacter);
             side2Div.appendChild(newDiv);
         };
-        for (var _q = 0, _r = state.side2; _q < _r.length; _q++) {
-            var characterName = _r[_q];
+        for (var _s = 0, _t = state.side2; _s < _t.length; _s++) {
+            var characterName = _t[_s];
             _loop_5(characterName);
         }
     }
     console.log("active");
     document.getElementById("active").innerHTML = "";
     {
-        (_d = state.active) !== null && _d !== void 0 ? _d : (state.active = []);
+        (_f = state.active) !== null && _f !== void 0 ? _f : (state.active = []);
         var activeDiv = document.getElementById("active");
         var _loop_6 = function (characterName) {
             var newDiv = document.createElement("div");
             newDiv.className = "single_value";
             var characterSelect = document.getElementById("new_character_active");
             var selectedOption;
-            for (var _10 = 0, _11 = Array.from(characterSelect.options); _10 < _11.length; _10++) {
-                var option = _11[_10];
+            for (var _12 = 0, _13 = Array.from(characterSelect.options); _12 < _13.length; _12++) {
+                var option = _13[_12];
                 if (option.value === characterName) {
                     selectedOption = option;
                     characterSelect.removeChild(option);
@@ -454,8 +463,8 @@ var UpdateFields = function () {
             newDiv.appendChild(deleteCharacter);
             activeDiv.appendChild(newDiv);
         };
-        for (var _s = 0, _t = state.active; _s < _t.length; _s++) {
-            var characterName = _t[_s];
+        for (var _u = 0, _v = state.active; _u < _v.length; _u++) {
+            var characterName = _v[_u];
             _loop_6(characterName);
         }
     }
@@ -532,13 +541,13 @@ var UpdateFields = function () {
             var modifierRefCount = {};
             var modifiersElement = document.createElement("ul");
             modifiersElement.style.listStyleType = "none";
-            var _loop_10 = function (statName) {
+            var _loop_11 = function (statName) {
                 var newModifier = document.createElement("li");
                 newModifier.className = "single_value";
                 var modifiedStat = document.createElement("select");
                 modifiedStat.className = "stat-select";
-                for (var _19 = 0, _20 = state.stats; _19 < _20.length; _19++) {
-                    var stat = _20[_19];
+                for (var _21 = 0, _22 = state.stats; _21 < _22.length; _21++) {
+                    var stat = _22[_21];
                     var statOption = document.createElement("option");
                     statOption.innerText = statOption.value = stat;
                     modifiedStat.appendChild(statOption);
@@ -596,14 +605,16 @@ var UpdateFields = function () {
                 deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
                 deleteModifier.onclick = function () {
                     state.characters[characterName].stats[modifiedStat.value].level -= modifiedValue.valueAsNumber;
+                    if (state.characters[characterName].stats[modifiedStat.value].level == 0)
+                        delete state.characters[characterName].stats[modifiedStat.value];
                     newModifier.remove();
                 };
                 newModifier.appendChild(deleteModifier);
                 modifiersElement.appendChild(newModifier);
             };
-            for (var _12 = 0, _13 = Object.keys(character.stats); _12 < _13.length; _12++) {
-                var statName = _13[_12];
-                _loop_10(statName);
+            for (var _14 = 0, _15 = Object.keys(character.stats); _14 < _15.length; _14++) {
+                var statName = _15[_14];
+                _loop_11(statName);
             }
             var modifierAddElement = document.createElement("li");
             var modifierAdd = document.createElement("button");
@@ -690,6 +701,8 @@ var UpdateFields = function () {
                 deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
                 deleteModifier.onclick = function () {
                     state.characters[characterName].stats[modifiedStat.value].level -= modifiedValue.valueAsNumber;
+                    if (state.characters[characterName].stats[modifiedStat.value].level == 0)
+                        delete state.characters[characterName].stats[modifiedStat.value];
                     newModifier.remove();
                 };
                 newModifier.appendChild(deleteModifier);
@@ -704,32 +717,40 @@ var UpdateFields = function () {
             equipmentElement.appendChild(equipmentParagraph);
             var equipment = document.createElement("ul");
             equipment.className = "equipment-list";
-            var _loop_11 = function (slot) {
+            equipment.id = "".concat(characterName.replace(" ", "-"), "-equipment");
+            var _loop_12 = function (slot) {
                 var slotElement = document.createElement("li");
                 var slotName = document.createElement("p");
                 slotName.innerText = slot;
                 slotElement.appendChild(slotName);
                 var equippedItem = document.createElement("select");
                 equippedItem.className = "item-".concat(slot, "-select item-slot-select");
-                (_e = itemsBySlot[slot]) !== null && _e !== void 0 ? _e : (itemsBySlot[slot] = []);
-                for (var _21 = 0, _22 = itemsBySlot[slot]; _21 < _22.length; _21++) {
-                    var itemName = _22[_21];
-                    var option = document.createElement("option");
-                    option.text = option.value = itemName;
-                    equippedItem.appendChild(option);
+                (_g = itemsBySlot[slot]) !== null && _g !== void 0 ? _g : (itemsBySlot[slot] = []);
+                for (var _23 = 0, _24 = itemsBySlot[slot]; _23 < _24.length; _23++) {
+                    var itemName = _24[_23];
+                    var option_1 = document.createElement("option");
+                    option_1.text = option_1.value = itemName;
+                    equippedItem.appendChild(option_1);
                 }
+                var option = document.createElement("option");
+                option.text = option.value = "None";
+                equippedItem.appendChild(option);
+                equippedItem.value = "None";
                 if (character.items[slot])
                     equippedItem.value = character.items[slot].name;
                 equippedItem.onchange = function () {
-                    state.characters[characterName].items[slot] =
-                        state.items[equippedItem.value];
+                    if (equippedItem.value === "None")
+                        delete state.characters[characterName].items[slot];
+                    else
+                        state.characters[characterName].items[slot] =
+                            state.items[equippedItem.value];
                 };
                 slotElement.appendChild(equippedItem);
                 equipment.appendChild(slotElement);
             };
-            for (var _14 = 0, slots_1 = slots; _14 < slots_1.length; _14++) {
-                var slot = slots_1[_14];
-                _loop_11(slot);
+            for (var _16 = 0, slots_1 = slots; _16 < slots_1.length; _16++) {
+                var slot = slots_1[_16];
+                _loop_12(slot);
             }
             equipmentElement.appendChild(equipment);
             characterSheet.appendChild(equipmentElement);
@@ -747,8 +768,8 @@ var UpdateFields = function () {
                 option.value = option.innerText = effectName;
                 effectAddInput.appendChild(option);
             }
-            (_f = character.activeEffects) !== null && _f !== void 0 ? _f : (character.activeEffects = []);
-            var _loop_12 = function (effect) {
+            (_h = character.activeEffects) !== null && _h !== void 0 ? _h : (character.activeEffects = []);
+            var _loop_13 = function (effect) {
                 var newElement = document.createElement("div");
                 var newEffect = document.createElement("p");
                 newEffect.innerText = effect.name;
@@ -756,8 +777,8 @@ var UpdateFields = function () {
                 var deleteElement = document.createElement("button");
                 deleteElement.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n        </svg>";
                 var effectOption = effectAddInput.options[0];
-                for (var _23 = 0, _24 = Array.from(effectAddInput.options); _23 < _24.length; _23++) {
-                    var option = _24[_23];
+                for (var _25 = 0, _26 = Array.from(effectAddInput.options); _25 < _26.length; _25++) {
+                    var option = _26[_25];
                     if (option.value === effect.name) {
                         effectOption = option;
                         break;
@@ -779,9 +800,9 @@ var UpdateFields = function () {
                 if (effectOption)
                     effectAddInput.removeChild(effectOption);
             };
-            for (var _15 = 0, _16 = character.activeEffects; _15 < _16.length; _15++) {
-                var effect = _16[_15];
-                _loop_12(effect);
+            for (var _17 = 0, _18 = character.activeEffects; _17 < _18.length; _17++) {
+                var effect = _18[_17];
+                _loop_13(effect);
             }
             var effectAddButton = document.createElement("button");
             effectAddButton.innerText = "+";
@@ -817,8 +838,8 @@ var UpdateFields = function () {
             effectsElement.appendChild(effectAddButton);
             characterSheet.appendChild(effectsElement);
             newCharacter.appendChild(characterSheet);
-            for (var _17 = 0, _18 = Array.from(document.getElementsByClassName("character-select")); _17 < _18.length; _17++) {
-                var element = _18[_17];
+            for (var _19 = 0, _20 = Array.from(document.getElementsByClassName("character-select")); _19 < _20.length; _19++) {
+                var element = _20[_19];
                 var select = element;
                 var option = document.createElement("option");
                 option.text = option.value = characterName;
@@ -844,8 +865,8 @@ var UpdateFields = function () {
             newCharacter.appendChild(deleteCharacter);
             charactersDiv.appendChild(newCharacter);
         };
-        for (var _u = 0, _v = Object.keys(state.characters); _u < _v.length; _u++) {
-            var characterName = _v[_u];
+        for (var _w = 0, _x = Object.keys(state.characters); _w < _x.length; _w++) {
+            var characterName = _x[_w];
             _loop_7(characterName);
         }
     }
@@ -867,8 +888,8 @@ var UpdateFields = function () {
             var slotElement = document.createElement("li");
             var slotSelect = document.createElement("select");
             slotSelect.className = "slot-select";
-            for (var _25 = 0, slots_2 = slots; _25 < slots_2.length; _25++) {
-                var slot = slots_2[_25];
+            for (var _27 = 0, slots_2 = slots; _27 < slots_2.length; _27++) {
+                var slot = slots_2[_27];
                 var option = document.createElement("option");
                 option.text = option.value = slot;
                 slotSelect.appendChild(option);
@@ -880,8 +901,8 @@ var UpdateFields = function () {
             else {
                 itemsBySlot[slotSelect.value].push(itemName);
             }
-            for (var _26 = 0, _27 = Array.from(document.getElementsByClassName("item-".concat(slotSelect.value, "-select"))); _26 < _27.length; _26++) {
-                var element = _27[_26];
+            for (var _28 = 0, _29 = Array.from(document.getElementsByClassName("item-".concat(slotSelect.value, "-select"))); _28 < _29.length; _28++) {
+                var element = _29[_28];
                 var select = element;
                 var option = document.createElement("option");
                 option.text = option.value = itemName;
@@ -922,7 +943,7 @@ var UpdateFields = function () {
             var effectsElement = document.createElement("li");
             var effects = document.createElement("div");
             effects.className = "list";
-            var _loop_13 = function (effectName) {
+            var _loop_14 = function (effectName) {
                 var newElement = document.createElement("div");
                 var newEffect = document.createElement("p");
                 newEffect.innerText = effectName;
@@ -939,9 +960,9 @@ var UpdateFields = function () {
                 newElement.appendChild(deleteElement);
                 effects.appendChild(newElement);
             };
-            for (var _28 = 0, _29 = item.effects; _28 < _29.length; _28++) {
-                var effectName = _29[_28];
-                _loop_13(effectName);
+            for (var _30 = 0, _31 = item.effects; _30 < _31.length; _30++) {
+                var effectName = _31[_30];
+                _loop_14(effectName);
             }
             effectsElement.appendChild(effects);
             var effectAddInput = document.createElement("select");
@@ -982,14 +1003,14 @@ var UpdateFields = function () {
             var modifierRefCount = {};
             var modifiersElement = document.createElement("ul");
             modifiersElement.style.listStyleType = "none";
-            var _loop_14 = function (modifierName) {
+            var _loop_15 = function (modifierName) {
                 var modifierValue = item.modifiers[modifierName];
                 var newModifier = document.createElement("li");
                 newModifier.className = "single_value";
                 var modifiedStat = document.createElement("select");
                 modifiedStat.className = "stat-select";
-                for (var _32 = 0, _33 = state.stats.concat(["hp"]); _32 < _33.length; _32++) {
-                    var stat = _33[_32];
+                for (var _34 = 0, _35 = state.stats.concat(["hp"]); _34 < _35.length; _34++) {
+                    var stat = _35[_34];
                     var statOption = document.createElement("option");
                     statOption.innerText = statOption.value = stat;
                     modifiedStat.appendChild(statOption);
@@ -1057,9 +1078,9 @@ var UpdateFields = function () {
                 newModifier.appendChild(deleteModifier);
                 modifiersElement.appendChild(newModifier);
             };
-            for (var _30 = 0, _31 = Object.keys(item.modifiers); _30 < _31.length; _30++) {
-                var modifierName = _31[_30];
-                _loop_14(modifierName);
+            for (var _32 = 0, _33 = Object.keys(item.modifiers); _32 < _33.length; _32++) {
+                var modifierName = _33[_32];
+                _loop_15(modifierName);
             }
             var modifierAddElement = document.createElement("li");
             var modifierAdd = document.createElement("button");
@@ -1185,8 +1206,8 @@ var UpdateFields = function () {
             newItem.appendChild(deleteItem);
             itemsDiv.appendChild(newItem);
         };
-        for (var _w = 0, _x = Object.keys(state.items); _w < _x.length; _w++) {
-            var itemName = _x[_w];
+        for (var _y = 0, _z = Object.keys(state.items); _y < _z.length; _y++) {
+            var itemName = _z[_y];
             _loop_8(itemName);
         }
     }
@@ -1238,13 +1259,13 @@ var UpdateFields = function () {
             appliedOnParagraph.innerText = "Applied on: ";
             appliedOnElement.appendChild(appliedOnParagraph);
             var appliedOnInput = document.createElement("select");
-            for (var _34 = 0, _35 = [
+            for (var _36 = 0, _37 = [
                 "attack",
                 "defense",
                 "battle start",
                 "not applied",
-            ]; _34 < _35.length; _34++) {
-                var option = _35[_34];
+            ]; _36 < _37.length; _36++) {
+                var option = _37[_36];
                 var appliedOnOption = document.createElement("option");
                 appliedOnOption.innerText = appliedOnOption.value = option;
                 appliedOnInput.appendChild(appliedOnOption);
@@ -1270,8 +1291,8 @@ var UpdateFields = function () {
             appliedToParagraph.innerText = "Applied to: ";
             appliedToElement.appendChild(appliedToParagraph);
             var appliedToInput = document.createElement("select");
-            for (var _36 = 0, _37 = ["enemy", "self"]; _36 < _37.length; _36++) {
-                var option = _37[_36];
+            for (var _38 = 0, _39 = ["enemy", "self"]; _38 < _39.length; _38++) {
+                var option = _39[_38];
                 var appliedToOption = document.createElement("option");
                 appliedToOption.innerText = appliedToOption.value = option;
                 appliedToInput.appendChild(appliedToOption);
@@ -1295,8 +1316,8 @@ var UpdateFields = function () {
             impactParagraph.innerText = "Impact: ";
             impactElement.appendChild(impactParagraph);
             var impactInput = document.createElement("select");
-            for (var _38 = 0, _39 = ["on end", "continuous", "every turn"]; _38 < _39.length; _38++) {
-                var option = _39[_38];
+            for (var _40 = 0, _41 = ["on end", "continuous", "every turn"]; _40 < _41.length; _40++) {
+                var option = _41[_40];
                 var impactOption = document.createElement("option");
                 impactOption.innerText = impactOption.value = option;
                 impactInput.appendChild(impactOption);
@@ -1321,14 +1342,14 @@ var UpdateFields = function () {
             var modifierRefCount = {};
             var modifiersElement = document.createElement("ul");
             modifiersElement.style.listStyleType = "none";
-            var _loop_15 = function (modifierName) {
+            var _loop_16 = function (modifierName) {
                 var modifierValue = state.effects[effectName].modifiers[modifierName];
                 var newModifier = document.createElement("li");
                 newModifier.className = "single_value";
                 var modifiedStat = document.createElement("select");
                 modifiedStat.className = "stat-select";
-                for (var _44 = 0, _45 = state.stats.concat(["hp"]); _44 < _45.length; _44++) {
-                    var stat = _45[_44];
+                for (var _46 = 0, _47 = state.stats.concat(["hp"]); _46 < _47.length; _46++) {
+                    var stat = _47[_46];
                     var statOption = document.createElement("option");
                     statOption.innerText = statOption.value = stat;
                     modifiedStat.appendChild(statOption);
@@ -1392,9 +1413,9 @@ var UpdateFields = function () {
                 newModifier.appendChild(deleteModifier);
                 modifiersElement.appendChild(newModifier);
             };
-            for (var _40 = 0, _41 = Object.keys(state.effects[effectName].modifiers); _40 < _41.length; _40++) {
-                var modifierName = _41[_40];
-                _loop_15(modifierName);
+            for (var _42 = 0, _43 = Object.keys(state.effects[effectName].modifiers); _42 < _43.length; _42++) {
+                var modifierName = _43[_42];
+                _loop_16(modifierName);
             }
             var modifierAddElement = document.createElement("li");
             var modifierAdd = document.createElement("button");
@@ -1491,8 +1512,8 @@ var UpdateFields = function () {
             modifiersElement.appendChild(modifierAddElement);
             effectSheet.appendChild(modifiersElement);
             newEffect.appendChild(effectSheet);
-            for (var _42 = 0, _43 = Array.from(document.getElementsByClassName("effect-select")); _42 < _43.length; _42++) {
-                var element = _43[_42];
+            for (var _44 = 0, _45 = Array.from(document.getElementsByClassName("effect-select")); _44 < _45.length; _44++) {
+                var element = _45[_44];
                 var select = element;
                 var option = document.createElement("option");
                 option.text = option.value = effectName;
@@ -1518,8 +1539,8 @@ var UpdateFields = function () {
             newEffect.appendChild(deleteEffect);
             effectsDiv.appendChild(newEffect);
         };
-        for (var _y = 0, _z = Object.keys(state.effects); _y < _z.length; _y++) {
-            var effectName = _z[_y];
+        for (var _0 = 0, _1 = Object.keys(state.effects); _0 < _1.length; _0++) {
+            var effectName = _1[_0];
             _loop_9(effectName);
         }
     }
@@ -1582,7 +1603,7 @@ var main = function () {
             document.getElementById("add_slot").click();
     };
     document.getElementById("add_slot").onclick = function () {
-        var _a;
+        var _a, _b, _c;
         var slotsDiv = document.getElementById("slots");
         var newSlot = document.getElementById("new_slot").value.trim();
         document.getElementById("new_slot").value = "";
@@ -1595,15 +1616,14 @@ var main = function () {
             slots[slots.indexOf(inputElement.value)] = inputElement.value;
         };
         newDiv.appendChild(inputElement);
-        for (var _i = 0, _b = Array.from(document.getElementsByClassName("slot-select")); _i < _b.length; _i++) {
-            var element = _b[_i];
+        for (var _i = 0, _d = Array.from(document.getElementsByClassName("slot-select")); _i < _d.length; _i++) {
+            var element = _d[_i];
             var select = element;
             var option = document.createElement("option");
             option.value = option.text = newSlot;
             select.appendChild(option);
         }
-        for (var _c = 0, _d = Array.from(document.getElementsByClassName("equipment-list")); _c < _d.length; _c++) {
-            var element = _d[_c];
+        var _loop_17 = function (element) {
             var equipment = element;
             var slotElement = document.createElement("li");
             var slotName = document.createElement("p");
@@ -1612,14 +1632,33 @@ var main = function () {
             var equippedItem = document.createElement("select");
             equippedItem.className = "item-".concat(newSlot, "-select item-slot-select");
             (_a = itemsBySlot[newSlot]) !== null && _a !== void 0 ? _a : (itemsBySlot[newSlot] = []);
-            for (var _e = 0, _f = itemsBySlot[newSlot]; _e < _f.length; _e++) {
-                var itemName = _f[_e];
-                var option = document.createElement("option");
-                option.text = option.value = itemName;
-                equippedItem.appendChild(option);
+            for (var _g = 0, _h = itemsBySlot[newSlot]; _g < _h.length; _g++) {
+                var itemName = _h[_g];
+                var option_2 = document.createElement("option");
+                option_2.text = option_2.value = itemName;
+                equippedItem.appendChild(option_2);
             }
+            var option = document.createElement("option");
+            option.text = option.value = "None";
+            equippedItem.appendChild(option);
+            var characterName = (_c = (_b = element.id.match(/([\w\s'])+-equipment/)) === null || _b === void 0 ? void 0 : _b.groups) === null || _c === void 0 ? void 0 : _c[0];
+            if (!characterName) {
+                console.error("add slot: character's name could not be found");
+                return "continue";
+            }
+            equippedItem.onchange = function () {
+                if (equippedItem.value === "None")
+                    delete state.characters[characterName].items[newSlot];
+                else
+                    state.characters[characterName].items[newSlot] =
+                        state.items[equippedItem.value];
+            };
             slotElement.appendChild(equippedItem);
             equipment.appendChild(slotElement);
+        };
+        for (var _e = 0, _f = Array.from(document.getElementsByClassName("equipment-list")); _e < _f.length; _e++) {
+            var element = _f[_e];
+            _loop_17(element);
         }
         var deleteSlot = document.createElement("button");
         deleteSlot.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n        <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n        <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n      </svg>";
@@ -1939,6 +1978,8 @@ var main = function () {
                 deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n                <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n                <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n                </svg>";
                 deleteModifier.onclick = function () {
                     state.characters[newCharacterName].stats[modifiedStat.value].level -= modifiedValue.valueAsNumber;
+                    if (state.characters[newCharacterName].stats[modifiedStat.value].level == 0)
+                        delete state.characters[newCharacterName].stats[modifiedStat.value];
                     newModifier.remove();
                 };
                 newModifier.appendChild(deleteModifier);
@@ -1953,7 +1994,8 @@ var main = function () {
             equipmentElement.appendChild(equipmentParagraph);
             var equipment = document.createElement("ul");
             equipment.className = "equipment-list";
-            var _loop_16 = function (slot) {
+            equipment.id = "".concat(newCharacterName.replace(" ", "-"), "-equipment");
+            var _loop_18 = function (slot) {
                 var slotElement = document.createElement("li");
                 var slotName = document.createElement("p");
                 slotName.innerText = slot;
@@ -1963,20 +2005,27 @@ var main = function () {
                 (_a = itemsBySlot[slot]) !== null && _a !== void 0 ? _a : (itemsBySlot[slot] = []);
                 for (var _d = 0, _e = itemsBySlot[slot]; _d < _e.length; _d++) {
                     var itemName = _e[_d];
-                    var option = document.createElement("option");
-                    option.text = option.value = itemName;
-                    equippedItem.appendChild(option);
+                    var option_3 = document.createElement("option");
+                    option_3.text = option_3.value = itemName;
+                    equippedItem.appendChild(option_3);
                 }
+                var option = document.createElement("option");
+                option.text = option.value = "None";
+                equippedItem.appendChild(option);
+                equippedItem.value = "None";
                 equippedItem.onchange = function () {
-                    state.characters[newCharacterName].items[slot] =
-                        state.items[equippedItem.value];
+                    if (equippedItem.value === "None")
+                        delete state.characters[newCharacterName].items[slot];
+                    else
+                        state.characters[newCharacterName].items[slot] =
+                            state.items[equippedItem.value];
                 };
                 slotElement.appendChild(equippedItem);
                 equipment.appendChild(slotElement);
             };
             for (var _i = 0, slots_3 = slots; _i < slots_3.length; _i++) {
                 var slot = slots_3[_i];
-                _loop_16(slot);
+                _loop_18(slot);
             }
             equipmentElement.appendChild(equipment);
             characterSheet.appendChild(equipmentElement);
@@ -2587,3 +2636,8 @@ catch (error) {
         message;
     console.error(error);
 }
+window.addEventListener("beforeunload", function (event) {
+    event.preventDefault();
+    event.returnValue = "";
+});
+var levellingToOblivion = confirm("Are you levelling to oblivion?\n(No by default; if in doubt, check Input Modifier on your scenario.)");

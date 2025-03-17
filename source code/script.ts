@@ -364,6 +364,24 @@ const UpdateFields = (): void => {
                         option.text = option.value = itemName;
                         equippedItem.appendChild(option);
                     }
+                    const characterName: string | null | undefined =
+                        element.id.match(/([\w\s'])+-equipment/)?.groups?.[0];
+                    if (!characterName) {
+                        console.error(
+                            "slot parse: character's name could not be found"
+                        );
+
+                        continue;
+                    }
+                    equippedItem.onchange = () => {
+                        if (equippedItem.value === "None")
+                            delete state.characters[characterName].items[
+                                item.slot
+                            ];
+                        else
+                            state.characters[characterName].items[item.slot] =
+                                state.items[equippedItem.value];
+                    };
                     slotElement.appendChild(equippedItem);
 
                     equipment.appendChild(slotElement);
@@ -853,6 +871,14 @@ const UpdateFields = (): void => {
                     state.characters[characterName].stats[
                         modifiedStat.value
                     ].level -= modifiedValue.valueAsNumber;
+                    if (
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ].level == 0
+                    )
+                        delete state.characters[characterName].stats[
+                            modifiedStat.value
+                        ];
                     newModifier.remove();
                 };
                 newModifier.appendChild(deleteModifier);
@@ -991,6 +1017,14 @@ const UpdateFields = (): void => {
                     state.characters[characterName].stats[
                         modifiedStat.value
                     ].level -= modifiedValue.valueAsNumber;
+                    if (
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ].level == 0
+                    )
+                        delete state.characters[characterName].stats[
+                            modifiedStat.value
+                        ];
                     newModifier.remove();
                 };
                 newModifier.appendChild(deleteModifier);
@@ -1007,6 +1041,7 @@ const UpdateFields = (): void => {
 
             const equipment = document.createElement("ul");
             equipment.className = "equipment-list";
+            equipment.id = `${characterName.replace(" ", "-")}-equipment`;
             for (const slot of slots) {
                 const slotElement = document.createElement("li");
 
@@ -1022,13 +1057,21 @@ const UpdateFields = (): void => {
                     option.text = option.value = itemName;
                     equippedItem.appendChild(option);
                 }
+                const option = document.createElement("option");
+                option.text = option.value = "None";
+                equippedItem.appendChild(option);
+
+                equippedItem.value = "None";
 
                 if (character.items[slot])
                     equippedItem.value = character.items[slot].name;
 
                 equippedItem.onchange = () => {
-                    state.characters[characterName].items[slot] =
-                        state.items[equippedItem.value];
+                    if (equippedItem.value === "None")
+                        delete state.characters[characterName].items[slot];
+                    else
+                        state.characters[characterName].items[slot] =
+                            state.items[equippedItem.value];
                 };
 
                 slotElement.appendChild(equippedItem);
@@ -2208,6 +2251,24 @@ const main = () => {
                 option.text = option.value = itemName;
                 equippedItem.appendChild(option);
             }
+            const option = document.createElement("option");
+            option.text = option.value = "None";
+            equippedItem.appendChild(option);
+            const characterName: string | null | undefined =
+                element.id.match(/([\w\s'])+-equipment/)?.groups?.[0];
+            if (!characterName) {
+                console.error("add slot: character's name could not be found");
+
+                continue;
+            }
+            equippedItem.onchange = () => {
+                if (equippedItem.value === "None")
+                    delete state.characters[characterName].items[newSlot];
+                else
+                    state.characters[characterName].items[newSlot] =
+                        state.items[equippedItem.value];
+            };
+
             slotElement.appendChild(equippedItem);
 
             equipment.appendChild(slotElement);
@@ -2682,6 +2743,14 @@ const main = () => {
                     state.characters[newCharacterName].stats[
                         modifiedStat.value
                     ].level -= modifiedValue.valueAsNumber;
+                    if (
+                        state.characters[newCharacterName].stats[
+                            modifiedStat.value
+                        ].level == 0
+                    )
+                        delete state.characters[newCharacterName].stats[
+                            modifiedStat.value
+                        ];
                     newModifier.remove();
                 };
                 newModifier.appendChild(deleteModifier);
@@ -2698,6 +2767,7 @@ const main = () => {
 
             const equipment = document.createElement("ul");
             equipment.className = "equipment-list";
+            equipment.id = `${newCharacterName.replace(" ", "-")}-equipment`;
             for (const slot of slots) {
                 const slotElement = document.createElement("li");
 
@@ -2714,9 +2784,18 @@ const main = () => {
                     equippedItem.appendChild(option);
                 }
 
+                const option = document.createElement("option");
+                option.text = option.value = "None";
+                equippedItem.appendChild(option);
+
+                equippedItem.value = "None";
+
                 equippedItem.onchange = () => {
-                    state.characters[newCharacterName].items[slot] =
-                        state.items[equippedItem.value];
+                    if (equippedItem.value === "None")
+                        delete state.characters[newCharacterName].items[slot];
+                    else
+                        state.characters[newCharacterName].items[slot] =
+                            state.items[equippedItem.value];
                 };
 
                 slotElement.appendChild(equippedItem);
