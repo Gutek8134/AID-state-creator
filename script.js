@@ -541,81 +541,6 @@ var UpdateFields = function () {
             var modifierRefCount = {};
             var modifiersElement = document.createElement("ul");
             modifiersElement.style.listStyleType = "none";
-            var _loop_11 = function (statName) {
-                var newModifier = document.createElement("li");
-                newModifier.className = "single_value";
-                var modifiedStat = document.createElement("select");
-                modifiedStat.className = "stat-select";
-                for (var _21 = 0, _22 = state.stats; _21 < _22.length; _21++) {
-                    var stat = _22[_21];
-                    var statOption = document.createElement("option");
-                    statOption.innerText = statOption.value = stat;
-                    modifiedStat.appendChild(statOption);
-                }
-                modifiedStat.value = statName;
-                var previousStatName;
-                modifiedStat.onfocus = function () {
-                    previousStatName = modifiedStat.value;
-                };
-                modifiedStat.onchange = function () {
-                    if (state.characters[characterName].stats[modifiedStat.value]) {
-                        state.characters[characterName].stats[modifiedStat.value].level += modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.characters[characterName].stats[modifiedStat.value] = new Stat(modifiedStat.value, modifiedValue.valueAsNumber);
-                    }
-                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
-                        ? 1
-                        : modifierRefCount[modifiedStat.value] + 1;
-                    if (state.characters[characterName].stats[previousStatName]) {
-                        state.characters[characterName].stats[previousStatName].level -= modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.characters[characterName].stats[previousStatName] = new Stat(previousStatName, 0);
-                    }
-                    --modifierRefCount[previousStatName];
-                    if (modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])) {
-                        delete state.characters[characterName].stats[previousStatName];
-                    }
-                    previousStatName = modifiedStat.value;
-                };
-                newModifier.appendChild(modifiedStat);
-                var modifiedValue = document.createElement("input");
-                modifiedValue.type = "number";
-                modifiedValue.value =
-                    character.stats[statName].level.toString();
-                var previousValue = modifiedValue.valueAsNumber;
-                modifiedValue.onfocus = function () {
-                    previousValue = modifiedValue.valueAsNumber;
-                };
-                modifiedValue.onchange = function () {
-                    if (isNaN(modifiedValue.valueAsNumber))
-                        return;
-                    if (!state.characters[characterName].stats[modifiedStat.value]) {
-                        state.characters[characterName].stats[modifiedStat.value] = new Stat(modifiedStat.value, modifiedValue.valueAsNumber);
-                    }
-                    else {
-                        state.characters[characterName].stats[modifiedStat.value].level += modifiedValue.valueAsNumber - previousValue;
-                    }
-                    previousValue = modifiedValue.valueAsNumber;
-                };
-                newModifier.appendChild(modifiedValue);
-                var deleteModifier = document.createElement("button");
-                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
-                deleteModifier.onclick = function () {
-                    state.characters[characterName].stats[modifiedStat.value].level -= modifiedValue.valueAsNumber;
-                    if (state.characters[characterName].stats[modifiedStat.value].level == 0)
-                        delete state.characters[characterName].stats[modifiedStat.value];
-                    newModifier.remove();
-                };
-                newModifier.appendChild(deleteModifier);
-                modifiersElement.appendChild(newModifier);
-            };
-            for (var _14 = 0, _15 = Object.keys(character.stats); _14 < _15.length; _14++) {
-                var statName = _15[_14];
-                _loop_11(statName);
-            }
             var modifierAddElement = document.createElement("li");
             var modifierAdd = document.createElement("button");
             modifierAdd.innerText = "Add stat";
@@ -710,6 +635,81 @@ var UpdateFields = function () {
             };
             modifierAddElement.appendChild(modifierAdd);
             modifiersElement.appendChild(modifierAddElement);
+            var _loop_11 = function (statName) {
+                var newModifier = document.createElement("li");
+                newModifier.className = "single_value";
+                var modifiedStat = document.createElement("select");
+                modifiedStat.className = "stat-select";
+                for (var _21 = 0, _22 = state.stats; _21 < _22.length; _21++) {
+                    var stat = _22[_21];
+                    var statOption = document.createElement("option");
+                    statOption.innerText = statOption.value = stat;
+                    modifiedStat.appendChild(statOption);
+                }
+                modifiedStat.value = statName;
+                var previousStatName;
+                modifiedStat.onfocus = function () {
+                    previousStatName = modifiedStat.value;
+                };
+                modifiedStat.onchange = function () {
+                    if (state.characters[characterName].stats[modifiedStat.value]) {
+                        state.characters[characterName].stats[modifiedStat.value].level += modifiedValue.valueAsNumber;
+                    }
+                    else {
+                        state.characters[characterName].stats[modifiedStat.value] = new Stat(modifiedStat.value, modifiedValue.valueAsNumber);
+                    }
+                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
+                        ? 1
+                        : modifierRefCount[modifiedStat.value] + 1;
+                    if (state.characters[characterName].stats[previousStatName]) {
+                        state.characters[characterName].stats[previousStatName].level -= modifiedValue.valueAsNumber;
+                    }
+                    else {
+                        state.characters[characterName].stats[previousStatName] = new Stat(previousStatName, 0);
+                    }
+                    --modifierRefCount[previousStatName];
+                    if (modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])) {
+                        delete state.characters[characterName].stats[previousStatName];
+                    }
+                    previousStatName = modifiedStat.value;
+                };
+                newModifier.appendChild(modifiedStat);
+                var modifiedValue = document.createElement("input");
+                modifiedValue.type = "number";
+                modifiedValue.value =
+                    character.stats[statName].level.toString();
+                var previousValue = modifiedValue.valueAsNumber;
+                modifiedValue.onfocus = function () {
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                modifiedValue.onchange = function () {
+                    if (isNaN(modifiedValue.valueAsNumber))
+                        return;
+                    if (!state.characters[characterName].stats[modifiedStat.value]) {
+                        state.characters[characterName].stats[modifiedStat.value] = new Stat(modifiedStat.value, modifiedValue.valueAsNumber);
+                    }
+                    else {
+                        state.characters[characterName].stats[modifiedStat.value].level += modifiedValue.valueAsNumber - previousValue;
+                    }
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                newModifier.appendChild(modifiedValue);
+                var deleteModifier = document.createElement("button");
+                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+                deleteModifier.onclick = function () {
+                    state.characters[characterName].stats[modifiedStat.value].level -= modifiedValue.valueAsNumber;
+                    if (state.characters[characterName].stats[modifiedStat.value].level == 0)
+                        delete state.characters[characterName].stats[modifiedStat.value];
+                    newModifier.remove();
+                };
+                newModifier.appendChild(deleteModifier);
+                modifiersElement.appendChild(newModifier);
+            };
+            for (var _14 = 0, _15 = Object.keys(character.stats); _14 < _15.length; _14++) {
+                var statName = _15[_14];
+                _loop_11(statName);
+            }
             characterSheet.appendChild(modifiersElement);
             var equipmentElement = document.createElement("li");
             var equipmentParagraph = document.createElement("p");
@@ -1003,85 +1003,6 @@ var UpdateFields = function () {
             var modifierRefCount = {};
             var modifiersElement = document.createElement("ul");
             modifiersElement.style.listStyleType = "none";
-            var _loop_15 = function (modifierName) {
-                var modifierValue = item.modifiers[modifierName];
-                var newModifier = document.createElement("li");
-                newModifier.className = "single_value";
-                var modifiedStat = document.createElement("select");
-                modifiedStat.className = "stat-select";
-                for (var _34 = 0, _35 = state.stats.concat(["hp"]); _34 < _35.length; _34++) {
-                    var stat = _35[_34];
-                    var statOption = document.createElement("option");
-                    statOption.innerText = statOption.value = stat;
-                    modifiedStat.appendChild(statOption);
-                }
-                modifiedStat.value = modifierName;
-                var previousStatName;
-                modifiedStat.onfocus = function () {
-                    previousStatName = modifiedStat.value;
-                };
-                modifiedStat.onchange = function () {
-                    if (!isNaN(item.modifiers[modifiedStat.value])) {
-                        item.modifiers[modifiedStat.value] +=
-                            modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        item.modifiers[modifiedStat.value] =
-                            modifiedValue.valueAsNumber;
-                    }
-                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
-                        ? 1
-                        : modifierRefCount[modifiedStat.value] + 1;
-                    if (!isNaN(item.modifiers[previousStatName])) {
-                        item.modifiers[previousStatName] -=
-                            modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        item.modifiers[previousStatName] = 0;
-                    }
-                    --modifierRefCount[previousStatName];
-                    if (modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])) {
-                        delete item.modifiers[previousStatName];
-                    }
-                    previousStatName = modifiedStat.value;
-                };
-                newModifier.appendChild(modifiedStat);
-                var modifiedValue = document.createElement("input");
-                modifiedValue.type = "number";
-                modifiedValue.value = modifierValue.toString();
-                var previousValue_1;
-                modifiedValue.onfocus = function () {
-                    previousValue_1 = modifiedValue.valueAsNumber;
-                };
-                modifiedValue.onchange = function () {
-                    if (isNaN(modifiedValue.valueAsNumber))
-                        return;
-                    if (isNaN(item.modifiers[modifiedStat.value])) {
-                        item.modifiers[modifiedStat.value] =
-                            modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        item.modifiers[modifiedStat.value] +=
-                            modifiedValue.valueAsNumber - previousValue_1;
-                    }
-                    previousValue_1 = modifiedValue.valueAsNumber;
-                };
-                newModifier.appendChild(modifiedValue);
-                var deleteModifier = document.createElement("button");
-                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
-                deleteModifier.onclick = function () {
-                    item.modifiers[modifiedStat.value] -=
-                        modifiedValue.valueAsNumber;
-                    newModifier.remove();
-                };
-                newModifier.appendChild(deleteModifier);
-                modifiersElement.appendChild(newModifier);
-            };
-            for (var _32 = 0, _33 = Object.keys(item.modifiers); _32 < _33.length; _32++) {
-                var modifierName = _33[_32];
-                _loop_15(modifierName);
-            }
             var modifierAddElement = document.createElement("li");
             var modifierAdd = document.createElement("button");
             modifierAdd.innerText = "Add modifier";
@@ -1184,6 +1105,85 @@ var UpdateFields = function () {
             };
             modifierAddElement.appendChild(modifierAdd);
             modifiersElement.appendChild(modifierAddElement);
+            var _loop_15 = function (modifierName) {
+                var modifierValue = item.modifiers[modifierName];
+                var newModifier = document.createElement("li");
+                newModifier.className = "single_value";
+                var modifiedStat = document.createElement("select");
+                modifiedStat.className = "stat-select";
+                for (var _34 = 0, _35 = state.stats.concat(["hp"]); _34 < _35.length; _34++) {
+                    var stat = _35[_34];
+                    var statOption = document.createElement("option");
+                    statOption.innerText = statOption.value = stat;
+                    modifiedStat.appendChild(statOption);
+                }
+                modifiedStat.value = modifierName;
+                var previousStatName;
+                modifiedStat.onfocus = function () {
+                    previousStatName = modifiedStat.value;
+                };
+                modifiedStat.onchange = function () {
+                    if (!isNaN(item.modifiers[modifiedStat.value])) {
+                        item.modifiers[modifiedStat.value] +=
+                            modifiedValue.valueAsNumber;
+                    }
+                    else {
+                        item.modifiers[modifiedStat.value] =
+                            modifiedValue.valueAsNumber;
+                    }
+                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
+                        ? 1
+                        : modifierRefCount[modifiedStat.value] + 1;
+                    if (!isNaN(item.modifiers[previousStatName])) {
+                        item.modifiers[previousStatName] -=
+                            modifiedValue.valueAsNumber;
+                    }
+                    else {
+                        item.modifiers[previousStatName] = 0;
+                    }
+                    --modifierRefCount[previousStatName];
+                    if (modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])) {
+                        delete item.modifiers[previousStatName];
+                    }
+                    previousStatName = modifiedStat.value;
+                };
+                newModifier.appendChild(modifiedStat);
+                var modifiedValue = document.createElement("input");
+                modifiedValue.type = "number";
+                modifiedValue.value = modifierValue.toString();
+                var previousValue_1;
+                modifiedValue.onfocus = function () {
+                    previousValue_1 = modifiedValue.valueAsNumber;
+                };
+                modifiedValue.onchange = function () {
+                    if (isNaN(modifiedValue.valueAsNumber))
+                        return;
+                    if (isNaN(item.modifiers[modifiedStat.value])) {
+                        item.modifiers[modifiedStat.value] =
+                            modifiedValue.valueAsNumber;
+                    }
+                    else {
+                        item.modifiers[modifiedStat.value] +=
+                            modifiedValue.valueAsNumber - previousValue_1;
+                    }
+                    previousValue_1 = modifiedValue.valueAsNumber;
+                };
+                newModifier.appendChild(modifiedValue);
+                var deleteModifier = document.createElement("button");
+                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+                deleteModifier.onclick = function () {
+                    item.modifiers[modifiedStat.value] -=
+                        modifiedValue.valueAsNumber;
+                    newModifier.remove();
+                };
+                newModifier.appendChild(deleteModifier);
+                modifiersElement.appendChild(newModifier);
+            };
+            for (var _32 = 0, _33 = Object.keys(item.modifiers); _32 < _33.length; _32++) {
+                var modifierName = _33[_32];
+                _loop_15(modifierName);
+            }
             itemSheet.appendChild(modifiersElement);
             newItem.appendChild(itemSheet);
             var deleteItem = document.createElement("button");
@@ -1342,81 +1342,6 @@ var UpdateFields = function () {
             var modifierRefCount = {};
             var modifiersElement = document.createElement("ul");
             modifiersElement.style.listStyleType = "none";
-            var _loop_16 = function (modifierName) {
-                var modifierValue = state.effects[effectName].modifiers[modifierName];
-                var newModifier = document.createElement("li");
-                newModifier.className = "single_value";
-                var modifiedStat = document.createElement("select");
-                modifiedStat.className = "stat-select";
-                for (var _46 = 0, _47 = state.stats.concat(["hp"]); _46 < _47.length; _46++) {
-                    var stat = _47[_46];
-                    var statOption = document.createElement("option");
-                    statOption.innerText = statOption.value = stat;
-                    modifiedStat.appendChild(statOption);
-                }
-                modifiedStat.value = modifierName;
-                var previousStatName;
-                modifiedStat.onfocus = function () {
-                    previousStatName = modifiedStat.value;
-                };
-                modifiedStat.onchange = function () {
-                    if (!isNaN(state.effects[effectName].modifiers[modifiedStat.value])) {
-                        state.effects[effectName].modifiers[modifiedStat.value] += modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.effects[effectName].modifiers[modifiedStat.value] = modifiedValue.valueAsNumber;
-                    }
-                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
-                        ? 1
-                        : modifierRefCount[modifiedStat.value] + 1;
-                    if (!isNaN(state.effects[effectName].modifiers[previousStatName])) {
-                        state.effects[effectName].modifiers[previousStatName] -=
-                            modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.effects[effectName].modifiers[previousStatName] = 0;
-                    }
-                    --modifierRefCount[previousStatName];
-                    if (modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])) {
-                        delete state.effects[effectName].modifiers[previousStatName];
-                    }
-                    previousStatName = modifiedStat.value;
-                };
-                newModifier.appendChild(modifiedStat);
-                var modifiedValue = document.createElement("input");
-                modifiedValue.type = "number";
-                modifiedValue.value = modifierValue.toString();
-                var previousValue;
-                modifiedValue.onfocus = function () {
-                    previousValue = modifiedValue.valueAsNumber;
-                };
-                modifiedValue.onchange = function () {
-                    if (isNaN(modifiedValue.valueAsNumber))
-                        return;
-                    if (isNaN(state.effects[effectName].modifiers[modifiedStat.value])) {
-                        state.effects[effectName].modifiers[modifiedStat.value] = modifiedValue.valueAsNumber;
-                    }
-                    else {
-                        state.effects[effectName].modifiers[modifiedStat.value] += modifiedValue.valueAsNumber - previousValue;
-                    }
-                    previousValue = modifiedValue.valueAsNumber;
-                };
-                newModifier.appendChild(modifiedValue);
-                var deleteModifier = document.createElement("button");
-                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
-                deleteModifier.onclick = function () {
-                    state.effects[effectName].modifiers[modifiedStat.value] -=
-                        modifiedValue.valueAsNumber;
-                    newModifier.remove();
-                };
-                newModifier.appendChild(deleteModifier);
-                modifiersElement.appendChild(newModifier);
-            };
-            for (var _42 = 0, _43 = Object.keys(state.effects[effectName].modifiers); _42 < _43.length; _42++) {
-                var modifierName = _43[_42];
-                _loop_16(modifierName);
-            }
             var modifierAddElement = document.createElement("li");
             var modifierAdd = document.createElement("button");
             modifierAdd.innerText = "Add modifier";
@@ -1510,6 +1435,81 @@ var UpdateFields = function () {
             };
             modifierAddElement.appendChild(modifierAdd);
             modifiersElement.appendChild(modifierAddElement);
+            var _loop_16 = function (modifierName) {
+                var modifierValue = state.effects[effectName].modifiers[modifierName];
+                var newModifier = document.createElement("li");
+                newModifier.className = "single_value";
+                var modifiedStat = document.createElement("select");
+                modifiedStat.className = "stat-select";
+                for (var _46 = 0, _47 = state.stats.concat(["hp"]); _46 < _47.length; _46++) {
+                    var stat = _47[_46];
+                    var statOption = document.createElement("option");
+                    statOption.innerText = statOption.value = stat;
+                    modifiedStat.appendChild(statOption);
+                }
+                modifiedStat.value = modifierName;
+                var previousStatName;
+                modifiedStat.onfocus = function () {
+                    previousStatName = modifiedStat.value;
+                };
+                modifiedStat.onchange = function () {
+                    if (!isNaN(state.effects[effectName].modifiers[modifiedStat.value])) {
+                        state.effects[effectName].modifiers[modifiedStat.value] += modifiedValue.valueAsNumber;
+                    }
+                    else {
+                        state.effects[effectName].modifiers[modifiedStat.value] = modifiedValue.valueAsNumber;
+                    }
+                    modifierRefCount[modifiedStat.value] = isNaN(modifierRefCount[modifiedStat.value])
+                        ? 1
+                        : modifierRefCount[modifiedStat.value] + 1;
+                    if (!isNaN(state.effects[effectName].modifiers[previousStatName])) {
+                        state.effects[effectName].modifiers[previousStatName] -=
+                            modifiedValue.valueAsNumber;
+                    }
+                    else {
+                        state.effects[effectName].modifiers[previousStatName] = 0;
+                    }
+                    --modifierRefCount[previousStatName];
+                    if (modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])) {
+                        delete state.effects[effectName].modifiers[previousStatName];
+                    }
+                    previousStatName = modifiedStat.value;
+                };
+                newModifier.appendChild(modifiedStat);
+                var modifiedValue = document.createElement("input");
+                modifiedValue.type = "number";
+                modifiedValue.value = modifierValue.toString();
+                var previousValue;
+                modifiedValue.onfocus = function () {
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                modifiedValue.onchange = function () {
+                    if (isNaN(modifiedValue.valueAsNumber))
+                        return;
+                    if (isNaN(state.effects[effectName].modifiers[modifiedStat.value])) {
+                        state.effects[effectName].modifiers[modifiedStat.value] = modifiedValue.valueAsNumber;
+                    }
+                    else {
+                        state.effects[effectName].modifiers[modifiedStat.value] += modifiedValue.valueAsNumber - previousValue;
+                    }
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                newModifier.appendChild(modifiedValue);
+                var deleteModifier = document.createElement("button");
+                deleteModifier.innerHTML = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-trash\" viewBox=\"0 0 16 16\">\n            <path d=\"M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z\"/>\n            <path d=\"M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z\"/>\n            </svg>";
+                deleteModifier.onclick = function () {
+                    state.effects[effectName].modifiers[modifiedStat.value] -=
+                        modifiedValue.valueAsNumber;
+                    newModifier.remove();
+                };
+                newModifier.appendChild(deleteModifier);
+                modifiersElement.appendChild(newModifier);
+            };
+            for (var _42 = 0, _43 = Object.keys(state.effects[effectName].modifiers); _42 < _43.length; _42++) {
+                var modifierName = _43[_42];
+                _loop_16(modifierName);
+            }
             effectSheet.appendChild(modifiersElement);
             newEffect.appendChild(effectSheet);
             for (var _44 = 0, _45 = Array.from(document.getElementsByClassName("effect-select")); _44 < _45.length; _44++) {

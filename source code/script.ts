@@ -763,127 +763,6 @@ const UpdateFields = (): void => {
             const modifierRefCount: { [key: string]: number } = {};
             const modifiersElement = document.createElement("ul");
             modifiersElement.style.listStyleType = "none";
-            for (const statName of Object.keys(character.stats)) {
-                const newModifier = document.createElement("li");
-                newModifier.className = "single_value";
-                const modifiedStat = document.createElement("select");
-                modifiedStat.className = "stat-select";
-
-                for (const stat of state.stats) {
-                    const statOption = document.createElement("option");
-                    statOption.innerText = statOption.value = stat;
-                    modifiedStat.appendChild(statOption);
-                }
-
-                modifiedStat.value = statName;
-
-                let previousStatName: string;
-
-                modifiedStat.onfocus = () => {
-                    previousStatName = modifiedStat.value;
-                };
-
-                modifiedStat.onchange = () => {
-                    if (
-                        state.characters[characterName].stats[
-                            modifiedStat.value
-                        ]
-                    ) {
-                        state.characters[characterName].stats[
-                            modifiedStat.value
-                        ].level += modifiedValue.valueAsNumber;
-                    } else {
-                        state.characters[characterName].stats[
-                            modifiedStat.value
-                        ] = new Stat(
-                            modifiedStat.value,
-                            modifiedValue.valueAsNumber
-                        );
-                    }
-
-                    modifierRefCount[modifiedStat.value] = isNaN(
-                        modifierRefCount[modifiedStat.value]
-                    )
-                        ? 1
-                        : modifierRefCount[modifiedStat.value] + 1;
-
-                    if (
-                        state.characters[characterName].stats[previousStatName]
-                    ) {
-                        state.characters[characterName].stats[
-                            previousStatName
-                        ].level -= modifiedValue.valueAsNumber;
-                    } else {
-                        state.characters[characterName].stats[
-                            previousStatName
-                        ] = new Stat(previousStatName, 0);
-                    }
-                    --modifierRefCount[previousStatName];
-                    if (
-                        modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])
-                    ) {
-                        delete state.characters[characterName].stats[
-                            previousStatName
-                        ];
-                    }
-                    previousStatName = modifiedStat.value;
-                };
-
-                newModifier.appendChild(modifiedStat);
-                const modifiedValue = document.createElement("input");
-                modifiedValue.type = "number";
-                modifiedValue.value =
-                    character.stats[statName].level.toString();
-                let previousValue: number = modifiedValue.valueAsNumber;
-                modifiedValue.onfocus = () => {
-                    previousValue = modifiedValue.valueAsNumber;
-                };
-                modifiedValue.onchange = () => {
-                    if (isNaN(modifiedValue.valueAsNumber)) return;
-
-                    if (
-                        !state.characters[characterName].stats[
-                            modifiedStat.value
-                        ]
-                    ) {
-                        state.characters[characterName].stats[
-                            modifiedStat.value
-                        ] = new Stat(
-                            modifiedStat.value,
-                            modifiedValue.valueAsNumber
-                        );
-                    } else {
-                        state.characters[characterName].stats[
-                            modifiedStat.value
-                        ].level += modifiedValue.valueAsNumber - previousValue;
-                    }
-                    previousValue = modifiedValue.valueAsNumber;
-                };
-                newModifier.appendChild(modifiedValue);
-
-                const deleteModifier = document.createElement("button");
-                deleteModifier.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
-            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
-            </svg>`;
-                deleteModifier.onclick = () => {
-                    state.characters[characterName].stats[
-                        modifiedStat.value
-                    ].level -= modifiedValue.valueAsNumber;
-                    if (
-                        state.characters[characterName].stats[
-                            modifiedStat.value
-                        ].level == 0
-                    )
-                        delete state.characters[characterName].stats[
-                            modifiedStat.value
-                        ];
-                    newModifier.remove();
-                };
-                newModifier.appendChild(deleteModifier);
-                modifiersElement.appendChild(newModifier);
-            }
             const modifierAddElement = document.createElement("li");
             const modifierAdd = document.createElement("button");
             modifierAdd.innerText = "Add stat";
@@ -1032,6 +911,127 @@ const UpdateFields = (): void => {
             };
             modifierAddElement.appendChild(modifierAdd);
             modifiersElement.appendChild(modifierAddElement);
+            for (const statName of Object.keys(character.stats)) {
+                const newModifier = document.createElement("li");
+                newModifier.className = "single_value";
+                const modifiedStat = document.createElement("select");
+                modifiedStat.className = "stat-select";
+
+                for (const stat of state.stats) {
+                    const statOption = document.createElement("option");
+                    statOption.innerText = statOption.value = stat;
+                    modifiedStat.appendChild(statOption);
+                }
+
+                modifiedStat.value = statName;
+
+                let previousStatName: string;
+
+                modifiedStat.onfocus = () => {
+                    previousStatName = modifiedStat.value;
+                };
+
+                modifiedStat.onchange = () => {
+                    if (
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ]
+                    ) {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ].level += modifiedValue.valueAsNumber;
+                    } else {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ] = new Stat(
+                            modifiedStat.value,
+                            modifiedValue.valueAsNumber
+                        );
+                    }
+
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
+                        ? 1
+                        : modifierRefCount[modifiedStat.value] + 1;
+
+                    if (
+                        state.characters[characterName].stats[previousStatName]
+                    ) {
+                        state.characters[characterName].stats[
+                            previousStatName
+                        ].level -= modifiedValue.valueAsNumber;
+                    } else {
+                        state.characters[characterName].stats[
+                            previousStatName
+                        ] = new Stat(previousStatName, 0);
+                    }
+                    --modifierRefCount[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete state.characters[characterName].stats[
+                            previousStatName
+                        ];
+                    }
+                    previousStatName = modifiedStat.value;
+                };
+
+                newModifier.appendChild(modifiedStat);
+                const modifiedValue = document.createElement("input");
+                modifiedValue.type = "number";
+                modifiedValue.value =
+                    character.stats[statName].level.toString();
+                let previousValue: number = modifiedValue.valueAsNumber;
+                modifiedValue.onfocus = () => {
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                modifiedValue.onchange = () => {
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
+
+                    if (
+                        !state.characters[characterName].stats[
+                            modifiedStat.value
+                        ]
+                    ) {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ] = new Stat(
+                            modifiedStat.value,
+                            modifiedValue.valueAsNumber
+                        );
+                    } else {
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ].level += modifiedValue.valueAsNumber - previousValue;
+                    }
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                newModifier.appendChild(modifiedValue);
+
+                const deleteModifier = document.createElement("button");
+                deleteModifier.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+                deleteModifier.onclick = () => {
+                    state.characters[characterName].stats[
+                        modifiedStat.value
+                    ].level -= modifiedValue.valueAsNumber;
+                    if (
+                        state.characters[characterName].stats[
+                            modifiedStat.value
+                        ].level == 0
+                    )
+                        delete state.characters[characterName].stats[
+                            modifiedStat.value
+                        ];
+                    newModifier.remove();
+                };
+                newModifier.appendChild(deleteModifier);
+                modifiersElement.appendChild(newModifier);
+            }
             characterSheet.appendChild(modifiersElement);
 
             const equipmentElement = document.createElement("li");
@@ -1413,93 +1413,6 @@ const UpdateFields = (): void => {
             const modifiersElement = document.createElement("ul");
             modifiersElement.style.listStyleType = "none";
 
-            for (const modifierName of Object.keys(item.modifiers)) {
-                const modifierValue = item.modifiers[modifierName];
-
-                const newModifier = document.createElement("li");
-                newModifier.className = "single_value";
-                const modifiedStat = document.createElement("select");
-                modifiedStat.className = "stat-select";
-                for (const stat of state.stats.concat(["hp"])) {
-                    const statOption = document.createElement("option");
-                    statOption.innerText = statOption.value = stat;
-                    modifiedStat.appendChild(statOption);
-                }
-                modifiedStat.value = modifierName;
-
-                let previousStatName: string;
-
-                modifiedStat.onfocus = () => {
-                    previousStatName = modifiedStat.value;
-                };
-
-                modifiedStat.onchange = () => {
-                    if (!isNaN(item.modifiers[modifiedStat.value])) {
-                        item.modifiers[modifiedStat.value] +=
-                            modifiedValue.valueAsNumber;
-                    } else {
-                        item.modifiers[modifiedStat.value] =
-                            modifiedValue.valueAsNumber;
-                    }
-
-                    modifierRefCount[modifiedStat.value] = isNaN(
-                        modifierRefCount[modifiedStat.value]
-                    )
-                        ? 1
-                        : modifierRefCount[modifiedStat.value] + 1;
-
-                    if (!isNaN(item.modifiers[previousStatName])) {
-                        item.modifiers[previousStatName] -=
-                            modifiedValue.valueAsNumber;
-                    } else {
-                        item.modifiers[previousStatName] = 0;
-                    }
-                    --modifierRefCount[previousStatName];
-                    if (
-                        modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])
-                    ) {
-                        delete item.modifiers[previousStatName];
-                    }
-                    previousStatName = modifiedStat.value;
-                };
-
-                newModifier.appendChild(modifiedStat);
-                const modifiedValue = document.createElement("input");
-                modifiedValue.type = "number";
-                modifiedValue.value = modifierValue.toString();
-                let previousValue: number;
-                modifiedValue.onfocus = () => {
-                    previousValue = modifiedValue.valueAsNumber;
-                };
-                modifiedValue.onchange = () => {
-                    if (isNaN(modifiedValue.valueAsNumber)) return;
-
-                    if (isNaN(item.modifiers[modifiedStat.value])) {
-                        item.modifiers[modifiedStat.value] =
-                            modifiedValue.valueAsNumber;
-                    } else {
-                        item.modifiers[modifiedStat.value] +=
-                            modifiedValue.valueAsNumber - previousValue;
-                    }
-                    previousValue = modifiedValue.valueAsNumber;
-                };
-                newModifier.appendChild(modifiedValue);
-
-                const deleteModifier = document.createElement("button");
-                deleteModifier.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
-            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
-            </svg>`;
-                deleteModifier.onclick = () => {
-                    item.modifiers[modifiedStat.value] -=
-                        modifiedValue.valueAsNumber;
-                    newModifier.remove();
-                };
-                newModifier.appendChild(deleteModifier);
-                modifiersElement.appendChild(newModifier);
-            }
-
             const modifierAddElement = document.createElement("li");
             const modifierAdd = document.createElement("button");
             modifierAdd.innerText = "Add modifier";
@@ -1636,6 +1549,94 @@ const UpdateFields = (): void => {
             };
             modifierAddElement.appendChild(modifierAdd);
             modifiersElement.appendChild(modifierAddElement);
+
+            for (const modifierName of Object.keys(item.modifiers)) {
+                const modifierValue = item.modifiers[modifierName];
+
+                const newModifier = document.createElement("li");
+                newModifier.className = "single_value";
+                const modifiedStat = document.createElement("select");
+                modifiedStat.className = "stat-select";
+                for (const stat of state.stats.concat(["hp"])) {
+                    const statOption = document.createElement("option");
+                    statOption.innerText = statOption.value = stat;
+                    modifiedStat.appendChild(statOption);
+                }
+                modifiedStat.value = modifierName;
+
+                let previousStatName: string;
+
+                modifiedStat.onfocus = () => {
+                    previousStatName = modifiedStat.value;
+                };
+
+                modifiedStat.onchange = () => {
+                    if (!isNaN(item.modifiers[modifiedStat.value])) {
+                        item.modifiers[modifiedStat.value] +=
+                            modifiedValue.valueAsNumber;
+                    } else {
+                        item.modifiers[modifiedStat.value] =
+                            modifiedValue.valueAsNumber;
+                    }
+
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
+                        ? 1
+                        : modifierRefCount[modifiedStat.value] + 1;
+
+                    if (!isNaN(item.modifiers[previousStatName])) {
+                        item.modifiers[previousStatName] -=
+                            modifiedValue.valueAsNumber;
+                    } else {
+                        item.modifiers[previousStatName] = 0;
+                    }
+                    --modifierRefCount[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete item.modifiers[previousStatName];
+                    }
+                    previousStatName = modifiedStat.value;
+                };
+
+                newModifier.appendChild(modifiedStat);
+                const modifiedValue = document.createElement("input");
+                modifiedValue.type = "number";
+                modifiedValue.value = modifierValue.toString();
+                let previousValue: number;
+                modifiedValue.onfocus = () => {
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                modifiedValue.onchange = () => {
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
+
+                    if (isNaN(item.modifiers[modifiedStat.value])) {
+                        item.modifiers[modifiedStat.value] =
+                            modifiedValue.valueAsNumber;
+                    } else {
+                        item.modifiers[modifiedStat.value] +=
+                            modifiedValue.valueAsNumber - previousValue;
+                    }
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                newModifier.appendChild(modifiedValue);
+
+                const deleteModifier = document.createElement("button");
+                deleteModifier.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+                deleteModifier.onclick = () => {
+                    item.modifiers[modifiedStat.value] -=
+                        modifiedValue.valueAsNumber;
+                    newModifier.remove();
+                };
+                newModifier.appendChild(deleteModifier);
+                modifiersElement.appendChild(newModifier);
+            }
+
             itemSheet.appendChild(modifiersElement);
             newItem.appendChild(itemSheet);
 
@@ -1820,122 +1821,6 @@ const UpdateFields = (): void => {
             const modifiersElement = document.createElement("ul");
             modifiersElement.style.listStyleType = "none";
 
-            for (const modifierName of Object.keys(
-                state.effects[effectName].modifiers
-            )) {
-                const modifierValue =
-                    state.effects[effectName].modifiers[modifierName];
-
-                const newModifier = document.createElement("li");
-                newModifier.className = "single_value";
-                const modifiedStat = document.createElement("select");
-                modifiedStat.className = "stat-select";
-                for (const stat of state.stats.concat(["hp"])) {
-                    const statOption = document.createElement("option");
-                    statOption.innerText = statOption.value = stat;
-                    modifiedStat.appendChild(statOption);
-                }
-                modifiedStat.value = modifierName;
-
-                let previousStatName: string;
-
-                modifiedStat.onfocus = () => {
-                    previousStatName = modifiedStat.value;
-                };
-
-                modifiedStat.onchange = () => {
-                    if (
-                        !isNaN(
-                            state.effects[effectName].modifiers[
-                                modifiedStat.value
-                            ]
-                        )
-                    ) {
-                        state.effects[effectName].modifiers[
-                            modifiedStat.value
-                        ] += modifiedValue.valueAsNumber;
-                    } else {
-                        state.effects[effectName].modifiers[
-                            modifiedStat.value
-                        ] = modifiedValue.valueAsNumber;
-                    }
-
-                    modifierRefCount[modifiedStat.value] = isNaN(
-                        modifierRefCount[modifiedStat.value]
-                    )
-                        ? 1
-                        : modifierRefCount[modifiedStat.value] + 1;
-
-                    if (
-                        !isNaN(
-                            state.effects[effectName].modifiers[
-                                previousStatName
-                            ]
-                        )
-                    ) {
-                        state.effects[effectName].modifiers[previousStatName] -=
-                            modifiedValue.valueAsNumber;
-                    } else {
-                        state.effects[effectName].modifiers[
-                            previousStatName
-                        ] = 0;
-                    }
-                    --modifierRefCount[previousStatName];
-                    if (
-                        modifierRefCount[previousStatName] === 0 ||
-                        isNaN(modifierRefCount[previousStatName])
-                    ) {
-                        delete state.effects[effectName].modifiers[
-                            previousStatName
-                        ];
-                    }
-                    previousStatName = modifiedStat.value;
-                };
-
-                newModifier.appendChild(modifiedStat);
-                const modifiedValue = document.createElement("input");
-                modifiedValue.type = "number";
-                modifiedValue.value = modifierValue.toString();
-                let previousValue: number;
-                modifiedValue.onfocus = () => {
-                    previousValue = modifiedValue.valueAsNumber;
-                };
-                modifiedValue.onchange = () => {
-                    if (isNaN(modifiedValue.valueAsNumber)) return;
-
-                    if (
-                        isNaN(
-                            state.effects[effectName].modifiers[
-                                modifiedStat.value
-                            ]
-                        )
-                    ) {
-                        state.effects[effectName].modifiers[
-                            modifiedStat.value
-                        ] = modifiedValue.valueAsNumber;
-                    } else {
-                        state.effects[effectName].modifiers[
-                            modifiedStat.value
-                        ] += modifiedValue.valueAsNumber - previousValue;
-                    }
-                    previousValue = modifiedValue.valueAsNumber;
-                };
-                newModifier.appendChild(modifiedValue);
-
-                const deleteModifier = document.createElement("button");
-                deleteModifier.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
-            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
-            </svg>`;
-                deleteModifier.onclick = () => {
-                    state.effects[effectName].modifiers[modifiedStat.value] -=
-                        modifiedValue.valueAsNumber;
-                    newModifier.remove();
-                };
-                newModifier.appendChild(deleteModifier);
-                modifiersElement.appendChild(newModifier);
-            }
-
             const modifierAddElement = document.createElement("li");
             const modifierAdd = document.createElement("button");
             modifierAdd.innerText = "Add modifier";
@@ -2075,6 +1960,122 @@ const UpdateFields = (): void => {
             };
             modifierAddElement.appendChild(modifierAdd);
             modifiersElement.appendChild(modifierAddElement);
+
+            for (const modifierName of Object.keys(
+                state.effects[effectName].modifiers
+            )) {
+                const modifierValue =
+                    state.effects[effectName].modifiers[modifierName];
+
+                const newModifier = document.createElement("li");
+                newModifier.className = "single_value";
+                const modifiedStat = document.createElement("select");
+                modifiedStat.className = "stat-select";
+                for (const stat of state.stats.concat(["hp"])) {
+                    const statOption = document.createElement("option");
+                    statOption.innerText = statOption.value = stat;
+                    modifiedStat.appendChild(statOption);
+                }
+                modifiedStat.value = modifierName;
+
+                let previousStatName: string;
+
+                modifiedStat.onfocus = () => {
+                    previousStatName = modifiedStat.value;
+                };
+
+                modifiedStat.onchange = () => {
+                    if (
+                        !isNaN(
+                            state.effects[effectName].modifiers[
+                                modifiedStat.value
+                            ]
+                        )
+                    ) {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] += modifiedValue.valueAsNumber;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] = modifiedValue.valueAsNumber;
+                    }
+
+                    modifierRefCount[modifiedStat.value] = isNaN(
+                        modifierRefCount[modifiedStat.value]
+                    )
+                        ? 1
+                        : modifierRefCount[modifiedStat.value] + 1;
+
+                    if (
+                        !isNaN(
+                            state.effects[effectName].modifiers[
+                                previousStatName
+                            ]
+                        )
+                    ) {
+                        state.effects[effectName].modifiers[previousStatName] -=
+                            modifiedValue.valueAsNumber;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            previousStatName
+                        ] = 0;
+                    }
+                    --modifierRefCount[previousStatName];
+                    if (
+                        modifierRefCount[previousStatName] === 0 ||
+                        isNaN(modifierRefCount[previousStatName])
+                    ) {
+                        delete state.effects[effectName].modifiers[
+                            previousStatName
+                        ];
+                    }
+                    previousStatName = modifiedStat.value;
+                };
+
+                newModifier.appendChild(modifiedStat);
+                const modifiedValue = document.createElement("input");
+                modifiedValue.type = "number";
+                modifiedValue.value = modifierValue.toString();
+                let previousValue: number;
+                modifiedValue.onfocus = () => {
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                modifiedValue.onchange = () => {
+                    if (isNaN(modifiedValue.valueAsNumber)) return;
+
+                    if (
+                        isNaN(
+                            state.effects[effectName].modifiers[
+                                modifiedStat.value
+                            ]
+                        )
+                    ) {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] = modifiedValue.valueAsNumber;
+                    } else {
+                        state.effects[effectName].modifiers[
+                            modifiedStat.value
+                        ] += modifiedValue.valueAsNumber - previousValue;
+                    }
+                    previousValue = modifiedValue.valueAsNumber;
+                };
+                newModifier.appendChild(modifiedValue);
+
+                const deleteModifier = document.createElement("button");
+                deleteModifier.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>`;
+                deleteModifier.onclick = () => {
+                    state.effects[effectName].modifiers[modifiedStat.value] -=
+                        modifiedValue.valueAsNumber;
+                    newModifier.remove();
+                };
+                newModifier.appendChild(deleteModifier);
+                modifiersElement.appendChild(newModifier);
+            }
             effectSheet.appendChild(modifiersElement);
 
             newEffect.appendChild(effectSheet);
