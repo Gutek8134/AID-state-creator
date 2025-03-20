@@ -220,7 +220,7 @@ var UpdateFields = function () {
                         option.text = option.value = itemName;
                         equippedItem.appendChild(option);
                     }
-                    var characterName = (_c = (_b = element.id.match(/([\w\s'])+-equipment/)) === null || _b === void 0 ? void 0 : _b.groups) === null || _c === void 0 ? void 0 : _c[0];
+                    var characterName = (_c = (_b = element.id.match(/([\w\s ']+)-equipment/)) === null || _b === void 0 ? void 0 : _b.groups) === null || _c === void 0 ? void 0 : _c[0];
                     if (!characterName) {
                         console.error("slot parse: character's name could not be found");
                         return "continue";
@@ -1603,7 +1603,7 @@ var main = function () {
             document.getElementById("add_slot").click();
     };
     document.getElementById("add_slot").onclick = function () {
-        var _a, _b, _c;
+        var _a, _b;
         var slotsDiv = document.getElementById("slots");
         var newSlot = document.getElementById("new_slot").value.trim();
         document.getElementById("new_slot").value = "";
@@ -1616,8 +1616,8 @@ var main = function () {
             slots[slots.indexOf(inputElement.value)] = inputElement.value;
         };
         newDiv.appendChild(inputElement);
-        for (var _i = 0, _d = Array.from(document.getElementsByClassName("slot-select")); _i < _d.length; _i++) {
-            var element = _d[_i];
+        for (var _i = 0, _c = Array.from(document.getElementsByClassName("slot-select")); _i < _c.length; _i++) {
+            var element = _c[_i];
             var select = element;
             var option = document.createElement("option");
             option.value = option.text = newSlot;
@@ -1632,8 +1632,8 @@ var main = function () {
             var equippedItem = document.createElement("select");
             equippedItem.className = "item-".concat(newSlot, "-select item-slot-select");
             (_a = itemsBySlot[newSlot]) !== null && _a !== void 0 ? _a : (itemsBySlot[newSlot] = []);
-            for (var _g = 0, _h = itemsBySlot[newSlot]; _g < _h.length; _g++) {
-                var itemName = _h[_g];
+            for (var _f = 0, _g = itemsBySlot[newSlot]; _f < _g.length; _f++) {
+                var itemName = _g[_f];
                 var option_2 = document.createElement("option");
                 option_2.text = option_2.value = itemName;
                 equippedItem.appendChild(option_2);
@@ -1641,7 +1641,7 @@ var main = function () {
             var option = document.createElement("option");
             option.text = option.value = "None";
             equippedItem.appendChild(option);
-            var characterName = (_c = (_b = element.id.match(/([\w\s'])+-equipment/)) === null || _b === void 0 ? void 0 : _b.groups) === null || _c === void 0 ? void 0 : _c[0];
+            var characterName = (_b = element.id.match(/([\w\s ']+)-equipment/)) === null || _b === void 0 ? void 0 : _b[1];
             if (!characterName) {
                 console.error("add slot: character's name could not be found");
                 return "continue";
@@ -1656,8 +1656,8 @@ var main = function () {
             slotElement.appendChild(equippedItem);
             equipment.appendChild(slotElement);
         };
-        for (var _e = 0, _f = Array.from(document.getElementsByClassName("equipment-list")); _e < _f.length; _e++) {
-            var element = _f[_e];
+        for (var _d = 0, _e = Array.from(document.getElementsByClassName("equipment-list")); _d < _e.length; _d++) {
+            var element = _e[_d];
             _loop_17(element);
         }
         var deleteSlot = document.createElement("button");

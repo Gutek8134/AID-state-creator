@@ -365,7 +365,7 @@ const UpdateFields = (): void => {
                         equippedItem.appendChild(option);
                     }
                     const characterName: string | null | undefined =
-                        element.id.match(/([\w\s'])+-equipment/)?.groups?.[0];
+                        element.id.match(/([\w\s ']+)-equipment/)?.groups?.[0];
                     if (!characterName) {
                         console.error(
                             "slot parse: character's name could not be found"
@@ -2255,8 +2255,9 @@ const main = () => {
             const option = document.createElement("option");
             option.text = option.value = "None";
             equippedItem.appendChild(option);
-            const characterName: string | null | undefined =
-                element.id.match(/([\w\s'])+-equipment/)?.groups?.[0];
+            const characterName: string | null | undefined = element.id.match(
+                /([\w\s ']+)-equipment/
+            )?.[1];
             if (!characterName) {
                 console.error("add slot: character's name could not be found");
 
