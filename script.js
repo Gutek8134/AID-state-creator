@@ -200,9 +200,27 @@ var UpdateFields = function () {
                 newDiv_1.className = "single_value";
                 var inputElement_1 = document.createElement("input");
                 inputElement_1.value = item.slot;
+                var previousValue_1 = inputElement_1.value;
                 inputElement_1.onchange = function () {
-                    slots[slots.indexOf(inputElement_1.value)] =
-                        inputElement_1.value;
+                    slots[slots.indexOf(previousValue_1)] = inputElement_1.value;
+                    for (var _i = 0, _a = Array.from(document.getElementsByClassName("slot-select")); _i < _a.length; _i++) {
+                        var element = _a[_i];
+                        var selectElement = element;
+                        for (var _b = 0, _c = Array.from(selectElement.options); _b < _c.length; _b++) {
+                            var option = _c[_b];
+                            if (option.value === previousValue_1) {
+                                option.value = inputElement_1.value;
+                                option.text = inputElement_1.value;
+                            }
+                        }
+                    }
+                    for (var _d = 0, _e = Array.from(document.getElementsByClassName("slot-name-".concat(previousValue_1))); _d < _e.length; _d++) {
+                        var element = _e[_d];
+                        element.innerText =
+                            inputElement_1.value;
+                        element.className = "slot-name-".concat(inputElement_1.value);
+                    }
+                    previousValue_1 = inputElement_1.value;
                 };
                 newDiv_1.appendChild(inputElement_1);
                 var _loop_10 = function (element) {
@@ -722,6 +740,7 @@ var UpdateFields = function () {
                 var slotElement = document.createElement("li");
                 var slotName = document.createElement("p");
                 slotName.innerText = slot;
+                slotName.className = "slot-name-".concat(slot);
                 slotElement.appendChild(slotName);
                 var equippedItem = document.createElement("select");
                 equippedItem.className = "item-".concat(slot, "-select item-slot-select");
@@ -1152,9 +1171,9 @@ var UpdateFields = function () {
                 var modifiedValue = document.createElement("input");
                 modifiedValue.type = "number";
                 modifiedValue.value = modifierValue.toString();
-                var previousValue_1;
+                var previousValue_2;
                 modifiedValue.onfocus = function () {
-                    previousValue_1 = modifiedValue.valueAsNumber;
+                    previousValue_2 = modifiedValue.valueAsNumber;
                 };
                 modifiedValue.onchange = function () {
                     if (isNaN(modifiedValue.valueAsNumber))
@@ -1165,9 +1184,9 @@ var UpdateFields = function () {
                     }
                     else {
                         item.modifiers[modifiedStat.value] +=
-                            modifiedValue.valueAsNumber - previousValue_1;
+                            modifiedValue.valueAsNumber - previousValue_2;
                     }
-                    previousValue_1 = modifiedValue.valueAsNumber;
+                    previousValue_2 = modifiedValue.valueAsNumber;
                 };
                 newModifier.appendChild(modifiedValue);
                 var deleteModifier = document.createElement("button");
@@ -1612,8 +1631,27 @@ var main = function () {
         newDiv.className = "single_value";
         var inputElement = document.createElement("input");
         inputElement.value = newSlot;
+        var previousValue = inputElement.value;
         inputElement.onchange = function () {
-            slots[slots.indexOf(inputElement.value)] = inputElement.value;
+            slots[slots.indexOf(previousValue)] = inputElement.value;
+            for (var _i = 0, _a = Array.from(document.getElementsByClassName("slot-select")); _i < _a.length; _i++) {
+                var element = _a[_i];
+                var selectElement = element;
+                for (var _b = 0, _c = Array.from(selectElement.options); _b < _c.length; _b++) {
+                    var option = _c[_b];
+                    if (option.value === previousValue) {
+                        option.value = inputElement.value;
+                        option.text = inputElement.value;
+                    }
+                }
+            }
+            for (var _d = 0, _e = Array.from(document.getElementsByClassName("slot-name-".concat(previousValue))); _d < _e.length; _d++) {
+                var element = _e[_d];
+                element.innerText =
+                    inputElement.value;
+                element.className = "slot-name-".concat(inputElement.value);
+            }
+            previousValue = inputElement.value;
         };
         newDiv.appendChild(inputElement);
         for (var _i = 0, _c = Array.from(document.getElementsByClassName("slot-select")); _i < _c.length; _i++) {
@@ -1999,6 +2037,7 @@ var main = function () {
                 var slotElement = document.createElement("li");
                 var slotName = document.createElement("p");
                 slotName.innerText = slot;
+                slotName.className = "slot-name-".concat(slot);
                 slotElement.appendChild(slotName);
                 var equippedItem = document.createElement("select");
                 equippedItem.className = "item-".concat(slot, "-select item-slot-select");

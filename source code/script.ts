@@ -340,9 +340,36 @@ const UpdateFields = (): void => {
 
                 const inputElement = document.createElement("input");
                 inputElement.value = item.slot;
+
+                let previousValue = inputElement.value;
                 inputElement.onchange = () => {
-                    slots[slots.indexOf(inputElement.value)] =
-                        inputElement.value;
+                    slots[slots.indexOf(previousValue)] = inputElement.value;
+
+                    for (const element of Array.from(
+                        document.getElementsByClassName("slot-select")
+                    )) {
+                        const selectElement = element as HTMLSelectElement;
+                        for (const option of Array.from(
+                            selectElement.options
+                        )) {
+                            if (option.value === previousValue) {
+                                option.value = inputElement.value;
+                                option.text = inputElement.value;
+                            }
+                        }
+                    }
+
+                    for (const element of Array.from(
+                        document.getElementsByClassName(
+                            `slot-name-${previousValue}`
+                        )
+                    )) {
+                        (element as HTMLParagraphElement).innerText =
+                            inputElement.value;
+                        element.className = `slot-name-${inputElement.value}`;
+                    }
+
+                    previousValue = inputElement.value;
                 };
                 newDiv.appendChild(inputElement);
 
@@ -1047,6 +1074,7 @@ const UpdateFields = (): void => {
 
                 const slotName = document.createElement("p");
                 slotName.innerText = slot;
+                slotName.className = `slot-name-${slot}`;
                 slotElement.appendChild(slotName);
 
                 const equippedItem = document.createElement("select");
@@ -2219,9 +2247,34 @@ const main = () => {
 
         const inputElement = document.createElement("input");
         inputElement.value = newSlot;
+
+        let previousValue = inputElement.value;
         inputElement.onchange = () => {
-            slots[slots.indexOf(inputElement.value)] = inputElement.value;
+            slots[slots.indexOf(previousValue)] = inputElement.value;
+
+            for (const element of Array.from(
+                document.getElementsByClassName("slot-select")
+            )) {
+                const selectElement = element as HTMLSelectElement;
+                for (const option of Array.from(selectElement.options)) {
+                    if (option.value === previousValue) {
+                        option.value = inputElement.value;
+                        option.text = inputElement.value;
+                    }
+                }
+            }
+
+            for (const element of Array.from(
+                document.getElementsByClassName(`slot-name-${previousValue}`)
+            )) {
+                (element as HTMLParagraphElement).innerText =
+                    inputElement.value;
+                element.className = `slot-name-${inputElement.value}`;
+            }
+
+            previousValue = inputElement.value;
         };
+
         newDiv.appendChild(inputElement);
 
         for (const element of Array.from(
@@ -2775,6 +2828,7 @@ const main = () => {
 
                 const slotName = document.createElement("p");
                 slotName.innerText = slot;
+                slotName.className = `slot-name-${slot}`;
                 slotElement.appendChild(slotName);
 
                 const equippedItem = document.createElement("select");
