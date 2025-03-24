@@ -1708,6 +1708,7 @@ const UpdateFields = (): void => {
 
         for (const effectName of Object.keys(state.effects)) {
             const newEffect = document.createElement("div");
+            newEffect.className = "effect";
             const effectSheet = document.createElement("ul");
             effectSheet.className = "effect-sheet";
 
@@ -3349,6 +3350,7 @@ const main = () => {
             );
 
             const newEffect = document.createElement("div");
+            newEffect.className = "effect";
             const effectSheet = document.createElement("ul");
             effectSheet.className = "effect-sheet";
 

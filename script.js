@@ -1240,6 +1240,7 @@ var UpdateFields = function () {
         var effectsDiv = document.getElementById("effects");
         var _loop_9 = function (effectName) {
             var newEffect = document.createElement("div");
+            newEffect.className = "effect";
             var effectSheet = document.createElement("ul");
             effectSheet.className = "effect-sheet";
             var nameElement = document.createElement("li");
@@ -2413,6 +2414,7 @@ var main = function () {
                 "";
             state.effects[newEffectName] = new Effect(newEffectName, [], 5, "attack", "enemy", "on end", false);
             var newEffect = document.createElement("div");
+            newEffect.className = "effect";
             var effectSheet = document.createElement("ul");
             effectSheet.className = "effect-sheet";
             var nameElement = document.createElement("li");
