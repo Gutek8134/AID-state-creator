@@ -3,6 +3,7 @@ body {
     color: whitesmoke;
     font-size: large;
     margin: auto;
+    overflow-x: hidden;
 }
 
 ul {
@@ -26,14 +27,37 @@ div.list {
     padding: 0 0 0 1.2em;
 }
 
-div.list div {
+div.character,
+div.effect,
+div.item {
     display: flex;
+}
+
+div#big-container {
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+div#characters,
+div#effects,
+div#items {
+    display: grid;
+    grid-template-columns: 25% 25% 25% 25%;
 }
 
 div#stats,
 div#slots,
 div#inventory {
-    display: block;
+    padding-right: 5%;
+    display: grid;
+    grid-template-columns: repeat(5, 20%);
+    grid-template-rows: auto;
+}
+
+div#stats div.single_value input,
+div#slots div.single_value input,
+div#inventory div.single_value select {
+    width: calc(100% - 64px);
 }
 
 #errors {
@@ -79,6 +103,8 @@ div.character,
 div.item,
 div.effect {
     float: left;
+    background-color: #2c2d2e;
+    margin: 5%;
 }
 
 div#new_character_wrapper,
