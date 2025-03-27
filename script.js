@@ -501,6 +501,18 @@ var UpdateFields = function () {
             nameParagraph.innerText = characterName;
             nameElement.appendChild(nameParagraph);
             characterSheet.appendChild(nameElement);
+            var hpElement = document.createElement("li");
+            var hpParagraph = document.createElement("p");
+            hpParagraph.innerText = "Current HP: ";
+            var hpInput = document.createElement("input");
+            hpInput.type = "number";
+            hpInput.value = String(state.characters[characterName].hp);
+            hpInput.onchange = function () {
+                state.characters[characterName].hp = hpInput.valueAsNumber;
+            };
+            hpElement.appendChild(hpParagraph);
+            hpElement.appendChild(hpInput);
+            characterSheet.appendChild(hpElement);
             var levelElement = document.createElement("li");
             var levelParagraph = document.createElement("p");
             levelParagraph.innerText = "Level: ";
@@ -856,6 +868,17 @@ var UpdateFields = function () {
             effectsElement.appendChild(effectAddInput);
             effectsElement.appendChild(effectAddButton);
             characterSheet.appendChild(effectsElement);
+            var isNPCElement = document.createElement("li");
+            var isNPCParagraph = document.createElement("p");
+            isNPCParagraph.innerText = "NPC?";
+            isNPCElement.appendChild(isNPCParagraph);
+            var isNPCCheckbox = document.createElement("input");
+            isNPCCheckbox.type = "checkbox";
+            isNPCCheckbox.onchange = function () {
+                return (state.characters[characterName].isNpc = isNPCCheckbox.checked);
+            };
+            isNPCElement.appendChild(isNPCCheckbox);
+            characterSheet.appendChild(isNPCElement);
             newCharacter.appendChild(characterSheet);
             for (var _19 = 0, _20 = Array.from(document.getElementsByClassName("character-select")); _19 < _20.length; _19++) {
                 var element = _20[_19];
@@ -1276,7 +1299,7 @@ var UpdateFields = function () {
             effectSheet.appendChild(applyUniqueElement);
             var appliedOnElement = document.createElement("li");
             var appliedOnParagraph = document.createElement("p");
-            appliedOnParagraph.innerText = "Applied on: ";
+            appliedOnParagraph.innerText = "Application trigger: ";
             appliedOnElement.appendChild(appliedOnParagraph);
             var appliedOnInput = document.createElement("select");
             for (var _36 = 0, _37 = [
@@ -1308,7 +1331,7 @@ var UpdateFields = function () {
             effectSheet.appendChild(appliedOnElement);
             var appliedToElement = document.createElement("li");
             var appliedToParagraph = document.createElement("p");
-            appliedToParagraph.innerText = "Applied to: ";
+            appliedToParagraph.innerText = "Effect target: ";
             appliedToElement.appendChild(appliedToParagraph);
             var appliedToInput = document.createElement("select");
             for (var _38 = 0, _39 = ["enemy", "self"]; _38 < _39.length; _38++) {
@@ -1333,7 +1356,7 @@ var UpdateFields = function () {
             effectSheet.appendChild(appliedToElement);
             var impactElement = document.createElement("li");
             var impactParagraph = document.createElement("p");
-            impactParagraph.innerText = "Impact: ";
+            impactParagraph.innerText = "Impact time: ";
             impactElement.appendChild(impactParagraph);
             var impactInput = document.createElement("select");
             for (var _40 = 0, _41 = ["on end", "continuous", "every turn"]; _40 < _41.length; _40++) {
@@ -1874,6 +1897,18 @@ var main = function () {
             nameParagraph.innerText = newCharacterName;
             nameElement.appendChild(nameParagraph);
             characterSheet.appendChild(nameElement);
+            var hpElement = document.createElement("li");
+            var hpParagraph = document.createElement("p");
+            hpParagraph.innerText = "Current HP: ";
+            var hpInput = document.createElement("input");
+            hpInput.type = "number";
+            hpInput.value = String(state.characters[newCharacterName].hp);
+            hpInput.onchange = function () {
+                state.characters[newCharacterName].hp = hpInput.valueAsNumber;
+            };
+            hpElement.appendChild(hpParagraph);
+            hpElement.appendChild(hpInput);
+            characterSheet.appendChild(hpElement);
             var levelElement = document.createElement("li");
             var levelParagraph = document.createElement("p");
             levelParagraph.innerText = "Level: ";
@@ -2118,6 +2153,18 @@ var main = function () {
             effectsElement.appendChild(effectAddInput);
             effectsElement.appendChild(effectAddButton);
             characterSheet.appendChild(effectsElement);
+            var isNPCElement = document.createElement("li");
+            var isNPCParagraph = document.createElement("p");
+            isNPCParagraph.innerText = "NPC?";
+            isNPCElement.appendChild(isNPCParagraph);
+            var isNPCCheckbox = document.createElement("input");
+            isNPCCheckbox.type = "checkbox";
+            isNPCCheckbox.onchange = function () {
+                return (state.characters[newCharacterName].isNpc =
+                    isNPCCheckbox.checked);
+            };
+            isNPCElement.appendChild(isNPCCheckbox);
+            characterSheet.appendChild(isNPCElement);
             newCharacter.appendChild(characterSheet);
             for (var _b = 0, _c = Array.from(document.getElementsByClassName("character-select")); _b < _c.length; _b++) {
                 var element = _c[_b];
@@ -2449,7 +2496,7 @@ var main = function () {
             effectSheet.appendChild(applyUniqueElement);
             var appliedOnElement = document.createElement("li");
             var appliedOnParagraph = document.createElement("p");
-            appliedOnParagraph.innerText = "Applied on: ";
+            appliedOnParagraph.innerText = "Application trigger: ";
             appliedOnElement.appendChild(appliedOnParagraph);
             var appliedOnInput = document.createElement("select");
             for (var _i = 0, _a = [
@@ -2481,7 +2528,7 @@ var main = function () {
             effectSheet.appendChild(appliedOnElement);
             var appliedToElement = document.createElement("li");
             var appliedToParagraph = document.createElement("p");
-            appliedToParagraph.innerText = "Applied to: ";
+            appliedToParagraph.innerText = "Effect target: ";
             appliedToElement.appendChild(appliedToParagraph);
             var appliedToInput = document.createElement("select");
             for (var _b = 0, _c = ["enemy", "self"]; _b < _c.length; _b++) {
@@ -2506,7 +2553,7 @@ var main = function () {
             effectSheet.appendChild(appliedToElement);
             var impactElement = document.createElement("li");
             var impactParagraph = document.createElement("p");
-            impactParagraph.innerText = "Impact: ";
+            impactParagraph.innerText = "Impact time: ";
             impactElement.appendChild(impactParagraph);
             var impactInput = document.createElement("select");
             for (var _d = 0, _e = ["on end", "continuous", "every turn"]; _d < _e.length; _d++) {
@@ -2661,9 +2708,15 @@ var main = function () {
             state_text.value = JSON.stringify(state);
             UpdateFields();
         };
-    document.getElementById("serialize").onclick = function () {
-        return (state_text.value = JSON.stringify(state));
-    };
+    document.getElementById("serialize").onclick =
+        function () {
+            var out = document.getElementById("out");
+            if (!out.value) {
+                state.out = out.value =
+                    "\nState was set correctly. State created with AID State Creator.";
+            }
+            state_text.value = JSON.stringify(state);
+        };
     document.getElementById("deserialize").onclick =
         function () { return ParseState(state_text.value); };
     UpdateFields();

@@ -721,6 +721,19 @@ const UpdateFields = (): void => {
             nameElement.appendChild(nameParagraph);
             characterSheet.appendChild(nameElement);
 
+            const hpElement = document.createElement("li");
+            const hpParagraph = document.createElement("p");
+            hpParagraph.innerText = "Current HP: ";
+            const hpInput = document.createElement("input");
+            hpInput.type = "number";
+            hpInput.value = String(state.characters[characterName].hp);
+            hpInput.onchange = () => {
+                state.characters[characterName].hp = hpInput.valueAsNumber;
+            };
+            hpElement.appendChild(hpParagraph);
+            hpElement.appendChild(hpInput);
+            characterSheet.appendChild(hpElement);
+
             const levelElement = document.createElement("li");
             const levelParagraph = document.createElement("p");
             levelParagraph.innerText = "Level: ";
@@ -1219,6 +1232,17 @@ const UpdateFields = (): void => {
             effectsElement.appendChild(effectAddInput);
             effectsElement.appendChild(effectAddButton);
             characterSheet.appendChild(effectsElement);
+
+            const isNPCElement = document.createElement("li");
+            const isNPCParagraph = document.createElement("p");
+            isNPCParagraph.innerText = "NPC?";
+            isNPCElement.appendChild(isNPCParagraph);
+            const isNPCCheckbox = document.createElement("input");
+            isNPCCheckbox.type = "checkbox";
+            isNPCCheckbox.onchange = () =>
+                (state.characters[characterName].isNpc = isNPCCheckbox.checked);
+            isNPCElement.appendChild(isNPCCheckbox);
+            characterSheet.appendChild(isNPCElement);
 
             newCharacter.appendChild(characterSheet);
 
@@ -1750,7 +1774,7 @@ const UpdateFields = (): void => {
 
             const appliedOnElement = document.createElement("li");
             const appliedOnParagraph = document.createElement("p");
-            appliedOnParagraph.innerText = "Applied on: ";
+            appliedOnParagraph.innerText = "Application trigger: ";
             appliedOnElement.appendChild(appliedOnParagraph);
             const appliedOnInput = document.createElement("select");
             for (const option of [
@@ -1786,7 +1810,7 @@ const UpdateFields = (): void => {
 
             const appliedToElement = document.createElement("li");
             const appliedToParagraph = document.createElement("p");
-            appliedToParagraph.innerText = "Applied to: ";
+            appliedToParagraph.innerText = "Effect target: ";
             appliedToElement.appendChild(appliedToParagraph);
             const appliedToInput = document.createElement("select");
             for (const option of ["enemy", "self"]) {
@@ -1815,7 +1839,7 @@ const UpdateFields = (): void => {
 
             const impactElement = document.createElement("li");
             const impactParagraph = document.createElement("p");
-            impactParagraph.innerText = "Impact: ";
+            impactParagraph.innerText = "Impact time: ";
             impactElement.appendChild(impactParagraph);
             const impactInput = document.createElement("select");
             for (const option of ["on end", "continuous", "every turn"]) {
@@ -2595,6 +2619,19 @@ const main = () => {
             nameElement.appendChild(nameParagraph);
             characterSheet.appendChild(nameElement);
 
+            const hpElement = document.createElement("li");
+            const hpParagraph = document.createElement("p");
+            hpParagraph.innerText = "Current HP: ";
+            const hpInput = document.createElement("input");
+            hpInput.type = "number";
+            hpInput.value = String(state.characters[newCharacterName].hp);
+            hpInput.onchange = () => {
+                state.characters[newCharacterName].hp = hpInput.valueAsNumber;
+            };
+            hpElement.appendChild(hpParagraph);
+            hpElement.appendChild(hpInput);
+            characterSheet.appendChild(hpElement);
+
             const levelElement = document.createElement("li");
             const levelParagraph = document.createElement("p");
             levelParagraph.innerText = "Level: ";
@@ -2934,6 +2971,18 @@ const main = () => {
             effectsElement.appendChild(effectAddInput);
             effectsElement.appendChild(effectAddButton);
             characterSheet.appendChild(effectsElement);
+
+            const isNPCElement = document.createElement("li");
+            const isNPCParagraph = document.createElement("p");
+            isNPCParagraph.innerText = "NPC?";
+            isNPCElement.appendChild(isNPCParagraph);
+            const isNPCCheckbox = document.createElement("input");
+            isNPCCheckbox.type = "checkbox";
+            isNPCCheckbox.onchange = () =>
+                (state.characters[newCharacterName].isNpc =
+                    isNPCCheckbox.checked);
+            isNPCElement.appendChild(isNPCCheckbox);
+            characterSheet.appendChild(isNPCElement);
 
             newCharacter.appendChild(characterSheet);
 
@@ -3391,7 +3440,7 @@ const main = () => {
 
             const appliedOnElement = document.createElement("li");
             const appliedOnParagraph = document.createElement("p");
-            appliedOnParagraph.innerText = "Applied on: ";
+            appliedOnParagraph.innerText = "Application trigger: ";
             appliedOnElement.appendChild(appliedOnParagraph);
             const appliedOnInput = document.createElement("select");
             for (const option of [
@@ -3427,7 +3476,7 @@ const main = () => {
 
             const appliedToElement = document.createElement("li");
             const appliedToParagraph = document.createElement("p");
-            appliedToParagraph.innerText = "Applied to: ";
+            appliedToParagraph.innerText = "Effect target: ";
             appliedToElement.appendChild(appliedToParagraph);
             const appliedToInput = document.createElement("select");
             for (const option of ["enemy", "self"]) {
@@ -3456,7 +3505,7 @@ const main = () => {
 
             const impactElement = document.createElement("li");
             const impactParagraph = document.createElement("p");
-            impactParagraph.innerText = "Impact: ";
+            impactParagraph.innerText = "Impact time: ";
             impactElement.appendChild(impactParagraph);
             const impactInput = document.createElement("select");
             for (const option of ["on end", "continuous", "every turn"]) {
@@ -3681,8 +3730,15 @@ const main = () => {
             UpdateFields();
         };
 
-    (document.getElementById("serialize") as HTMLButtonElement).onclick = () =>
-        (state_text.value = JSON.stringify(state));
+    (document.getElementById("serialize") as HTMLButtonElement).onclick =
+        () => {
+            let out = document.getElementById("out") as HTMLTextAreaElement;
+            if (!out.value) {
+                state.out = out.value =
+                    "\nState was set correctly. State created with AID State Creator.";
+            }
+            state_text.value = JSON.stringify(state);
+        };
     (document.getElementById("deserialize") as HTMLButtonElement).onclick =
         () => ParseState(state_text.value);
     UpdateFields();
