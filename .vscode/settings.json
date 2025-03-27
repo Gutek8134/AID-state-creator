@@ -1,8 +1,0 @@
-{
-  "[python]": {
-    "gitlens.codeLens.symbolScopes": ["!Module"],
-    "editor.wordBasedSuggestions": false,
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "ms-python.python"
-  }
-}

@@ -1,0 +1,114 @@
+body {
+    background-color: #424344;
+    color: whitesmoke;
+    font-size: large;
+    margin: auto;
+    overflow-x: hidden;
+}
+
+ul {
+    list-style: none;
+}
+
+p {
+    width: fit-content;
+    margin: 0px 10px;
+}
+
+button {
+    display: inline;
+}
+
+div.single_value {
+    padding: 1.2em 0 0 1.2em;
+}
+
+div.list {
+    padding: 0 0 0 1.2em;
+}
+
+div.character,
+div.effect,
+div.item {
+    display: flex;
+}
+
+div#big-container {
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+div#characters,
+div#effects,
+div#items {
+    display: grid;
+    grid-template-columns: 25% 25% 25% 25%;
+}
+
+div#stats,
+div#slots,
+div#inventory {
+    padding-right: 5%;
+    display: grid;
+    grid-template-columns: repeat(5, 20%);
+    grid-template-rows: auto;
+}
+
+div#stats div.single_value input,
+div#slots div.single_value input,
+div#inventory div.single_value select {
+    width: calc(100% - 64px);
+}
+
+#errors {
+    color: red;
+}
+
+div#textareas {
+    height: auto;
+    width: 96vw;
+    overflow: hidden;
+    text-align: center;
+    justify-content: space-between;
+    padding: 0 2vw;
+    display: flex;
+}
+
+div#textareas div.single_value {
+    display: block;
+    padding: 0;
+}
+
+ul.character-sheet,
+ul.item-sheet,
+ul.effect-sheet,
+ul.equipment-list {
+    list-style-type: none;
+}
+
+div.equipment-list div.single_value,
+div.list div.single_value {
+    margin: 0.3em 0 0 0.8em;
+    padding: 0;
+}
+
+div.characters,
+div.items,
+div.effects {
+    width: 96vw;
+    padding: 0 2vw;
+}
+
+div.character,
+div.item,
+div.effect {
+    float: left;
+    background-color: #2c2d2e;
+    margin: 5%;
+}
+
+div#new_character_wrapper,
+div#new_item_wrapper,
+div#new_effect_wrapper {
+    clear: both;
+}

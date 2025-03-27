@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "module": "CommonJS",
+        "lib": [
+            "es2019",
+            "DOM"
+        ],
+        "allowUnreachableCode": false,
+        "exactOptionalPropertyTypes": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "resolveJsonModule": true,
+        "strict": true,
+        "outDir": ".."
+    },
+    "include": [
+        "script.ts"
+    ],
+    "exclude": []
+}
