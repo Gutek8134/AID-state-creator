@@ -10,7 +10,7 @@ Should work on the following:
 -   Opera 50 or newer
     but I've only tested it with Firefox. Create an issue if something seems wrong on your browser.
 
-WARNING: Current version isn't compatible with AID dice rolling items update.
+Current version is compatible with AID dice rolling items update.
 
 # Values
 
